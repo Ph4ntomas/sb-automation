@@ -5,7 +5,7 @@
   "shortdescription" : "Combustion Generator",
   "race" : "generic",
   "price" : 200,
-  "objectType" : "wire",
+  "category" : "wire",
   "printable" : false,
 
   "breakDropOptions": [],
@@ -23,7 +23,7 @@
     }
   ],
 
-  "scripts" : [ "/scripts/energy.lua", "basicgenerator.lua" ],
+  "scripts" : [ "/scripts/sfenergy.lua", "basicgenerator.lua" ],
   "scriptDelta" : 10,
 
   "animation" : "basicgenerator.animation",

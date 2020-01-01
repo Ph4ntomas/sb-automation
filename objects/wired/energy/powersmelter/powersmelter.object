@@ -5,7 +5,7 @@
   "shortdescription" : "Power Smelter",
   "race" : "generic",
   "price" : 200,
-  "objectType" : "wire",
+  "category" : "wire",
   "printable" : false,
 
   "inventoryIcon" : "powersmelter.png:idle",
@@ -22,7 +22,7 @@
 
   "scripts" : [ 
     "/scripts/datawire.lua",
-    "/scripts/energy.lua",
+    "/scripts/sfenergy.lua",
     "powersmelter.lua",
     "/scripts/pipes/itempipes.lua",
     "/scripts/pipesapi.lua",

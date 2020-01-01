@@ -1,0 +1,69 @@
+{
+  "objectName" : "sfrelay",
+  "rarity" : "Common",
+  "description" : "Transfers energy between devices within range.",
+  "shortdescription" : "Energy Relay",
+  "race" : "generic",
+  "category" : "wire",
+  "price" : 1000,
+  "printable" : false,
+
+  "inventoryIcon" : "sfrelayicon.png",
+
+  "orientations" : [
+    {
+      //DUMMY ORIENTATION USED FOR PLACEMENT PREVIEW
+      "relayType" : "air",
+
+      "image" : "sfrelay.png:air",
+
+      "collision" : "solid",
+      "anchors" : [ "left", "right", "top", "bottom" ],
+      "direction" : "right",
+
+      "energyCollisionBlocks" : [ [0, 0] ]
+    },
+    {
+      "relayType" : "wall",
+
+      "image" : "sfrelay.png:wall",
+
+      "collision" : "solid",
+      "anchors" : [ "left", "right" ],
+      "direction" : "right",
+
+      "energyCollisionBlocks" : [ [0, 0] ]
+    },
+    {
+      "relayType" : "wall",
+
+      "image" : "sfrelay.png:wall",
+
+      "collision" : "solid",
+      "anchors" : [ "top", "bottom" ],
+      "direction" : "right",
+
+      "energyCollisionBlocks" : [ [0, 0] ]
+    },
+    {
+      "relayType" : "air",
+
+      "image" : "sfrelay.png:air",
+
+      "anchors" : [ ],
+      "direction" : "right"
+    }
+  ],
+
+  "scripts" : [ "/scripts/sfenergy.lua", "sfrelay.lua" ],
+  "scriptDelta" : 5,
+
+  "spaceScan" : 0.5,
+  "imagePosition" : [0, 0],
+
+  "animation" : "sfrelay.animation",
+  "animationParts" : {
+    "relay" : "sfrelay.png"
+  },
+  "animationPosition" : [0, 0]
+}

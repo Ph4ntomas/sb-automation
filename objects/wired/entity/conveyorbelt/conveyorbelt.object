@@ -23,7 +23,7 @@
 
   "inboundNodes" : [ [0, 0] ],
 
-  "scripts" : [ "conveyorbelt.lua", "/scripts/entityProxy.lua", "/scripts/energy.lua" ],
+  "scripts" : [ "conveyorbelt.lua", "/scripts/entityProxy.lua", "/scripts/sfenergy.lua" ],
   "scriptDelta" : 5,
 
   "animation" : "conveyorbelt.animation",

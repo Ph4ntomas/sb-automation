@@ -1,5 +1,13 @@
 {
-  "script" : "ptmagnetize.lua",
+  "name" : "ptmagnetize",
+  "type" : "body",
+
+  "description" : "...",
+  "shortDescription" : "..",
+  "rarity" : "Uncommon",
+  "icon" : "/tech/dash.png",
+
+  "scripts" : [ "ptmagnetize.lua" ],
   "actions" : [ "magnetizeActivate", "magnetizeDeactivate", "magnetizeReverse" ],
   "animator" : "ptmagnetize.animation",
 

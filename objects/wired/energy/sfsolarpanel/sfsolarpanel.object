@@ -1,0 +1,43 @@
+{
+  "objectName" : "sfsolarpanel",
+  "rarity" : "Common",
+  "description" : "Generates energy without the waste of resources.",
+  "shortdescription" : "Solar Panel",
+  "race" : "generic",
+  "category" : "wire",
+  "price" : 2000,
+
+  "apexDescription" : "todo",
+  "avianDescription" : "todo",
+  "floranDescription" : "todo",
+  "glitchDescription" : "todo",
+  "humanDescription" : "todo",
+  "hylotlDescription" : "todo",
+
+  "inventoryIcon" : "sfsolarpanelicon.png",
+  "orientations" : [
+    {
+      "dualImage" : "sfsolarpanel.png:solar.on",
+      "imagePosition" : [-16, 0],
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ]
+    }
+  ],
+  "animation" : "sfsolarpanel.animation",
+  "animationParts" : {
+    "solar" : "sfsolarpanel.png"
+  },
+  "animationPosition" : [-16, 0],
+
+  "scripts" : [
+    "/scripts/sfenergy.lua",
+    "sfsolarpanel.lua"
+  ],
+  "scriptDelta" : 120,
+
+  "lightLevelThreshold" : 0.5,
+  "energySendRate" : 1,
+  "energyGenerationRate" : 1,
+  "energyCapacity" : 20
+}

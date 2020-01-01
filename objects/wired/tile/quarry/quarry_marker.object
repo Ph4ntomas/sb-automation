@@ -12,7 +12,7 @@
 
   "statusEffects" : [
     {
-      "kind" : "Warmth",
+      "stat" : "Warmth",
       "amount" : 8,
       "range" : 4
     } ],

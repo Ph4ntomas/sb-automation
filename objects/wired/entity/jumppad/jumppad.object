@@ -21,7 +21,7 @@
     }
   ],
 
-  "scripts" : [ "jumppad.lua", "/scripts/entityProxy.lua", "/scripts/energy.lua" ],
+  "scripts" : [ "jumppad.lua", "/scripts/entityProxy.lua", "/scripts/sfenergy.lua" ],
   "scriptDelta" : 1,
 
   "animation" : "jumppad.animation",

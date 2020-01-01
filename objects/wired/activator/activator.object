@@ -1,6 +1,6 @@
 {
   "objectName" : "activator",
-  "objectType" : "wire",
+  "category" : "wire",
   "printable" : false,
   "rarity" : "Common",
   "price" : 300,

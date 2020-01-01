@@ -1,0 +1,46 @@
+{
+  "objectName" : "sfbatterycharger",
+  "rarity" : "Common",
+  "description" : "Connects batteries to the energy network for charging or discharging.",
+  "shortdescription" : "Battery Rack",
+  "race" : "generic",
+  "price" : 200,
+  "category" : "wire",
+  "printable" : false,
+
+  "inventoryIcon" : "sfbatterychargericon.png",
+  "orientations" : [
+    {
+      "image" : "sfbatterycharger.png:off",
+      "imagePosition" : [-8, 0],
+
+      "spaces" : [ [-1, 3], [0, 3], [1, 3], [-1, 0], [0, 0], [1, 0] ],
+      "anchors" : [ "bottom" ],
+      "direction" : "right",
+      "collision" : "platform"
+    },
+    {
+      "image" : "sfbatterycharger.png:off",
+      "imagePosition" : [-8, 0],
+
+      "spaces" : [ [-1, 3], [0, 3], [1, 3], [-1, 0], [0, 0], [1, 0] ],
+      "anchors" : [ "background" ],
+      "direction" : "right"
+    }
+  ],
+
+  "scripts" : [ "/scripts/datawire.lua", "/scripts/sfenergy.lua", "sfbatterycharger.lua" ],
+  "scriptDelta" : 10,
+
+  "animation" : "sfbatterycharger.animation",
+  "animationParts" : {
+    "charger" : "sfbatterycharger.png"
+  },
+  "animationPosition" : [-8, 0],
+
+  "outputNodes" : [ [0, 3], [0, 0] ],
+
+  "energySendRate" : 40,
+  "energyCapacity" : 20,
+  "energyNodeOffset" : [0.5, 3.5]
+}

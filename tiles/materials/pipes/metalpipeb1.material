@@ -8,5 +8,6 @@
   "shortdescription" : "Pipe",
   "itemDrop" : "metalpipeb1",
   "description" : "It's cold to the touch",
-  "health" : 1
+  "health" : 1,
+  "category" : "pipes"
 }

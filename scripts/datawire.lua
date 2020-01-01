@@ -2,8 +2,8 @@ datawire = {}
 
 --- this should be called by the implementing object in its own init()
 function datawire.init()
-  datawire.inboundConnections = {}
-  datawire.outboundConnections = {}
+  datawire.inputConnections = {}
+  datawire.outputConnections = {}
 
   datawire.initialized = false
 end
@@ -31,47 +31,47 @@ function datawire.initAfterLoading()
   datawire.initialized = true
 end
 
---- Creates connection tables for inbound and outbound nodes
+--- Creates connection tables for input and output nodes
 function datawire.createConnectionTable()
-  datawire.outboundConnections = {}
+  datawire.outputConnections = {}
   local i = 0
-  while i < entity.outboundNodeCount() do
-    local connInfo = entity.getOutboundNodeIds(i)
+  while i < object.outputNodeCount() do
+    local connInfo = object.getOutputNodeIds(i)
     local entityIds = {}
     for k, v in pairs(connInfo) do
-      entityIds[#entityIds + 1] = v[1]
+      entityIds[#entityIds + 1] = k
     end
-    datawire.outboundConnections[i] = entityIds
+    datawire.outputConnections[i] = entityIds
     i = i + 1
   end
 
-  datawire.inboundConnections = {}
+  datawire.inputConnections = {}
   local connInfos
   i = 0
-  while i < entity.inboundNodeCount() do
-    connInfos = entity.getInboundNodeIds(i)
+  while i < object.inputNodeCount() do
+    connInfos = object.getInputNodeIds(i)
     for j, connInfo in ipairs(connInfos) do
-      datawire.inboundConnections[connInfo[1]] = i
+      datawire.inputConnections[connInfo[1]] = i
     end
     i = i + 1
   end
 
-  --world.logInfo(string.format("%s (id %d) created connection tables for %d outbound and %d inbound nodes", entity.configParameter("objectName"), entity.id(), entity.outboundNodeCount(), entity.inboundNodeCount()))
-  --world.logInfo("outbound: %s", datawire.outboundConnections)
-  --world.logInfo("inbound: %s", datawire.inboundConnections)
+  --world.logInfo(string.format("%s (id %d) created connection tables for %d output and %d input nodes", config.getParameter("objectName"), entity.id(), object.outputNodeCount(), object.inputNodeCount()))
+  --world.logInfo("output: %s", datawire.outputConnections)
+  --world.logInfo("input: %s", datawire.inputConnections)
 end
 
---- determine whether there is a valid recipient on the specified outbound node
+--- determine whether there is a valid recipient on the specified output node
 -- @param nodeId the node to be queried
 -- @returns true if there is a recipient connected to the node
-function datawire.isOutboundNodeConnected(nodeId)
-  return datawire.outboundConnections and datawire.outboundConnections[nodeId] and #datawire.outboundConnections[nodeId] > 0
+function datawire.isOutputNodeConnected(nodeId)
+  return datawire.outputConnections and datawire.outputConnections[nodeId] and #datawire.outputConnections[nodeId] > 0
 end
 
 --- Sends data to another datawire object
 -- @param data the data to be sent
 -- @param dataType the data type to be sent ("boolean", "number", "string", "area", etc.)
--- @param nodeId the outbound node id to send to, or "all" for all outbound nodes
+-- @param nodeId the output node id to send to, or "all" for all output nodes
 -- @returns true if at least one object successfully received the data
 function datawire.sendData(data, dataType, nodeId)
   -- don't transmit if connection tables haven't been built
@@ -82,23 +82,25 @@ function datawire.sendData(data, dataType, nodeId)
   local transmitSuccess = false
 
   if nodeId == "all" then
-    for k, v in pairs(datawire.outboundConnections) do
+    for k, v in pairs(datawire.outputConnections) do
       transmitSuccess = datawire.sendData(data, dataType, k) or transmitSuccess
     end
   else
-    if datawire.outboundConnections[nodeId] and #datawire.outboundConnections[nodeId] > 0 then 
-      for i, entityId in ipairs(datawire.outboundConnections[nodeId]) do
+    if datawire.outputConnections[nodeId] and #datawire.outputConnections[nodeId] > 0 then 
+      for i, entityId in ipairs(datawire.outputConnections[nodeId]) do
         if entityId ~= entity.id() then
           transmitSuccess = world.callScriptedEntity(entityId, "datawire.receiveData", { data, dataType, entity.id() }) or transmitSuccess
         end
       end
+    --else
+        --sb.logInfo("wtf : " .. sb.print(datawire))
     end
   end
 
-  -- if not transmitSuccess then
-  --   world.logInfo(string.format("DataWire: %s (id %d) FAILED to send data of type %s", entity.configParameter("objectName"), entity.id(), dataType))
-  --   world.logInfo(data)
-  -- end
+  --if not transmitSuccess then
+    --sb.logInfo(string.format("DataWire: %s (id %d) FAILED to send data of type %s", config.getParameter("objectName"), entity.id(), dataType))
+    --sb.logInfo(data)
+  --end
 
   return transmitSuccess
 end
@@ -114,16 +116,16 @@ function datawire.receiveData(args)
   local dataType = args[2]
   local sourceEntityId = args[3]
 
-  -- world.logInfo("%s %d sent me this %s %s", world.callScriptedEntity(sourceEntityId, "entity.configParameter", "objectName"), sourceEntityId, dataType, data)
+  --sb.logInfo("%s %d sent me this %s %s", world.callScriptedEntity(sourceEntityId, "config.getParameter", "objectName"), sourceEntityId, dataType, data)
 
   --convert entityId to nodeId
-  local nodeId = datawire.inboundConnections[sourceEntityId]
+  local nodeId = datawire.inputConnections[sourceEntityId]
 
   if nodeId == nil then
-    -- if datawire.initialized then
-    --   world.logInfo("DataWire: %s received data of type %s from UNRECOGNIZED %s %d, not in table:", entity.configParameter("objectName"), dataType, world.callScriptedEntity(sourceEntityId, "entity.configParameter", "objectName"), sourceEntityId)
-    --   world.logInfo("%s", datawire.inboundConnections)
-    -- end
+    if datawire.initialized then
+      world.logInfo("DataWire: %s received data of type %s from UNRECOGNIZED %s %d, not in table:", config.getParameter("objectName"), dataType, world.callScriptedEntity(sourceEntityId, "config.getParameter", "objectName"), sourceEntityId)
+      world.logInfo("%s", datawire.inputConnections)
+    end
 
     return false
   elseif validateData and validateData(data, dataType, nodeId, sourceEntityId) then
@@ -131,11 +133,11 @@ function datawire.receiveData(args)
       onValidDataReceived(data, dataType, nodeId, sourceEntityId)
     end
 
-    -- world.logInfo(string.format("DataWire: %s received data of type %s from %d", entity.configParameter("objectName"), dataType, sourceEntityId))
+    --sb.logInfo(string.format("DataWire: %s received data of type %s from %d", config.getParameter("objectName"), dataType, sourceEntityId))
 
     return true
   else
-    -- world.logInfo("DataWire: %s received INVALID data of type %s from entity %d: %s", entity.configParameter("objectName"), dataType, sourceEntityId, data)
+    --sb.logInfo("DataWire: %s received INVALID data of type %s from entity %d: %s", config.getParameter("objectName"), dataType, sourceEntityId, data)
     
     return false
   end

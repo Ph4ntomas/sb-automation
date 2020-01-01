@@ -48,7 +48,7 @@
   ],
 
   "scripts" : [ 
-    "/scripts/energy.lua",
+    "/scripts/sfenergy.lua",
     "/scripts/pipes/liquidpipes.lua",
     "/scripts/pipesapi.lua",
     "thermogenerator.lua"

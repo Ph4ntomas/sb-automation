@@ -22,7 +22,7 @@
     }
   ],
 
-  "scripts" : [ "oremagnet.lua", "/scripts/energy.lua" ],
+  "scripts" : [ "oremagnet.lua", "/scripts/sfenergy.lua" ],
   "scriptDelta" : 5,
 
   "animation" : "oremagnet.animation",

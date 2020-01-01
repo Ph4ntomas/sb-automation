@@ -5,7 +5,7 @@
   "shortdescription" : "Advanced Generator",
   "race" : "generic",
   "price" : 200,
-  "objectType" : "wire",
+  "category" : "wire",
   "printable" : false,
 
   "inventoryIcon" : "advancedgeneratoricon.png",
@@ -22,7 +22,7 @@
 
   "scripts" : [
     "/scripts/datawire.lua",
-    "/scripts/energy.lua",
+    "/scripts/sfenergy.lua",
     "advancedgenerator.lua",
     "/scripts/pipes/itempipes.lua",
     "/scripts/pipesapi.lua",

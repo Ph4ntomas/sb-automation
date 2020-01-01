@@ -36,7 +36,7 @@
     "/scripts/pipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua",
-    "/scripts/energy.lua"
+    "/scripts/sfenergy.lua"
   ],
   "scriptDelta" : 5,
   

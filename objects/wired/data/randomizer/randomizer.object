@@ -1,6 +1,6 @@
 {
   "objectName" : "randomizer",
-  "objectType" : "wire",
+  "category" : "wire",
   "printable" : false,
   "rarity" : "Common",
 

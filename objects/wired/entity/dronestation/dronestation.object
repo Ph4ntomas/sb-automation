@@ -34,7 +34,7 @@
     "/scripts/pipes/itempipes.lua",
     "/scripts/pipesapi.lua",
     "/scripts/storageapi.lua",
-    "/scripts/energy.lua",
+    "/scripts/sfenergy.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],

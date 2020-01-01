@@ -23,7 +23,7 @@
 
   "inboundNodes" : [ [0, 0] ],
 
-  "scripts" : [ "levitationpad.lua", "/scripts/entityProxy.lua", "/scripts/energy.lua" ],
+  "scripts" : [ "levitationpad.lua", "/scripts/entityProxy.lua", "/scripts/sfenergy.lua" ],
   "scriptDelta" : 1,
 
   "animation" : "levitationpad.animation",

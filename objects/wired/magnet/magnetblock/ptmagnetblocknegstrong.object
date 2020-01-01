@@ -21,7 +21,7 @@
     }
   ],
 
-  "scripts" : [ "/scripts/energy.lua", "/scripts/entityProxy.lua", "/scripts/magnets.lua", "ptmagnetblock.lua" ],
+  "scripts" : [ "/scripts/sfenergy.lua", "/scripts/entityProxy.lua", "/scripts/magnets.lua", "ptmagnetblock.lua" ],
   "scriptDelta" : 5,
 
   "animation" : "ptmagnetblock.animation",

@@ -23,7 +23,7 @@
 
   "scripts" : [
     "/scripts/datawire.lua",
-    "/scripts/energy.lua",
+    "/scripts/sfenergy.lua",
     "/scripts/stateMachine.lua",
     "quarry.lua",
     "/scripts/pipes/itempipes.lua",
