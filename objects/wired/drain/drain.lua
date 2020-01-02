@@ -29,7 +29,7 @@ function drain()
 end
 
 function main()
-  if not entity.isInboundNodeConnected(0) or entity.getInboundNodeLevel(0) then
+  if not entity.isInputNodeConnected(0) or entity.getInputNodeLevel(0) then
     output(true)
     drain()
   else

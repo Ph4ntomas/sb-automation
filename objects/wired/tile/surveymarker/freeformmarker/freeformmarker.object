@@ -30,7 +30,7 @@
   },
   "animationPosition" : [0, 0],
 
-  "outboundNodes" : [ [0, 0] ],
+  "outputNodes" : [ [0, 0] ],
 
   "markerType" : "freeform",
   "triggerDistance" : 10

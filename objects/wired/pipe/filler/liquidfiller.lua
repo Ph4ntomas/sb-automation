@@ -24,19 +24,19 @@ function die()
   energy.die()
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   storage.state = args.level
   if storage.state then entity.setAnimationState("fillstate", "on") end
 end
 
 function onNodeConnectionChange()
-  storage.state = entity.getInboundNodeLevel(0)
+  storage.state = entity.getInputNodeLevel(0)
   if storage.state then entity.setAnimationState("fillstate", "on") end
 end
 
 function onInteraction(args)
   --pump liquid
-  if entity.isInboundNodeConnected(0) == false then
+  if entity.isInputNodeConnected(0) == false then
     storage.state = not storage.state
   if storage.state then entity.setAnimationState("fillstate", "on") end
   end

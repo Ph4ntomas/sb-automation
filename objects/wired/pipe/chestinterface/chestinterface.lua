@@ -17,14 +17,14 @@ function main(args)
   connectChest()
   
   --Push out items if switched on
-  if self.chest and entity.getInboundNodeLevel(0) then
+  if self.chest and entity.getInputNodeLevel(0) then
     pushItems()
   end
 end
 
 function connectChest()
   self.chest = false
-  local pos = entity.toAbsolutePosition({entity.direction(), 1})
+  local pos = object.toAbsolutePosition({entity.direction(), 1})
   local searchPos = {pos[1] + 0.5, pos[2] + 0.1}
   local entityIds = world.objectLineQuery(searchPos, searchPos, { withoutEntityId = entity.id(), order = "nearest" })
   --world.logInfo("searched for chests, found entities %s", entityIds)

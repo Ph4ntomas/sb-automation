@@ -21,7 +21,7 @@
     }
   ],
 
-  "inboundNodes" : [ [0, 0] ],
+  "inputNodes" : [ [0, 0] ],
 
   "scripts" : [ "conveyorbelt.lua", "/scripts/entityProxy.lua", "/scripts/sfenergy.lua" ],
   "scriptDelta" : 5,

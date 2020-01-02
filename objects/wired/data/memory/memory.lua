@@ -4,12 +4,12 @@ function init(virtual)
       storage.dataType = "empty"
     end
 
-    if storage.lockOutbound == nil then
-      storage.lockOutbound = false
+    if storage.lockoutput == nil then
+      storage.lockoutput = false
     end
 
-    if storage.lockInbound == nil then
-      storage.lockInbound = false
+    if storage.lockInput == nil then
+      storage.lockInput = false
     end
 
     self.flipStr = ""
@@ -31,20 +31,20 @@ function onNodeConnectionChange()
   datawire.onNodeConnectionChange()
 end
 
-function onInboundNodeChange(args)
-  storage.lockInbound = entity.getInboundNodeLevel(1)
-  storage.lockOutbound = entity.getInboundNodeLevel(2)
+function onInputNodeChange(args)
+  storage.lockInput = entity.getInputNodeLevel(1)
+  storage.lockoutput = entity.getInputNodeLevel(2)
 
   output()
   updateAnimationState()
 end
 
 function updateAnimationState()
-  if entity.getInboundNodeLevel(1) and entity.getInboundNodeLevel(2) then
+  if entity.getInputNodeLevel(1) and entity.getInputNodeLevel(2) then
     entity.setAnimationState("lockState", self.flipStr.."both")
-  elseif entity.getInboundNodeLevel(1) then
+  elseif entity.getInputNodeLevel(1) then
     entity.setAnimationState("lockState", self.flipStr.."in")
-  elseif entity.getInboundNodeLevel(2) then
+  elseif entity.getInputNodeLevel(2) then
     entity.setAnimationState("lockState", self.flipStr.."out")
   else
     entity.setAnimationState("lockState", self.flipStr.."none")
@@ -57,14 +57,14 @@ function validateData(data, dataType, nodeId, sourceEntityId)
 end
 
 function onValidDataReceived(data, dataType, nodeId, sourceEntityId)
-  if not storage.lockInbound then
+  if not storage.lockInput then
     storage.data = data
     storage.dataType = dataType
   end
 end
 
 function output()
-  if not storage.lockOutbound and storage.data then
+  if not storage.lockoutput and storage.data then
     datawire.sendData(storage.data, storage.dataType, 0)
   end
 end

@@ -23,7 +23,7 @@ end
 function output(state)
   if storage.state ~= state then
     storage.state = state
-    entity.setAllOutboundNodes(state)
+    entity.setAllOutputNodes(state)
     if state then
       entity.setAnimationState("switchState", "on")
       entity.playSound("onSounds");

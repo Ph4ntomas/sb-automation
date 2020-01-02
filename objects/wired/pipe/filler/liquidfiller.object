@@ -24,10 +24,10 @@
   
   "scripts" : [
     "/objects/wired/pipe/filler/liquidfiller.lua",
-    "/scripts/pipes/liquidpipes.lua",
+    "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/itempipes.lua",
     "/scripts/sfenergy.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
@@ -39,7 +39,7 @@
   },
   "animationPosition" : [0, 0],
   
-  "inboundNodes" : [[1, 1]],
+  "inputNodes" : [[1, 1]],
   
   "liquidNodes" : [ {"offset": [-1, -1], "dir": [-1, 0]} ],
   "flippedLiquidNodes" : [ {"offset": [0, -1], "dir": [1, 0]} ],

@@ -10,7 +10,7 @@ function init(virtual)
   end
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   throughput()
 end
 
@@ -19,8 +19,8 @@ function onNodeConnectionChange()
 end
 
 function throughput()
-  storage.state = entity.getInboundNodeLevel(0)
-  entity.setOutboundNodeLevel(0, storage.state)
+  storage.state = entity.getInputNodeLevel(0)
+  entity.setOutputNodeLevel(0, storage.state)
 end
 
 function updateAnimationState()

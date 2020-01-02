@@ -1,5 +1,4 @@
-function init(virtual)
-  if not virtual then
+function init()
     energy.init()
 
     self.particleCooldown = 0.2
@@ -9,7 +8,6 @@ function init(virtual)
 
     animator.setParticleEmitterActive("charging", false)
     updateAnimationState()
-  end
 end
 
 function die()

@@ -105,7 +105,7 @@ function prepareState.update(dt, data)
 end
 
 function prepareState.findMarker()
-    local quarryPos, markerId, dir = entity.toAbsolutePosition({0,-1}), false, entity.direction()
+    local quarryPos, markerId, dir = object.toAbsolutePosition({0,-1}), false, entity.direction()
     for i = 2, self.range, 1 do
         local pos = toAbsolutePosition(quarryPos, {dir*i,0})
         local entityIds = world.entityQuery(pos, 0, {name = "quarry_marker"})
@@ -169,7 +169,7 @@ function quarryHolders(destroy)
         storage.quarry.holders = not destroy
         if not destroy then
             entity.setAnimationState("quarryState", "idle")
-            local spawnPos = entity.toAbsolutePosition({dir, 0})
+            local spawnPos = object.toAbsolutePosition({dir, 0})
             if dir > 0 then
                 spawnPos[1] = spawnPos[1] + 1
             end
@@ -503,7 +503,7 @@ function onNodeConnectionChange(args)
     updateAnimationState()
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
     onInteraction({}, args.level)
 end
 

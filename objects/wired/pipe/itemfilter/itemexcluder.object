@@ -74,9 +74,9 @@
 
   "scripts" : [
     "/objects/wired/pipe/itemfilter/itemexcluder.lua",
-    "/scripts/pipes/liquidpipes.lua",
+    "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],

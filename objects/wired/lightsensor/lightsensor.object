@@ -58,7 +58,7 @@
   },
   "animationPosition" : [0, 0],
 
-  "outboundNodes" : [ [0, -1], [0, 1] ],
+  "outputNodes" : [ [0, -1], [0, 1] ],
 
   "detectThresholdLow" : 1,
   "detectThresholdHigh" : 40

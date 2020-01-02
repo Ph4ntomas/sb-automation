@@ -19,13 +19,13 @@ function onNodeConnectionChange()
   checkNodes()
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   checkNodes()
 end
 
 function checkNodes()
-  entity.setInteractive(not entity.isInboundNodeConnected(0))
-  storage.state = entity.getInboundNodeLevel(0)
+  entity.setInteractive(not entity.isInputNodeConnected(0))
+  storage.state = entity.getInputNodeLevel(0)
 end
 
 function main()

@@ -1,0 +1,68 @@
+{
+  "objectName" : "sfthermogenerator",
+  "rarity" : "Common",
+  "description" : "Connect to lava source and submerge in water to generate energy",
+  "shortdescription" : "Thermoelectric Generator",
+  "race" : "generic",
+  "category" : "wire",
+  "printable" : false,
+
+  "inventoryIcon" : "sfthermogenerator.png:down",
+  "orientations" : [
+    {
+      "image" : "sfthermogenerator.png:down",
+      "imagePosition" : [0, -16],
+
+      "animationPosition" : [0, -16],
+
+      "orientation" : "down",
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "top" ],
+      "direction" : "right"
+    },
+    {
+      "image" : "sfthermogenerator.png:up",
+      "imagePosition" : [0, 0],
+
+      "animationPosition" : [0, 0],
+
+      "orientation" : "up",
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ],
+      "direction" : "right"
+    },
+    {
+      "image" : "sfthermogenerator.png:down",
+      "imagePosition" : [0, -16],
+
+      "animationPosition" : [0, -16],
+
+      "orientation" : "down",
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "background" ],
+      "direction" : "right"
+    }
+  ],
+
+  "scripts" : [ 
+    "/scripts/sfenergy.lua",
+    "/scripts/pipes/sfliquidpipes.lua",
+    "/scripts/sfpipesapi.lua",
+    "sfthermogenerator.lua"
+  ],
+  "scriptDelta" : 30,
+
+  "animation" : "sfthermogenerator.animation",
+  "animationParts" : {
+    "generator" : "sfthermogenerator.png",
+    "lavabar" : "sflavabar.png"
+  },
+  
+  "liquidNodes" : [ {"offset": [0, 0], "dir": [0, 1]}, {"offset": [0, 0], "dir": [0, -1]} ],
+
+  "energySendRate" : 15,
+  "energyCapacity" : 15
+}

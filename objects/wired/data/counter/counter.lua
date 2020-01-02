@@ -20,14 +20,14 @@ function onNodeConnectionChange()
   datawire.onNodeConnectionChange()
 end
 
-function onInboundNodeChange(args)
-  checkInboundNodes()
+function onInputNodeChange(args)
+  checkInputNodes()
 end
 
-function checkInboundNodes()
+function checkInputNodes()
   local nodeIndex = 0
-  while nodeIndex < entity.inboundNodeCount() do
-    local newLevel = entity.getInboundNodeLevel(nodeIndex)
+  while nodeIndex < entity.InputNodeCount() do
+    local newLevel = entity.getInputNodeLevel(nodeIndex)
     if newLevel ~= storage.nodeStates[nodeIndex] then
       storage.nodeStates[nodeIndex] = newLevel
       if newLevel then

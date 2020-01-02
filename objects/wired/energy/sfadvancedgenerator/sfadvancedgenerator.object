@@ -1,0 +1,47 @@
+{
+  "objectName" : "sfadvancedgenerator",
+  "rarity" : "Common",
+  "description" : "A generator that is powered by an input pipe.",
+  "shortdescription" : "Advanced Generator",
+  "race" : "generic",
+  "price" : 200,
+  "category" : "wire",
+  "printable" : false,
+
+  "inventoryIcon" : "sfadvancedgeneratoricon.png",
+  "orientations" : [
+    {
+      "image" : "sfadvancedgenerator.png",
+      "imagePosition" : [-16, -16],
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ],
+      "direction" : "right"
+    }
+  ],
+
+  "scripts" : [
+    "/scripts/datawire.lua",
+    "/scripts/sfenergy.lua",
+    "sfadvancedgenerator.lua",
+    "/scripts/pipes/itempipes.lua",
+    "/scripts/sfpipesapi.lua",
+    "/scripts/storageapi.lua",
+    "/scripts/util.lua",
+    "/scripts/vec2.lua"
+  ],
+  "scriptDelta" : 5,
+
+  "animation" : "sfadvancedgenerator.animation",
+  "animationParts" : {
+    "generator" : "sfadvancedgenerator.png",
+    "turbine" : "sfturbine.png"
+  },
+  "animationPosition" : [-16, -16],
+
+  //"itemNodes" : [ {"offset": [-2, 1], "dir": [0, 1]}} ], //TODO: put this in the right place
+
+  "energySendRate" : 100,
+  "energyGenerationRate" : 100,
+  "energyCapacity" : 100
+}

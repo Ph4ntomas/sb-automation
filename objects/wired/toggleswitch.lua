@@ -16,16 +16,16 @@ function onInteraction(args)
   output(not storage.state)
 end
 
-function onInboundNodeChange(args)
-  checkInboundNodes()
+function onInputNodeChange(args)
+  checkInputNodes()
 end
 
 function onNodeConnectionChange(args)
-  checkInboundNodes()
+  checkInputNodes()
 end
 
-function checkInboundNodes()
-  if entity.inboundNodeCount() > 0 and entity.getInboundNodeLevel(0) then
+function checkInputNodes()
+  if entity.InputNodeCount() > 0 and entity.getInputNodeLevel(0) then
     output(not storage.state)
   end
 end
@@ -35,10 +35,10 @@ function output(state)
   if state then
     entity.setAnimationState("switchState", "on")
     entity.playSound("onSounds");
-    entity.setAllOutboundNodes(true)
+    entity.setAllOutputNodes(true)
   else
     entity.setAnimationState("switchState", "off")
     entity.playSound("offSounds");
-    entity.setAllOutboundNodes(false)
+    entity.setAllOutputNodes(false)
   end
 end

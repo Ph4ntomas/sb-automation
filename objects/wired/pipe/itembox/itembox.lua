@@ -72,7 +72,7 @@ end
 
 function pushItems()
   for node = 0, 1 do
-    if entity.getInboundNodeLevel(node) then
+    if entity.getInputNodeLevel(node) then
       for i, item in storageApi.getIterator() do
         local result = pushItem(node+1, item)
         if result == true then storageApi.returnItem(i) end --Whole stack was accepted
@@ -84,14 +84,14 @@ function pushItems()
 end
 
 function onItemPut(item, nodeId)
-  if item and not entity.getInboundNodeLevel(nodeId - 1) then
+  if item and not entity.getInputNodeLevel(nodeId - 1) then
     return storageApi.storeItem(item.name, item.count, item.data)
   end
   return false
 end
 
 function beforeItemPut(item, nodeId)
-  if item and not entity.getInboundNodeLevel(nodeId - 1) then
+  if item and not entity.getInputNodeLevel(nodeId - 1) then
     return not storageApi.isFull() --TODO: Make this use the future function for fitting in a stack of items
   end
   return false

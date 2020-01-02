@@ -1,5 +1,6 @@
-function init(virtual)
-  if not virtual then
+require '/scripts/util.lua'
+
+function init()
     energy.init()
     datawire.init()
 
@@ -33,7 +34,6 @@ function init(virtual)
     }
 
     updateAnimationState()
-  end
 end
 
 -- this hook is called by the first datawire.update()
@@ -80,8 +80,8 @@ function checkBatteries()
     self.totalStoredEnergy = self.totalStoredEnergy + batteryStatus.energy
   end
 
-  sb.logInfo("found %s batteries with %s total unused capacity", #entityIds, self.totalUnusedCapacity)
-  sb.logInfo(sb.print(self.batteries))
+  --sb.logInfo("found %s batteries with %s total unused capacity", #entityIds, self.totalUnusedCapacity)
+  --sb.logInfo(sb.print(self.batteries))
 
   --order batteries left -> right
   table.sort(self.batteries, battCompare)
@@ -89,7 +89,7 @@ function checkBatteries()
   updateAnimationState()
   self.batteryCheckTimer = self.batteryCheckFreq --reset this here so we don't perform periodic checks right after a pulse
 
-  sb.logInfo(sb.print(self.batteries))
+  --sb.logInfo(sb.print(self.batteries))
 end
 
 function updateAnimationState()
@@ -155,18 +155,23 @@ function dischargeBatteries()
   local energyNeeded = energy.getUnusedCapacity()
   --world.logInfo("discharging batteries starting with %f energy", energy.getEnergy())
   while sourceBatt >= 1 and energyNeeded > 0 do
-    
-    local discharge = world.callScriptedEntity(self.batteries[sourceBatt].id, "energy.removeEnergy", energyNeeded)
-    if discharge and discharge > 0 then
-      energy.addEnergy(discharge)
-      energyNeeded = energyNeeded - discharge
+      sb.logInfo("discharging battery %s : %s", sb.print(self.batteries[sourceBatt].id), sb.print(self.batteries[sourceBatt]))
+      sb.logInfo("energyNeeded = " .. sb.print(energyNeeded))
+    local pdischarge = util.await(world.sendEntityMessage(self.batteries[sourceBatt].id, "energy.removeEnergy", energyNeeded))
+
+    if pdischarge:succeeded() then
+        local discharge = pdischarge:result()
+        if discharge and discharge > 0 then
+          energy.addEnergy(discharge)
+          energyNeeded = energyNeeded - discharge
+        end
     end
     sourceBatt = sourceBatt - 1
   end
   --world.logInfo("ended up with %f energy", energy.getEnergy())
 end
 
---updates outbound nodes and sends datawire data
+--updates output nodes and sends datawire data
 function setWireStates()
   datawire.sendData(self.totalStoredEnergy, "number", 0)
   datawire.sendData(self.totalUnusedCapacity, "number", 1)

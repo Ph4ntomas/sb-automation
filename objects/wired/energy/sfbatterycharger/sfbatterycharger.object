@@ -29,7 +29,10 @@
     }
   ],
 
-  "scripts" : [ "/scripts/datawire.lua", "/scripts/sfenergy.lua", "sfbatterycharger.lua" ],
+  "scripts" : [ 
+    "/scripts/datawire.lua", 
+    "/scripts/sfenergy.lua", 
+    "sfbatterycharger.lua" ],
   "scriptDelta" : 10,
 
   "animation" : "sfbatterycharger.animation",

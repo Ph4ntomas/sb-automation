@@ -13,17 +13,17 @@ function die()
 end
 
 function onNodeConnectionChange(args)
-  if entity.isInboundNodeConnected(0) then
+  if entity.isInputNodeConnected(0) then
     entity.setInteractive(false)
   else
     entity.setInteractive(true)
   end
-  onInboundNodeChange(args)
+  onInputNodeChange(args)
 end
 
-function onInboundNodeChange(args)
-  if entity.isInboundNodeConnected(0) then
-    setActive(entity.getInboundNodeLevel(0))
+function onInputNodeChange(args)
+  if entity.isInputNodeConnected(0) then
+    setActive(entity.getInputNodeLevel(0))
   end
 end
 
@@ -53,7 +53,7 @@ function main()
     elseif self.st == 3 then
       entity.playImmediateSound(self.workSound)
     end
-    local p = entity.toAbsolutePosition({ -1.8, 1 })
+    local p = object.toAbsolutePosition({ -1.8, 1 })
     entity.setForceRegion({ p[1], p[2], p[1] + 3.6, p[2] }, { self.moveSpeed * entity.direction(), 0})
   end
 end

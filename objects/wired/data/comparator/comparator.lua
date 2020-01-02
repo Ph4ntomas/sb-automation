@@ -69,7 +69,7 @@ function onValidDataReceived(data, dataType, nodeId, sourceEntityId)
 end
 
 function compare()
-  if entity.isInboundNodeConnected(0) and entity.isInboundNodeConnected(1) then
+  if entity.isInputNodeConnected(0) and entity.isInputNodeConnected(1) then
     if storage.currentMode == "gt" then
       storage.state = storage.data1 > storage.data2
     elseif storage.currentMode == "lt" then
@@ -78,7 +78,7 @@ function compare()
       storage.state = storage.data1 == storage.data2
     end
 
-    entity.setOutboundNodeLevel(0, storage.state)
+    entity.setOutputNodeLevel(0, storage.state)
     
     if (storage.state) then
       datawire.sendData(storage.data1, "number", "all")

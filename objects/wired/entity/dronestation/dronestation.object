@@ -32,7 +32,7 @@
   "scripts" : [
     "/objects/wired/entity/dronestation/dronestation.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/storageapi.lua",
     "/scripts/sfenergy.lua",
     "/scripts/util.lua",
@@ -42,7 +42,7 @@
   
   "energyCapacity" : 50,
   
-  "inboundNodes" : [ [0, 0] ],
+  "inputNodes" : [ [0, 0] ],
   
   "itemNodes" : [ { "offset" : [-1, 0], "dir" : [-1, 0] } ],
   

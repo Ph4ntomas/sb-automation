@@ -34,7 +34,7 @@
   },
   "animationPosition" : [-8, -8],
 
-  "outboundNodes" : [ [0, -1] ],
+  "outputNodes" : [ [0, -1] ],
 
   "interval" : 1
 }

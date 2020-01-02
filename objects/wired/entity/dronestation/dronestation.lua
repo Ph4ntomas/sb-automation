@@ -23,7 +23,7 @@ function die()
 end
 
 function getLandingPos()
-  return entity.toAbsolutePosition({ 0.5, 3 })
+  return object.toAbsolutePosition({ 0.5, 3 })
 end
 
 function setActive(f)
@@ -83,13 +83,13 @@ function launchDrone()
   end
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   onNodeConnectionChange()
 end
 
 function onNodeConnectionChange()
-  entity.setInteractive(not entity.isInboundNodeConnected(0))
-  setActive(entity.getInboundNodeLevel(0))
+  entity.setInteractive(not entity.isInputNodeConnected(0))
+  setActive(entity.getInputNodeLevel(0))
 end
 
 function onInteraction(args)

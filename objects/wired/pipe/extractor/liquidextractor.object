@@ -24,10 +24,10 @@
   
   "scripts" : [
     "/objects/wired/pipe/extractor/liquidextractor.lua",
-    "/scripts/pipes/liquidpipes.lua",
+    "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/itempipes.lua",
     "/scripts/sfenergy.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
@@ -39,7 +39,7 @@
   },
   "animationPosition" : [12, 12],
   
-  "inboundNodes" : [[1, 1]],
+  "inputNodes" : [[1, 1]],
   
   "itemNodes" : [ {"offset": [0, 0], "dir": [-1, 0]} ],
   "flippedItemNodes" : [ {"offset": [2, 0], "dir": [1, 0]} ],

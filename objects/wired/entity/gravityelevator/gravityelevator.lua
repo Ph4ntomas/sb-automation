@@ -94,7 +94,7 @@ end
 
 function checkForPlayer()
    local dir = getDirection()
-   if #world.playerQuery(entity.toAbsolutePosition({2, (self.size)*dir-dir}), 2) > 0 then
+   if #world.playerQuery(object.toAbsolutePosition({2, (self.size)*dir-dir}), 2) > 0 then
       return true
    end
    return false
@@ -105,7 +105,7 @@ function checkForceRegion()
    if dir == -1 then
       gravityRange[2] = -gravityRange[2]
    end
-   local endPos = entity.toAbsolutePosition({gravityRange[1], gravityRange[2]})
+   local endPos = object.toAbsolutePosition({gravityRange[1], gravityRange[2]})
    local entities  = world.entityLineQuery(
       pos,
       {pos[1], endPos[2] + dir },
@@ -188,7 +188,7 @@ function onNodeConnectionChange()
    onNodeChange()
 end
 
-function onInboundNodeChange()
+function onInputNodeChange()
    onNodeChange()
 end
 
@@ -197,8 +197,8 @@ function checkNode(direction, ifnot)
    if direction == -1 then
       node = 1
    end
-   if entity.isInboundNodeConnected(node) then
-      if entity.getInboundNodeLevel(node) then
+   if entity.isInputNodeConnected(node) then
+      if entity.getInputNodeLevel(node) then
          return true
       end
       return false
@@ -207,14 +207,14 @@ function checkNode(direction, ifnot)
 end
 
 function onNodeChange()
-   if entity.getInboundNodeLevel(0) then
-      --world.logInfo("getInboundNodeLevel %s", 1)
+   if entity.getInputNodeLevel(0) then
+      --world.logInfo("getInputNodeLevel %s", 1)
       local dir = self.direction
       if dir == 0 then dir = 1 end
       return startGravityShaft({direction = dir, number = 0})
    end
-   if entity.getInboundNodeLevel(1) then
-      --world.logInfo("getInboundNodeLevel %s", 2)
+   if entity.getInputNodeLevel(1) then
+      --world.logInfo("getInputNodeLevel %s", 2)
       local dir = self.direction
       if dir == 0 then dir = -1 end
       return startGravityShaft({direction = dir, number = 0})

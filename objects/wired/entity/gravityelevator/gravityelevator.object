@@ -40,7 +40,7 @@
 
   "scripts" : [ "/scripts/sfenergy.lua", "gravityelevator.lua" ],
   "scriptDelta" : 5,
-  "inboundNodes" : [ [0, 0], [3, 0] ],
+  "inputNodes" : [ [0, 0], [3, 0] ],
 
   "animation" : "gravityelevator.animation",
   "animationParts" : {

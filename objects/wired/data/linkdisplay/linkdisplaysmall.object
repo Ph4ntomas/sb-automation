@@ -31,7 +31,7 @@
     "digits" : "digitssmall.png"
   },
 
-  "inboundNodes" : [ [0, 0] ],
+  "inputNodes" : [ [0, 0] ],
 
   "displaySize" : 1,
 

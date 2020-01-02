@@ -1,0 +1,10 @@
+{
+  "input" : [
+    { "item" : "tungstenbar", "count" : 1 }
+  ],
+  "output" : {
+    "item" : "sfpipespout",
+    "count" : 2
+  },
+  "groups" : [ "foundry", "all", "pipes" ]
+}

@@ -64,17 +64,17 @@ function die()
 end
 
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   storage.state = args.level
 end
 
 function onNodeConnectionChange()
-  storage.state = entity.getInboundNodeLevel(0)
+  storage.state = entity.getInputNodeLevel(0)
 end
 
 function onInteraction(args)
   --pump liquid
-  if entity.isInboundNodeConnected(0) == false then
+  if entity.isInputNodeConnected(0) == false then
     storage.state = not storage.state
   end
 end

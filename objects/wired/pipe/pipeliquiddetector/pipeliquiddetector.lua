@@ -52,14 +52,14 @@ end
 function activate()
   storage.timer = self.detectCooldown
   storage.state = true
-  entity.setAllOutboundNodes(true)
+  entity.setAllOutputNodes(true)
   updateAnimationState()
 end
 
 function deactivate()
   storage.state = false
   updateAnimationState()
-  entity.setAllOutboundNodes(false)
+  entity.setAllOutputNodes(false)
 end
 
 function output(liquid)

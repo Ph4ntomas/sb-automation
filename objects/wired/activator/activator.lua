@@ -34,15 +34,15 @@ function onNodeConnectionChange()
   checkNodes()
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   checkNodes()
 end
 
 function checkNodes()
-  if entity.getInboundNodeLevel(0) and not storage.state then
+  if entity.getInputNodeLevel(0) and not storage.state then
     click()
   end
-  storage.state = entity.getInboundNodeLevel(0)
+  storage.state = entity.getInputNodeLevel(0)
 end
 
 function click()

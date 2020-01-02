@@ -34,13 +34,13 @@ function init(args)
     self.timeout = 0.1
   end
 
-  entity.setAllOutboundNodes(false)
+  entity.setAllOutputNodes(false)
   entity.setAnimationState("switchState", "off")
   self.cooldown = 0
 end
 
 function trigger()
-  entity.setAllOutboundNodes(true)
+  entity.setAllOutputNodes(true)
   entity.setAnimationState("switchState", "on")
   self.cooldown = self.timeout
 end
@@ -80,7 +80,7 @@ function main()
       if #entityIds > 0 and validateEntities(entityIds) then
         trigger()
       else
-        entity.setAllOutboundNodes(false)
+        entity.setAllOutputNodes(false)
         entity.setAnimationState("switchState", "off")
       end
     end

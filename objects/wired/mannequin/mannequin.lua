@@ -17,7 +17,7 @@ function main()
     if self.revive then
         if self.revive == 5 then
             -- Look for mannequin after 2 scriptDeltas
-            local objectIds = world.npcQuery(entity.toAbsolutePosition({0.5, 1.8}), 1, {callScript = "isMannequin"})
+            local objectIds = world.npcQuery(object.toAbsolutePosition({0.5, 1.8}), 1, {callScript = "isMannequin"})
 
             for _, objectId in pairs(objectIds) do
                 storage.mannequin.id = objectId
@@ -50,7 +50,7 @@ function spawnMannequin()
         storage.mannequin.direction = entity.direction()
         storage.mannequin.objectId = entity.id()
     end
-    storage.mannequin.id = world.spawnNpc(entity.toAbsolutePosition({0.5, 1.8}), storage.mannequin.npcSpecies, "mannequin", 1, 0, storage.mannequin.npcParameter)
+    storage.mannequin.id = world.spawnNpc(object.toAbsolutePosition({0.5, 1.8}), storage.mannequin.npcSpecies, "mannequin", 1, 0, storage.mannequin.npcParameter)
     if storage.mannequin.id then
         world.callScriptedEntity(storage.mannequin.id, "initialize", storage.mannequin, storage.slots)
     end

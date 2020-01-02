@@ -35,7 +35,7 @@ function die()
 end
 
 function onInteraction(args)
-  if not entity.isInboundNodeConnected(0) then
+  if not entity.isInputNodeConnected(0) then
     storage.state = not storage.state
     updateAnimationState()
   end
@@ -63,7 +63,7 @@ function main()
   updateAnimationState()
 end
 
-function onInboundNodeChange(args) 
+function onInputNodeChange(args) 
   checkNodes()
 end
  
@@ -72,9 +72,9 @@ function onNodeConnectionChange()
 end
 
 function checkNodes()
-  entity.setInteractive(not entity.isInboundNodeConnected(0))
-  if entity.isInboundNodeConnected(0) then
-    storage.state = entity.getInboundNodeLevel(0)
+  entity.setInteractive(not entity.isInputNodeConnected(0))
+  if entity.isInputNodeConnected(0) then
+    storage.state = entity.getInputNodeLevel(0)
   end
   updateAnimationState()
 end
@@ -100,8 +100,8 @@ function setNeedlePos()
 end
 
 function findOres()
-  local pos1 = entity.toAbsolutePosition({-self.range, -self.range})
-  local pos2 = entity.toAbsolutePosition({self.range, 5})
+  local pos1 = object.toAbsolutePosition({-self.range, -self.range})
+  local pos2 = object.toAbsolutePosition({self.range, 5})
 
   -- world.logInfo("finding ores in area from %s to %s", pos1, pos2)
 

@@ -1,7 +1,7 @@
 function init(virtual)
    if not virtual then
       entity.setInteractive(true)
-      entity.setAllOutboundNodes(false)
+      entity.setAllOutputNodes(false)
 
       self.modes = entity.configParameter("modes") or {"all", "owner", "player", "monster", "item", "npc"}
       storage.currentMode = storage.currentMode or self.modes[1]
@@ -10,18 +10,18 @@ function init(virtual)
       self.detectDuration = entity.configParameter("detectDuration") or 1
       self.detectCooldown = 0
 
-      self.detectArea = {entity.toAbsolutePosition({-2, -2}), entity.toAbsolutePosition({2, 2})}
+      self.detectArea = {object.toAbsolutePosition({-2, -2}), object.toAbsolutePosition({2, 2})}
    end
 end
 
 function on()
-   entity.setAllOutboundNodes(true)
+   entity.setAllOutputNodes(true)
    self.detectCooldown = self.detectDuration
    entity.setAnimationState("detectorState", "on")
 end
 
 function off()
-   entity.setAllOutboundNodes(false)
+   entity.setAllOutputNodes(false)
    self.detectCooldown = 0
    entity.setAnimationState("detectorState", "off")
 end

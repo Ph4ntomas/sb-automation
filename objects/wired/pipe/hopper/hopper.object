@@ -67,7 +67,7 @@
   "scripts" : [
     "/objects/wired/pipe/hopper/hopper.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],

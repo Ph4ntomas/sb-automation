@@ -83,7 +83,7 @@
   "scripts" : [
     "/objects/wired/pipe/ejector/ejector.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],

@@ -70,9 +70,9 @@
 
   "scripts" : [
     "/objects/wired/pipe/valve/valve.lua",
-    "/scripts/pipes/liquidpipes.lua",
+    "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
@@ -85,7 +85,7 @@
   },
   "animationPosition" : [0, 0],
 
-  "inboundNodes" : [ [0, 0] ],
+  "inputNodes" : [ [0, 0] ],
 
   "liquidNodes" : [
     {"offset": [0, 0], "dir": [-1, 0]},

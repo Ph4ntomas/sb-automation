@@ -61,14 +61,14 @@ function onNodeConnectionChange()
   end
 end
 
-function onInboundNodeChange(args)
+function onInputNodeChange(args)
   output(not storage.state)
 end
 
 function output(state)
   if storage.state ~= state then
     storage.state = state
-    entity.setAllOutboundNodes(state)
+    entity.setAllOutputNodes(state)
 	
     updateMagnetData()
 	

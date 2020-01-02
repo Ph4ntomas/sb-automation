@@ -1,0 +1,41 @@
+{
+  "objectName" : "sfbasicgenerator",
+  "rarity" : "Common",
+  "description" : "A simple generator fueled by heat from combustion.",
+  "shortdescription" : "Combustion Generator",
+  "race" : "generic",
+  "price" : 200,
+  "category" : "wire",
+  "printable" : false,
+
+  "breakDropOptions": [],
+
+  "inventoryIcon" : "sfbasicgenerator.png:off",
+  "orientations" : [
+    {
+      "image" : "sfbasicgenerator.png:off",
+      "imagePosition" : [-16, -8],
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ],
+      "direction" : "right",
+      "collision" : "platform"
+    }
+  ],
+
+  "scripts" : [ "/scripts/sfenergy.lua", "sfbasicgenerator.lua" ],
+  "scriptDelta" : 10,
+
+  "animation" : "sfbasicgenerator.animation",
+  "animationParts" : {
+    "generator" : "sfbasicgenerator.png",
+    "fuelbar" : "sffuelbar.png"
+  },
+  "animationPosition" : [0, 0],
+
+  "inputNodes" : [ [-1, 0] ],
+
+  "energySendRate" : 20,
+  "energyGenerationRate" : 20,
+  "energyCapacity" : 20
+}

@@ -27,7 +27,7 @@
     "/scripts/stateMachine.lua",
     "quarry.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/storageapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
@@ -39,7 +39,7 @@
     "quarry" : "quarry.png"
   },
   "animationPosition" : [-8, -8],
-  "inboundNodes" : [ [0, -1] ],
+  "inputNodes" : [ [0, -1] ],
 
   "maxWidth" : 25,
   "maxSpeed" : [2,6],

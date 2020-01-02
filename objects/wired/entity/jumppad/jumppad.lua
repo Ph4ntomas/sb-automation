@@ -33,7 +33,7 @@ function main()
   if self.jumpt > 0 then 
     self.jumpt = self.jumpt - 1
   else
-    local p = entity.toAbsolutePosition({ -1.3, 1 })
+    local p = object.toAbsolutePosition({ -1.3, 1 })
     local eids = world.entityQuery(p, { p[1] + 2.6, p[2] }, { notAnObject = true, order = "nearest" })
     if firstValidEntity(eids) ~= nil then
       if energy.consumeEnergy(self.energyPerJump) then

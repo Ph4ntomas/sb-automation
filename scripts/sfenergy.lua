@@ -1,3 +1,40 @@
+require '/scripts/util.lua'
+
+function getProjectileSourcePositionHndl(_, _)
+    return energy.getProjectileSourcePosition()
+end
+
+function isRelayHndl(_, _)
+    if not energy.isRelay then
+        return false
+    end
+    return energy.isRelay()
+end
+
+function getCollisionBlocksHndl(_, _)
+    return energy.getCollisionBlocks()
+end
+
+function onConnectHndl(_, _, id)
+    return energy.onConnect(id)
+end
+
+function onDisconnectHndl(_, _, id)
+    return energy.onDisconnect(id)
+end
+
+function getEnergyNeedsHndl(_, _, amount)
+    return energy.getEnergyNeeds(amount)
+end
+
+function receiveEnergyHndl(_, _, amount)
+    return energy.receiveEnergy(amount)
+end
+
+function removeEnergyHndl(_,_, amount)
+    return energy.removeEnergy(amount)
+end
+
 energy = {}
 
 function getFromArgOrParameter(args, key, default)
@@ -72,6 +109,15 @@ function energy.init(args)
 
   --flag used to run more initialization the first time main() is called (in energy.update())
   self.energyInitialized = false
+
+  message.setHandler("energy.getProjectileSourcePosition", getProjectileSourcePositionHndl)
+  message.setHandler("energy.isRelay", isRelayHndl)
+  message.setHandler("energy.getCollisionBlocks", getCollisionBlocksHndl)
+  message.setHandler("energy.onConnect", onConnectHndl)
+  message.setHandler("energy.onDisconnect", onDisconnectHndl)
+  message.setHandler("energy.getEnergyNeeds", getEnergyNeedsHndl)
+  message.setHandler("energy.receiveEnergy", receiveEnergyHndl)
+  message.setHandler("energy.removeEnergy", removeEnergyHndl)
 end
 
 -- Performs per-tick updates for energy module (MUST BE CALLED IN OBJECT main() FUNCTION)
@@ -191,7 +237,7 @@ end
 
 -- reduces the current energy pool by the specified amount, to a minimum of 0
 -- @returns the amount of energy removed
-function energy.removeEnergy(amount, entityId)
+function energy.removeEnergy(amount)
   local newEnergy = energy.getEnergy() - amount
   if newEnergy <= 0 then
     energy.setEnergy(0)
@@ -237,7 +283,13 @@ end
 function energy.makeConnectionConfig(entityId)
   local config = {}
   local srcPos = energy.getProjectileSourcePosition()
-  local tarPos = world.callScriptedEntity(entityId, "energy.getProjectileSourcePosition")
+  local ptarPos = util.await(world.sendEntityMessage(entityId, "energy.getProjectileSourcePosition"))
+  local tarPos = nil
+
+  if ptarPos:succeeded() then
+      tarPos = ptarPos:result()
+  end
+
   config.aimVector = world.distance(tarPos, srcPos) --{tarPos[1] - srcPos[1], tarPos[2] - srcPos[2]}
   config.srcPos = srcPos
   config.tarPos = tarPos
@@ -247,7 +299,14 @@ function energy.makeConnectionConfig(entityId)
   -- Just leaving the code for solid collision checking there, not not using it for now
   config.blocked = energy.checkLoS(srcPos, tarPos, entityId)
   --config.blocked = world.lineCollision(srcPos, tarPos) -- world.lineCollision is marginally faster
-  config.isRelay = world.callScriptedEntity(entityId, "energy.isRelay")
+  local prelay = util.await(world.sendEntityMessage(entityId, "energy.isRelay"))
+  
+  if prelay:succeeded() then
+      config.isRelay = prelay:result()
+  else
+      config.isRelay = false
+  end
+
   -- if config.isRelay then
   --   sb.logInfo("%s %d thinks %d is a relay", config.getParameter("objectName"), entity.id(), entityId)
   --
@@ -260,7 +319,13 @@ end
 -- Check line of sight from one position to another
 function energy.checkLoS(srcPos, tarPos, entityId)
   local ignoreBlocksSrc = energy.getCollisionBlocks()
-  local ignoreBlocksTar = world.callScriptedEntity(entityId, "energy.getCollisionBlocks")
+  local pignoreBlocksTar = util.await(world.sendEntityMessage(entityId, "energy.getCollisionBlocks"))
+  local ignoreBlocksTar = nil
+
+  if pignoreBlocksTar:succeeded() then
+      ignoreBlocksTar = pignoreBlocksTar:result()
+  end
+
   if ignoreBlocksSrc or ignoreBlocksTar or srcPos[1] < energy.linkRange or tarPos[1] < energy.linkRange then
     local collisionBlocks = world.collisionBlocksAlongLine(srcPos, tarPos)
     return energy.checkCollisionBlocks(collisionBlocks, ignoreBlocksSrc, ignoreBlocksTar)
@@ -300,7 +365,7 @@ end
 
 --adds appropriate entries into energy.connections and energy.sortedConnections
 function energy.addToConnectionTable(entityId)
-    sb.logInfo("addToConnectionTable : " .. sb.print(energy.connections))
+    --sb.logInfo("addToConnectionTable : " .. sb.print(energy.connections))
   if energy.connections[entityId] == nil then
     local cConfig = energy.makeConnectionConfig(entityId)
     energy.connections[entityId] = cConfig
@@ -337,7 +402,7 @@ end
 -- connects to the specified entity id
 function energy.connect(entityId)
   energy.addToConnectionTable(entityId)
-  world.callScriptedEntity(entityId, "energy.onConnect", entity.id())
+  world.sendEntityMessage(entityId, "energy.onConnect", entity.id())
 end
 
 -- callback for energy.connect
@@ -364,7 +429,7 @@ end
 
 -- disconnects from the specified entity id
 function energy.disconnect(entityId)
-  world.callScriptedEntity(entityId, "energy.onDisconnect", entity.id())
+  world.sendEntityMessage(entityId, "energy.onDisconnect", entity.id())
   energy.removeFromConnectionTable(entityId)
 end
 
@@ -390,7 +455,7 @@ function energy.findConnections()
       order = "nearest"
     })
 
-    sb.logInfo("found connections : " .. sb.print(entityIds))
+    --sb.logInfo("found connections : " .. sb.print(entityIds))
 
   --connect
   for i, entityId in ipairs(entityIds) do
@@ -437,7 +502,14 @@ function energy.energyNeedsQuery(energyNeeds)
     if not energyNeeds[tostring(entityId)] and not energy.connections[entityId].blocked then
       local prevTotal = energyNeeds["total"]
 
-      local newEnergyNeeds = world.callScriptedEntity(entityId, "energy.getEnergyNeeds", energyNeeds)
+      local pnewEnergyNeeds = util.await(world.sendEntityMessage(entityId, "energy.getEnergyNeeds", energyNeeds))
+      local newEnergyNeeds = nil
+
+      if pnewEnergyNeeds:succeeded() then
+          newEnergyNeeds = pnewEnergyNeeds:result()
+      end
+
+
       if newEnergyNeeds then
         energyNeeds = newEnergyNeeds
       end
@@ -468,7 +540,7 @@ end
 -- pushes energy to connected entities. amount is divided "fairly" between the valid receivers
 function energy.sendEnergy(amount)
   if config.getParameter("objectName") ~= "sfrelay" then
-    sb.logInfo("%s %s sending %s energy...", config.getParameter("objectName"), entity.id(), amount)
+    --sb.logInfo("%s %s sending %s energy...", config.getParameter("objectName"), entity.id(), amount)
   end
 
   -- get the network's energy needs
@@ -478,7 +550,7 @@ function energy.sendEnergy(amount)
   energyNeeds["total"] = nil
   energyNeeds["sourceId"] = nil
 
-  sb.logInfo("initial energyNeeds: " .. sb.print(energyNeeds))
+  --sb.logInfo("initial energyNeeds: " .. sb.print(energyNeeds))
 
   -- build and sort a table from least to most energy requested
   local sortedEnergyNeeds = {}
@@ -487,7 +559,7 @@ function energy.sendEnergy(amount)
   end
   table.sort(sortedEnergyNeeds, energy.compareNeeds)
 
-  sb.logInfo("sorted energyNeeds: " .. sb.print(sortedEnergyNeeds))
+  --sb.logInfo("sorted energyNeeds: " .. sb.print(sortedEnergyNeeds))
 
   -- process list and distribute remainder evenly at each step
   local totalEnergyToSend = amount
@@ -495,7 +567,14 @@ function energy.sendEnergy(amount)
   while #sortedEnergyNeeds > 0 do
     if sortedEnergyNeeds[1][2] > 0 then
       local sendAmt = remainingEnergyToSend / #sortedEnergyNeeds
-      local acceptedEnergy = world.callScriptedEntity(tonumber(sortedEnergyNeeds[1][1]), "energy.receiveEnergy", sendAmt)
+      local pacceptedEnergy = util.await(world.sendEntityMessage(tonumber(sortedEnergyNeeds[1][1]), "energy.receiveEnergy", sendAmt))
+      local acceptedEnergy = -1
+
+      if pacceptedEnergy:succeeded() then
+          acceptedEnergy = pacceptedEnergy:result()
+      end
+
+
       if acceptedEnergy > 0 then
         remainingEnergyToSend = remainingEnergyToSend - acceptedEnergy
       end
@@ -510,7 +589,7 @@ function energy.sendEnergy(amount)
   --call hook for objects to update animations, etc
   if onEnergySend then onEnergySend(totalSent) end
 
-  sb.logInfo(string.format("%s %s successfully sent %s energy", config.getParameter("objectName"), entity.id(), totalSent))
+  --sb.logInfo(string.format("%s %s successfully sent %s energy", config.getParameter("objectName"), entity.id(), totalSent))
 end
 
 -- display a visual indicator of the energy transfer

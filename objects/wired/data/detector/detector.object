@@ -30,7 +30,7 @@
   },
   "animationPosition" : [-8, -8],
 
-  "outboundNodes" : [ [0, 0] ],
+  "outputNodes" : [ [0, 0] ],
 
   "detectModes" : [ "all", "owner", "player", "monster", "item", "npc" ],
   "detectDuration" : 1

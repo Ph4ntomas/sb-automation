@@ -20,18 +20,18 @@ end
 --------------------------------------------------------------------------------
 
 function onInteraction(args)
-  if not entity.isInboundNodeConnected(0) then
+  if not entity.isInputNodeConnected(0) then
     storage.state = not storage.state
     updateAnimationState()
   end
 end
 
-function onInboundNodeChange(args)
-  checkInboundNodes()
+function onInputNodeChange(args)
+  checkInputNodes()
 end
 
 function onNodeConnectionChange()
-  checkInboundNodes()
+  checkInputNodes()
 end
 
 --------------------------------------------------------------------------------
@@ -39,10 +39,10 @@ function main(args)
   pipes.update(entity.dt())
 end
 
-function checkInboundNodes()
-  if entity.isInboundNodeConnected(0) then
+function checkInputNodes()
+  if entity.isInputNodeConnected(0) then
     entity.setInteractive(false)
-    storage.state = entity.getInboundNodeLevel(0)
+    storage.state = entity.getInputNodeLevel(0)
     updateAnimationState()
   else
     entity.setInteractive(true)

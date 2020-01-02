@@ -71,9 +71,9 @@
   "scripts" : [
     "/scripts/datawire.lua",
     "/objects/wired/pipe/pipeitemdetector/pipeitemdetector.lua",
-    "/scripts/pipes/liquidpipes.lua",
+    "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/itempipes.lua",
-    "/scripts/pipesapi.lua",
+    "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
@@ -86,7 +86,7 @@
   },
   "animationPosition" : [0, 0],
 
-  "outboundNodes" : [ [0, 0] ],
+  "outputNodes" : [ [0, 0] ],
 
   "detectCooldown" : 0.35,
 
