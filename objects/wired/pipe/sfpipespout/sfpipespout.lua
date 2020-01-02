@@ -28,6 +28,7 @@ function update(dt)
           local angle = (math.pi / 2) * i
           local tilePos = {position[1] + checkDirs[i][1], position[2] + checkDirs[i][2]}
           local pipeDirections = pipes.getPipeTileData("liquid", tilePos, "foreground", checkDirs[i])
+          sb.logInfo("pipeTileData %s", sb.print(pipeDirections))
           if pipeDirections then
               sb.logInfo("rotation")
             animator.rotateGroup("pipe", angle)
@@ -60,7 +61,7 @@ function canGetLiquid(filter, nodeId)
     local liquid = convertEndlessLiquid(availableLiquid)
 
     local returnLiquid = filterLiquids(filter, {liquid})
-    --world.logInfo("(canGetLiquid) filter result: %s", returnLiquid)
+    log.logInfo("(canGetLiquid) filter result: %s", sb.print(returnLiquid))
     
     if returnLiquid then
         sb.logInfo("can get liquid ! " .. sb.print(returnLiquid))

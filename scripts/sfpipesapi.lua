@@ -180,7 +180,7 @@ function pipes.tileDirections(pipeName, position, layer)
   local checkedTile = world.material(position, layer)
   for _,tileType in ipairs(pipes.types[pipeName].tiles) do
     for orientation,directions in pairs(pipes.directions) do
-      if checkedTile == tileType .. orientation then
+      if checkedTile == tileType then
         return directions
       end
     end
