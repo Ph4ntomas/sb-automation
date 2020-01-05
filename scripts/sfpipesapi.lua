@@ -91,6 +91,12 @@ function pipes.init(pipeTypes)
   end
 
   pipes.rejectNode = {}
+
+  for _,pipeType in ipairs(pipeTypes) do
+      for name, hook in pairs(pipeType.hooks) do
+          message.setHandler(hook, pipeType.msgHooks[name])
+      end
+  end
 end
 
 --- Push, calls the put hook on the closest connected object that returns true
@@ -102,9 +108,10 @@ function pipes.push(pipeName, nodeId, args)
   if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
     for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
       pipes.rejectNode[nodeId] = true
-      local entityReturn = world.callScriptedEntity(entity.id, pipes.types[pipeName].hooks.put, args, entity.nodeId)
+      local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.put, args, entity.nodeId))
+
       pipes.rejectNode[nodeId] = false
-      if entityReturn then return entityReturn end
+      if pEntityReturn:succeeded() then return pEntityReturn:result() end
     end
   end
   return false
@@ -119,9 +126,10 @@ function pipes.pull(pipeName, nodeId, args)
   if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
     for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
       pipes.rejectNode[nodeId] = true
-      local entityReturn = world.callScriptedEntity(entity.id, pipes.types[pipeName].hooks.get, args, entity.nodeId)
+      local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.get, args, entity.nodeId))
+
       pipes.rejectNode[nodeId] = false
-      if entityReturn then return entityReturn end
+      if pEntityReturn:succeeded() then return pEntityReturn:result() end
     end
   end
   return false
@@ -136,9 +144,9 @@ function pipes.peekPush(pipeName, nodeId, args)
   if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
     for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
       pipes.rejectNode[nodeId] = true
-      local entityReturn = world.callScriptedEntity(entity.id, pipes.types[pipeName].hooks.peekPut, args, entity.nodeId)
+      local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPut, args, entity.nodeId))
       pipes.rejectNode[nodeId] = false
-      if entityReturn then return entityReturn end
+      if pEntityReturn:succeeded() then return pEntityReturn:result() end
     end
   end
   return false
@@ -153,9 +161,9 @@ function pipes.peekPull(pipeName, nodeId, args)
   if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
     for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
       pipes.rejectNode[nodeId] = true
-      local entityReturn = world.callScriptedEntity(entity.id, pipes.types[pipeName].hooks.peekGet, args, entity.nodeId)
+      local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekGet, args, entity.nodeId))
       pipes.rejectNode[nodeId] = false
-      if entityReturn then return entityReturn end
+      if pEntityReturn:succeeded() then return pEntityReturn:result() end
     end
   end
   return false

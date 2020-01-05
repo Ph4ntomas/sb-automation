@@ -1,5 +1,4 @@
-function init(virtual)
-  if not virtual then
+function init()
     object.setInteractive(true)
 
     self.range = 70
@@ -8,7 +7,6 @@ function init(virtual)
     storage.currentMode = storage.currentMode or self.modes[1]
 
     updateRelays(storage.currentMode)
-  end
 end
 
 function onInteraction(args)

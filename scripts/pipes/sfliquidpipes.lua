@@ -7,8 +7,36 @@ liquidPipe = {
     get = "onLiquidGet", --Should return whatever argument you want to plug into the put hook, can take whatever argument you want like a filter or something
     peekPut = "beforeLiquidPut", --Should return true if object will put the item
     peekGet = "beforeLiquidGet" --Should return true if object will get the item
+  },
+  msgHooks = {
   }
 }
+
+function liquidPipe.msgHooks.put(_, _, liquid, nodeId)
+    if onLiquidPut then
+        return onLiquidPut(liquid, nodeId)
+    end
+end
+
+function liquidPipe.msgHooks.peekPut(_, _, liquid, nodeId)
+    if beforeLiquidPut then
+        return beforeLiquidPut(liquid, nodeId)
+    end
+    return false
+end
+
+function liquidPipe.msgHooks.get(_, _, filter, nodeId)
+    if onLiquidGet then
+        return onLiquidGet(filter, nodeId)
+    end
+end
+
+function liquidPipe.msgHooks.peekGet(_, _, filter, nodeId)
+    if beforeLiquidGet then
+        return beforeLiquidGet(filter, nodeId)
+    end
+    return false
+end
 
 --- Pushes liquid
 -- @param nodeId the node to push from

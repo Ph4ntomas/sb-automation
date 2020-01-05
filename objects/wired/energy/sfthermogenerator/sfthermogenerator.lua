@@ -2,15 +2,18 @@ function init(virtual)
     energy.init()
     pipes.init({liquidPipe})
 
-    self.lavaCapacity = 2000
+    self.lavaCapacity = 200
     storage.lavaLevel = storage.lavaLevel or 0
     self.lavaConsumptionRate = 10 --this is per tile, so multiply by 3 to get maximum total consumption
     self.energyPerLava = 0.2
-    self.waterPerLava = 4
+    self.waterPerLava = 0.4
 
     setOrientation()
 
     updateAnimationState()
+    object.setMaterialSpaces({
+        {{0,0}, "sfinvisipipe"}
+    })
 end
 
 function die()
@@ -37,11 +40,13 @@ function updateAnimationState()
 end
 
 function beforeLiquidPut(liquid, nodeId)
-  return storage.lavaLevel < 10 and liquid and liquid[1] == 3
+  local unusedCapacity = self.lavaCapacity - storage.lavaLevel
+  return unusedCapacity > 0 and liquid and liquid[1] == 2
 end
 
 function onLiquidPut(liquid, nodeId)
-  if storage.lavaLevel < 10 and liquid and liquid[1] == 3 then
+  local unusedCapacity = self.lavaCapacity - storage.lavaLevel
+  if unusedCapacity > 0 and liquid and liquid[1] == 2 then
     storage.lavaLevel = math.min(storage.lavaLevel + liquid[2], self.lavaCapacity)
     return true
   end
@@ -51,7 +56,7 @@ function pullLava()
   local unusedCapacity = self.lavaCapacity - storage.lavaLevel
   if unusedCapacity > 0 then
     local filter = {}
-    filter["3"] = {1, unusedCapacity}
+    filter["2"] = {1, unusedCapacity}
 
     local liquid = pullLiquid(1, filter) or pullLiquid(2, filter)
     if liquid then
@@ -72,7 +77,7 @@ function generate(dt)
     if storage.lavaLevel > 0 then
       --check liquid at the given tile
       local liquidSample = world.liquidAt(pos)
-      if liquidSample and liquidSample[1] == 1 and liquidSample[2] >= 300 then
+      if liquidSample and liquidSample[1] == 1 and liquidSample[2] >= 0.4 then
         --destroy water in the tile
         local destroyed = world.destroyLiquid(pos)
         
@@ -82,7 +87,7 @@ function generate(dt)
         if destroyed[2] > consumeWater then
           world.spawnLiquid(pos, 1, destroyed[2] - consumeWater)
         else
-          consumeLava = destroyed[2] / self.waterPerLava
+          consumeLava = destroyed[2] * (1 - self.waterPerLava)
         end
 
         --convert lava to energy

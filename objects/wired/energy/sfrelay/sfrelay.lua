@@ -25,7 +25,7 @@ end
 
 function setRelayVariant(newTag)
   storage.variant = newTag
-  entity.setAnimationState("relayState", config.getParameter("relayType").."."..storage.variant)
+  animator.setAnimationState("relayState", config.getParameter("relayType").."."..storage.variant)
 end
 
 -- this will have to wait until setGlobalTag works properly

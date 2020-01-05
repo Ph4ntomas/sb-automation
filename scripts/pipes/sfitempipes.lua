@@ -7,8 +7,36 @@ itemPipe = {
     get = "onItemGet", --Should return whatever argument you want to plug into the put hook, can take whatever argument you want like a filter or something
     peekPut = "beforeItemPut", --Should return true if object will put the item
     peekGet = "beforeItemGet" --Should return true if object will get the item
+  },
+  msgHooks = {
   }
 }
+
+function itemPipe.msgHooks.put(_, _, item, nodeId)
+    if onItemPut then
+        return onItemPut(item, nodeId)
+    end
+end
+
+function itemPipe.msgHooks.peekPut(_, _, item, nodeId)
+    if beforeItemPut then
+        return beforeItemPut(item, nodeId)
+    end
+    return false
+end
+
+function itemPipe.msgHooks.get(_, _, filter, nodeId)
+    if onItemGet then
+        return onItemGet(filter, nodeId)
+    end
+end
+
+function itemPipe.msgHooks.peekGet(_, _, filter, nodeId)
+    if beforeItemGet then
+        return beforeItemGet(filter, nodeId)
+    end
+    return false
+end
 
 --- Pushes item to another object
 -- @param nodeId the node to push from
