@@ -1,5 +1,4 @@
-function init(virtual)
-  if not virtual then
+function init()
     energy.init()
 
     self.fuelValues = {
@@ -37,7 +36,6 @@ function init(virtual)
     object.setInteractive(not object.isInputNodeConnected(0))
 
     -- profilerApi.init()
-  end
 end
 
 function die()

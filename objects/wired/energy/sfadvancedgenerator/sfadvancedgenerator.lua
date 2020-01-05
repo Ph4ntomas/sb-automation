@@ -1,5 +1,4 @@
-function init(virtual)
-  if not virtual then
+function init()
     energy.init()
     datawire.init()
     pipes.init({itemPipe})
@@ -9,7 +8,6 @@ function init(virtual)
 
     self.turbineAngle = 0
     self.turbineSpeed = 0.2
-  end
 end
 
 function onNodeConnectionChange()
