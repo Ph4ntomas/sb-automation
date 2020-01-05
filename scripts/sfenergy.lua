@@ -1,4 +1,4 @@
-require '/scripts/util.lua'
+require '/scripts/sfutil.lua'
 
 function getProjectileSourcePositionHndl(_, _)
     return energy.getProjectileSourcePosition()
@@ -253,11 +253,10 @@ end
 --     as determined by energyConsumptionRate and scriptDelta
 -- @param testConsume (optional) if true, will not actually consume energy
 -- @returns false if there is insufficient energy stored (and does not remove energy)
-function energy.consumeEnergy(amount, testConsume, dt)
+function energy.consumeEnergy(dt, amount, testConsume)
   if amount == nil then
     amount = energy.consumptionRate * dt
   end
-  --sb.logInfo("consuming %f energy", amount)
   if amount <= energy.getEnergy() then
     if not testConsume then energy.removeEnergy(amount) end
     return true
@@ -283,7 +282,7 @@ end
 function energy.makeConnectionConfig(entityId)
   local config = {}
   local srcPos = energy.getProjectileSourcePosition()
-  local ptarPos = util.await(world.sendEntityMessage(entityId, "energy.getProjectileSourcePosition"))
+  local ptarPos = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.getProjectileSourcePosition"))
   local tarPos = nil
 
   if ptarPos:succeeded() then
@@ -299,7 +298,7 @@ function energy.makeConnectionConfig(entityId)
   -- Just leaving the code for solid collision checking there, not not using it for now
   config.blocked = energy.checkLoS(srcPos, tarPos, entityId)
   --config.blocked = world.lineCollision(srcPos, tarPos) -- world.lineCollision is marginally faster
-  local prelay = util.await(world.sendEntityMessage(entityId, "energy.isRelay"))
+  local prelay = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.isRelay"))
   
   if prelay:succeeded() then
       config.isRelay = prelay:result()
@@ -319,7 +318,7 @@ end
 -- Check line of sight from one position to another
 function energy.checkLoS(srcPos, tarPos, entityId)
   local ignoreBlocksSrc = energy.getCollisionBlocks()
-  local pignoreBlocksTar = util.await(world.sendEntityMessage(entityId, "energy.getCollisionBlocks"))
+  local pignoreBlocksTar = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.getCollisionBlocks"))
   local ignoreBlocksTar = nil
 
   if pignoreBlocksTar:succeeded() then
@@ -502,13 +501,12 @@ function energy.energyNeedsQuery(energyNeeds)
     if not energyNeeds[tostring(entityId)] and not energy.connections[entityId].blocked then
       local prevTotal = energyNeeds["total"]
 
-      local pnewEnergyNeeds = util.await(world.sendEntityMessage(entityId, "energy.getEnergyNeeds", energyNeeds))
+      local pnewEnergyNeeds = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.getEnergyNeeds", energyNeeds))
       local newEnergyNeeds = nil
 
       if pnewEnergyNeeds:succeeded() then
           newEnergyNeeds = pnewEnergyNeeds:result()
       end
-
 
       if newEnergyNeeds then
         energyNeeds = newEnergyNeeds
@@ -550,8 +548,6 @@ function energy.sendEnergy(amount)
   energyNeeds["total"] = nil
   energyNeeds["sourceId"] = nil
 
-  --sb.logInfo("initial energyNeeds: " .. sb.print(energyNeeds))
-
   -- build and sort a table from least to most energy requested
   local sortedEnergyNeeds = {}
   for entityId, thisNeed in pairs(energyNeeds) do
@@ -559,15 +555,13 @@ function energy.sendEnergy(amount)
   end
   table.sort(sortedEnergyNeeds, energy.compareNeeds)
 
-  --sb.logInfo("sorted energyNeeds: " .. sb.print(sortedEnergyNeeds))
-
   -- process list and distribute remainder evenly at each step
   local totalEnergyToSend = amount
   local remainingEnergyToSend = totalEnergyToSend
   while #sortedEnergyNeeds > 0 do
     if sortedEnergyNeeds[1][2] > 0 then
       local sendAmt = remainingEnergyToSend / #sortedEnergyNeeds
-      local pacceptedEnergy = util.await(world.sendEntityMessage(tonumber(sortedEnergyNeeds[1][1]), "energy.receiveEnergy", sendAmt))
+      local pacceptedEnergy = sfutil.safe_await(world.sendEntityMessage(tonumber(sortedEnergyNeeds[1][1]), "energy.receiveEnergy", sendAmt))
       local acceptedEnergy = -1
 
       if pacceptedEnergy:succeeded() then
@@ -588,8 +582,6 @@ function energy.sendEnergy(amount)
 
   --call hook for objects to update animations, etc
   if onEnergySend then onEnergySend(totalSent) end
-
-  --sb.logInfo(string.format("%s %s successfully sent %s energy", config.getParameter("objectName"), entity.id(), totalSent))
 end
 
 -- display a visual indicator of the energy transfer

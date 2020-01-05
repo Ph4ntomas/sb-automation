@@ -2,12 +2,19 @@ function init()
     self.convertLiquid = config.getParameter("liquidConversions")
     pipes.init({liquidPipe})
     self.usedNode = 0
+
+    object.setMaterialSpaces({
+        {
+            {0, 0},
+            "sfinvisipipe"
+        }
+    })
 end
 
 --------------------------------------------------------------------------------
 function update(dt)
   pipes.update(dt)
-  
+
   local position = entity.position()
   local checkDirs = {}
   checkDirs[0] = {-1, 0}
@@ -15,24 +22,20 @@ function update(dt)
   checkDirs[2] = {1, 0}
   checkDirs[3] = {0, 1}
   
-  sb.logInfo("spout update : #entities = " .. sb.print(#pipes.nodeEntities["liquid"]))
   if #pipes.nodeEntities["liquid"] > 0 then
     for i=0,3 do 
       local angle = (math.pi / 2) * i
       if #pipes.nodeEntities["liquid"][i+1] > 0 then
-              sb.logInfo("rotation 1")
         animator.rotateGroup("pipe", angle)
-        self.usedNode = i + 1
+        self.dir = {checkDirs[i][1] * -1, checkDirs[i][2] * -1}
       elseif i == 3 then --Not connected to an object, check for pipes instead
         for i=0,3 do 
           local angle = (math.pi / 2) * i
           local tilePos = {position[1] + checkDirs[i][1], position[2] + checkDirs[i][2]}
-          local pipeDirections = pipes.getPipeTileData("liquid", tilePos, "foreground", checkDirs[i])
-          sb.logInfo("pipeTileData %s", sb.print(pipeDirections))
+          local pipeDirections = pipes.getPipeTileData("liquid", tilePos, "foreground")
           if pipeDirections then
-              sb.logInfo("rotation")
             animator.rotateGroup("pipe", angle)
-            self.usedNode = i + 1
+            self.dir = {checkDirs[i][1] * -1, checkDirs[i][2] * -1}
           end
         end
       end
@@ -51,20 +54,15 @@ function convertEndlessLiquid(liquid)
 end
 
 function canGetLiquid(filter, nodeId)
-  if nodeId ~= self.usedNode then return false end
   --Only get liquid if the pipe is emerged in liquid
   local position = entity.position()
   local liquidPos = {position[1] + 0.5, position[2] + 0.5}
   local availableLiquid = world.liquidAt(liquidPos)
-  sb.logInfo("liquidAt " .. sb.print(availableLiquid))
   if availableLiquid then
     local liquid = convertEndlessLiquid(availableLiquid)
 
     local returnLiquid = filterLiquids(filter, {liquid})
-    log.logInfo("(canGetLiquid) filter result: %s", sb.print(returnLiquid))
-    
     if returnLiquid then
-        sb.logInfo("can get liquid ! " .. sb.print(returnLiquid))
       return returnLiquid
     end
   end
@@ -72,15 +70,14 @@ function canGetLiquid(filter, nodeId)
 end
 
 function canPutLiquid(liquid, nodeId)
-  if nodeId ~= self.usedNode then return false end
-  
-  return true
+    return true
 end
 
 function onLiquidGet(filter, nodeId)
   local position = entity.position()
   local liquidPos = {position[1] + 0.5, position[2] + 0.5}
   local getLiquid = canGetLiquid(filter, nodeId)
+
   if getLiquid then
     local destroyed = world.destroyLiquid(liquidPos)
     if destroyed[2] > getLiquid[2] then

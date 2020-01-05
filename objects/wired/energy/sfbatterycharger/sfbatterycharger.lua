@@ -1,4 +1,4 @@
-require '/scripts/util.lua'
+require '/scripts/sfutil.lua'
 
 function init()
     energy.init()
@@ -155,9 +155,7 @@ function dischargeBatteries()
   local energyNeeded = energy.getUnusedCapacity()
   --world.logInfo("discharging batteries starting with %f energy", energy.getEnergy())
   while sourceBatt >= 1 and energyNeeded > 0 do
-      sb.logInfo("discharging battery %s : %s", sb.print(self.batteries[sourceBatt].id), sb.print(self.batteries[sourceBatt]))
-      sb.logInfo("energyNeeded = " .. sb.print(energyNeeded))
-    local pdischarge = util.await(world.sendEntityMessage(self.batteries[sourceBatt].id, "energy.removeEnergy", energyNeeded))
+    local pdischarge = sfutil.safe_await(world.sendEntityMessage(self.batteries[sourceBatt].id, "energy.removeEnergy", energyNeeded))
 
     if pdischarge:succeeded() then
         local discharge = pdischarge:result()

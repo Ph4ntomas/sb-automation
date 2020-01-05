@@ -1,3 +1,5 @@
+require '/scripts/sfutil.lua'
+
 --HOOKS
 
 --- Hook used for determining if an object connects to a specified position
@@ -5,16 +7,17 @@
 -- @param position vec2 - world position to compare node positions to
 -- @param pipeDirection vec2 - direction of the pipe to see if the object connects
 -- @returns node ID if successful, false if unsuccessful
-function entityConnectsAt(pipeName, position, pipeDirection)
+function entityConnectsAt(_, _, pipeName, position, pipeDirection)
   if pipes == nil or pipes.nodes[pipeName] == nil then
     return false 
   end
+
   local entityPos = entity.position()
   
   for i,node in ipairs(pipes.nodes[pipeName]) do
     local absNodePos = object.toAbsolutePosition(node.offset)
     local distance = world.distance(position, absNodePos)
-    if distance[1] == 0 and distance[2] == 0 and pipes.pipesConnect(node.dir, {pipeDirection}) then
+    if distance[1] == 0 and distance[2] == 0 then
       return i
     end
   end
@@ -178,12 +181,16 @@ end
 -- @returns Hook return if successful, false if unsuccessful
 function pipes.tileDirections(pipeName, position, layer)
   local checkedTile = world.material(position, layer)
+
   for _,tileType in ipairs(pipes.types[pipeName].tiles) do
-    for orientation,directions in pairs(pipes.directions) do
       if checkedTile == tileType then
-        return directions
+          return {
+              {1, 0}, 
+              {-1, 0},
+              {0, 1},
+              {0, -1}
+          }
       end
-    end
   end
   return false
 end
@@ -201,7 +208,7 @@ function pipes.getPipeTileData(pipeName, position, layerMode, direction)
   
   local firstCheck = pipes.tileDirections(pipeName, position, layerMode)
   local secondCheck = pipes.tileDirections(pipeName, position, layerSwitch[layerMode])
-  
+
   --Return relevant values
   if firstCheck and (direction == nil or pipes.pipesConnect(direction, firstCheck)) then
     return firstCheck, layerMode
@@ -223,6 +230,7 @@ function pipes.getNodeEntities(pipeName)
   for i,pipeNode in ipairs(pipes.nodes[pipeName]) do
     nodeEntities[i] = pipes.walkPipes(pipeName, pipeNode.offset, pipeNode.dir)
   end
+
   return nodeEntities
   
 end
@@ -235,13 +243,12 @@ function pipes.update(dt)
   pipes.updateTimer = pipes.updateTimer + dt
   
   if pipes.updateTimer >= pipes.updateInterval then
-  
     --Get connected entities
     for pipeName,pipeType in pairs(pipes.types) do
       --Get Input
       pipes.nodeEntities[pipeName] = pipes.getNodeEntities(pipeName)
     end
-    
+
     pipes.updateTimer = 0
   end
 end
@@ -253,7 +260,7 @@ end
 -- @param direction vec2 - direction of the pipe tile
 -- @returns nil
 function pipes.validEntity(pipeName, entityId, position, direction)
-        local promise = util.await(world.sendEntityMessage(entityId, "entityConnectsAt", pipeName, position, direction))
+        local promise = sfutil.safe_await(world.sendEntityMessage(entityId, "entityConnectsAt", pipeName, position, direction))
 
         if promise:succeeded() then
             return promise:result()
@@ -275,15 +282,17 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
   
   while #tilesToVisit > 0 do
     local tile = tilesToVisit[1]
-    local pipeDirections, layerMode = pipes.getPipeTileData(pipeName, object.toAbsolutePosition(tile.pos), tile.layer, tile.dir)
-    
+    local pipeDirections, layerMode = pipes.getPipeTileData(pipeName, object.toAbsolutePosition(tile.pos), tile.layer)
+
+    --sb.logInfo("walking pipedir %s", sb.print(pipeDirections))
     --If a tile, add connected spaces to the visit list
     if pipeDirections then
       tile.path[#tile.path+1] = tile.pos --Add tile to the path
       visitedTiles[tile.pos[1].."."..tile.pos[2]] = true --Add to global visited
+
       for _,dir in ipairs(pipeDirections) do
         local newPos = {tile.pos[1] + dir[1], tile.pos[2] + dir[2]}
-        if not pipes.pipesConnect(dir, {tile.dir}) and visitedTiles[newPos[1].."."..newPos[2]] == nil then --Don't check the tile we just came from, and don't check already visited ones
+        if visitedTiles[newPos[1].."."..newPos[2]] == nil then --Don't check the tile we just came from, and don't check already visited ones
           local newTile = {pos = newPos, layer = layerMode, dir = dir, path = table.copy(tile.path)}
           table.insert(tilesToVisit, 2, newTile)
         end
@@ -293,6 +302,7 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
       --local connectedObjects = world.objectQuery(object.toAbsolutePosition(tile.pos), 2)
       local absTilePos = object.toAbsolutePosition(tile.pos)
       local connectedObjects = world.entityLineQuery(absTilePos, {absTilePos[1] + 1, absTilePos[2] + 2})
+
       if connectedObjects then
         for key,objectId in ipairs(connectedObjects) do
           local entNode = pipes.validEntity(pipeName, objectId, object.toAbsolutePosition(tile.pos), tile.dir)

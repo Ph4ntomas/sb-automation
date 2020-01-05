@@ -1,0 +1,12 @@
+{
+  "materialId" : 5739,
+  "materialName" : "sfinvisipipe",
+  "frames" : "sfinvisiipipe.png",
+  "collisionKind" : "none",
+  "particleColor" : [0, 0, 0, 0],
+  "variants" : 1,
+  "shortdescription" : "Invisible Tile",
+  "description" : "What am I looking at, here?",
+  "health" : 1,
+  "category" : "dummy"
+}

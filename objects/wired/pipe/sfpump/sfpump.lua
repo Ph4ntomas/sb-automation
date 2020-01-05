@@ -13,6 +13,11 @@ function init(virtual)
     buildFilter()
 
     if storage.state == nil then storage.state = false end
+
+    object.setMaterialSpaces({
+        {{0,0},"sfinvisipipe"},
+        {{1,0},"sfinvisipipe"}
+    })
 end
 
 function onInputNodeChange(args)
@@ -53,8 +58,7 @@ function update(dt)
       local canGetLiquid = peekPullLiquid(srcNode, self.filter)
       local canPutLiquid = peekPushLiquid(tarNode, canGetLiquid)
 
-      sb.logInfo("canGetLiquid %s, canPutLiquid %s", sb.print(canGetLiquid), sb.print(canPutLiquid))
-      if canGetLiquid and canPutLiquid and energy.consumeEnergy() then
+      if canGetLiquid and canPutLiquid and energy.consumeEnergy(dt) then
         animator.setAnimationState("pumping", "pump")
         object.setAllOutputNodes(true)
         
