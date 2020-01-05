@@ -5,10 +5,9 @@
   "itemDrop" : "sfcleanpipe",
   "shortdescription" : "Clean Pipe.",
   "description" : "A clean pipe used in the transport of resources.",
-  "variants" : 2,
   "glitchDescription" : "Statement. A middle second of a horizontal pipe.",
   "floranDescription" : "Lying down pipe.",
-  "footstepSound" : "/sfx/blocks/footstep_lightmetal.wav",
+  "footstepSound" : "/sfx/blocks/footstep_lightmetal.ogg",
   "health" : 10,
   "category" : "pipes",
 
@@ -18,7 +17,7 @@
     "variants" : 10,
     "lightTransparent" : false,
     "occludesBelow" : false,
-    "multicolored" : true,
+    "multiColored" : true,
     "zLevel" : 3360
   }
 }
