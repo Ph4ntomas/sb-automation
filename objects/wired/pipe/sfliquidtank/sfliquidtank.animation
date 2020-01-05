@@ -46,10 +46,10 @@
       },
       "liquid" : {
         "properties" : {
-          "offset" : [-0.125, -1],
+          "offset" : [-0.125, 0],
           "centered" : false,
-          "zLevel" : 2,
-          "scalingGroup" : "liquid"
+          "zLevel" : 152,
+          "transformationGroups" : ["liquid"]
         },
         "partStates" : {
           "liquid" : {
@@ -88,9 +88,9 @@
       }
     }
   },
-  "scalingGroups" : {
+  "transformationGroups" : {
     "liquid" : {
-      "pivot" : [0, 0]
+      "interpolated" : false 
     }
   }
 }

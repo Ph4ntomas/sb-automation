@@ -1,4 +1,4 @@
-function init(virtual)
+function init()
     object.setInteractive(true)
 
     pipes.init({liquidPipe})
@@ -13,11 +13,6 @@ function init(virtual)
     buildFilter()
 
     if storage.state == nil then storage.state = false end
-
-    object.setMaterialSpaces({
-        {{0,0},"sfinvisipipe"},
-        {{1,0},"sfinvisipipe"}
-    })
 end
 
 function onInputNodeChange(args)

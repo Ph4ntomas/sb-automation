@@ -26,7 +26,7 @@
     "/scripts/sfenergy.lua",
     "/scripts/stateMachine.lua",
     "quarry.lua",
-    "/scripts/pipes/itempipes.lua",
+    "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/storageapi.lua",
     "/scripts/util.lua",

@@ -1,7 +1,6 @@
 {
-  "objectName" : "valve",
+  "objectName" : "sfvalve",
   "rarity" : "Common",
-  "objectType" : "wire",
   "description" : "Passes items or liquids between opposite sides when active.",
   "shortdescription" : "Valve Junction",
   "race" : "generic",
@@ -10,58 +9,58 @@
   "price" : 300,
   "printable" : false,
 
-  "inventoryIcon" : "valveicon.png",
+  "inventoryIcon" : "sfvalveicon.png",
   "orientations" : [
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
 
       "spaceScan" : 0.1,
       "anchors" : [ "background" ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
 
       "spaceScan" : 0.1,
       "anchors" : [ "bottom" ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
 
       "spaceScan" : 0.1,
       "anchors" : [ "top" ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
 
       "spaceScan" : 0.1,
       "anchors" : [ "left" ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
 
       "spaceScan" : 0.1,
       "anchors" : [ "right" ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, 1] ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [1, 0] ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, -1] ]
     },
     {
-      "image" : "valve.png:<color>.off",
+      "image" : "sfvalve.png:<color>.off",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [-1, 0] ]
@@ -69,9 +68,9 @@
   ],
 
   "scripts" : [
-    "/objects/wired/pipe/valve/valve.lua",
+    "sfvalve.lua",
     "/scripts/pipes/sfliquidpipes.lua",
-    "/scripts/pipes/itempipes.lua",
+    "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
@@ -81,7 +80,7 @@
   "animation" : "/objects/wired/switch/switchtoggle.animation",
 
   "animationParts" : {
-    "switch" : "valve.png"
+    "switch" : "sfvalve.png"
   },
   "animationPosition" : [0, 0],
 

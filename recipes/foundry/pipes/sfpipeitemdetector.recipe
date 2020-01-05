@@ -4,7 +4,7 @@
     { "item" : "siliconboard", "count" : 1 }
   ],
   "output" : {
-    "item" : "pipeitemdetector",
+    "item" : "sfpipeitemdetector",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]

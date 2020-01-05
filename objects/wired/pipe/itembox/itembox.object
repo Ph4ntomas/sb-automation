@@ -41,7 +41,7 @@
   
   "scripts" : [
     "/objects/wired/pipe/itembox/itembox.lua",
-    "/scripts/pipes/itempipes.lua",
+    "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/storageapi.lua",
     "/scripts/util.lua",

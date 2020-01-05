@@ -1,6 +1,5 @@
 {
-  "objectName" : "liquidtank",
-  "objectType" : "wire",
+  "objectName" : "sfliquidtank",
   "rarity" : "Common",
   "description" : "A tank for storing liquid.",
   "shortdescription" : "Liquid Tank",
@@ -10,11 +9,11 @@
   
   "breakDropOptions": [],
 
-  "inventoryIcon" : "liquidtankicon.png",
+  "inventoryIcon" : "sfliquidtankicon.png",
   "orientations" : [
     {
-      "dualImage" : "liquidtank.png",
-      "imageLayers" : [ { "image" : "liquidtank.png:foreground" }, {"image" : "liquidtank.png:background"}],
+      "dualImage" : "sfliquidtank.png",
+      "imageLayers" : [ { "image" : "sfliquidtank.png:foreground" }, {"image" : "sfliquidtank.png:background"}],
       "imagePosition" : [0, 0],
       "frames" : 1,
       "animationCycle" : 1.0,
@@ -24,16 +23,16 @@
     }
   ],
   
-  "animation" : "/objects/wired/pipe/liquidtank/liquidtank.animation",
+  "animation" : "sfliquidtank.animation",
   "animationParts" : {
-    "fore" : "liquidtank.png",
-    "back" : "liquidtank.png",
-    "liquid" : "liquidbar.png"
+    "fore" : "sfliquidtank.png",
+    "back" : "sfliquidtank.png",
+    "liquid" : "sfliquidbar.png"
   },
   "animationPosition" : [16, 20],
   
   "scripts" : [
-    "/objects/wired/pipe/liquidtank/liquidtank.lua",
+    "sfliquidtank.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",

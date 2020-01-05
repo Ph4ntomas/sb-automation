@@ -22,6 +22,7 @@
     "parts" : {
       "charger" : {
         "properties" : {
+          "zLevel" : 1,
           "centered" : false
         },
         "partStates" : {

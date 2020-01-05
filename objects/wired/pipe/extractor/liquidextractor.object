@@ -25,7 +25,7 @@
   "scripts" : [
     "/objects/wired/pipe/extractor/liquidextractor.lua",
     "/scripts/pipes/sfliquidpipes.lua",
-    "/scripts/pipes/itempipes.lua",
+    "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfenergy.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",

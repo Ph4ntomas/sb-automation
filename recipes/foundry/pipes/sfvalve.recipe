@@ -4,7 +4,7 @@
     { "item" : "laserdiode", "count" : 1 }
   ],
   "output" : {
-    "item" : "valve",
+    "item" : "sfvalve",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]

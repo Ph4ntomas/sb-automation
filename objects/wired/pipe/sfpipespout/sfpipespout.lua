@@ -2,13 +2,6 @@ function init()
     self.convertLiquid = config.getParameter("liquidConversions")
     pipes.init({liquidPipe})
     self.usedNode = 0
-
-    object.setMaterialSpaces({
-        {
-            {0, 0},
-            "sfinvisipipe"
-        }
-    })
 end
 
 --------------------------------------------------------------------------------

@@ -329,7 +329,19 @@ function energy.checkLoS(srcPos, tarPos, entityId)
     local collisionBlocks = world.collisionBlocksAlongLine(srcPos, tarPos)
     return energy.checkCollisionBlocks(collisionBlocks, ignoreBlocksSrc, ignoreBlocksTar)
   else
-    return world.lineCollision(srcPos, tarPos)
+      local collisions = world.collisionBlocksAlongLine(srcPos, tarPos)
+
+      for _, collision in ipairs(collisions) do
+          local material = world.material(collision, "foreground")
+          local materialConfig = root.materialConfig(material)
+
+          if materialConfig["config"] == nil 
+              or materialConfig["config"]["renderParameters"] == nil 
+              or not materialConfig["config"]["renderParameters"]["lightTransparent"] then
+              return collision
+          end
+      end
+    return false
   end
 end
 
@@ -337,6 +349,7 @@ end
 function energy.checkCollisionBlocks(collisionBlocks, ignoreBlocksSrc, ignoreBlocksTar)
   for i, colBlock in ipairs(collisionBlocks) do
     local colBlockHash = energy.blockHash(colBlock)
+    sb.logInfo("blockHash %s", colBlockHash)
     if not ((ignoreBlocksSrc and ignoreBlocksSrc[colBlockHash]) or (ignoreBlocksTar and ignoreBlocksTar[colBlockHash])) then
       --this block is not ignored by either side
       return true

@@ -4,7 +4,7 @@
     { "item" : "glassmaterial", "count" : 10 }
   ],
   "output" : {
-    "item" : "liquidtank",
+    "item" : "sfliquidtank",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]

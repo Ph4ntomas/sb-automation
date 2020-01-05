@@ -88,7 +88,16 @@ function pipes.init(pipeTypes)
   for pipeName,pipeType in pairs(pipes.types) do
     pipes.nodes[pipeName] = config.getParameter(pipeType.nodesConfigParameter)
     pipes.nodeEntities[pipeName] = {}
+    if pipes.nodes[pipeName] ~= nil then
+        local nodeList = {}
+        for offset,node in ipairs(pipes.nodes[pipeName]) do
+            nodeList[offset] = { node.offset, "sfinvisipipe" }
+        end
+        
+        object.setMaterialSpaces(nodeList)
+    end
   end
+
 
   pipes.rejectNode = {}
 
@@ -123,13 +132,13 @@ end
 -- @param args - The arguments to send to the hook
 -- @returns Hook return if successful, false if unsuccessful
 function pipes.pull(pipeName, nodeId, args)
-  if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
+  if pipes.nodeEntities[pipeName] and pipes.nodeEntities[pipeName][nodeId] and #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
     for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
       pipes.rejectNode[nodeId] = true
       local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.get, args, entity.nodeId))
 
       pipes.rejectNode[nodeId] = false
-      if pEntityReturn:succeeded() then return pEntityReturn:result() end
+      if pEntityReturn:succeeded() and pEntityReturn:result() then return pEntityReturn:result() end
     end
   end
   return false
@@ -305,8 +314,9 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
           table.insert(tilesToVisit, 2, newTile)
         end
       end
+    end
     --If not a tile, check for objects that might connect
-    elseif not pipeDirections then
+    if not pipeDirections or layerMode == "background" then
       --local connectedObjects = world.objectQuery(object.toAbsolutePosition(tile.pos), 2)
       local absTilePos = object.toAbsolutePosition(tile.pos)
       local connectedObjects = world.entityLineQuery(absTilePos, {absTilePos[1] + 1, absTilePos[2] + 2})

@@ -1,5 +1,4 @@
-function init(virtual)
-  if not virtual then
+function init()
     if storage.state == nil then
       storage.state = false
     end
@@ -8,7 +7,7 @@ function init(virtual)
       storage.timer = 0
     end
 
-    self.detectCooldown = entity.configParameter("detectCooldown")
+    self.detectCooldown = config.getParameter("detectCooldown")
 
     updateAnimationState()
 
@@ -20,7 +19,6 @@ function init(virtual)
   
     pipes.init({liquidPipe,itemPipe})
     datawire.init()
-  end
 end
 
 function onNodeConnectionChange()
@@ -28,12 +26,12 @@ function onNodeConnectionChange()
 end
 
 --------------------------------------------------------------------------------
-function main(args)
+function update(dt)
   datawire.update()
-  pipes.update(entity.dt())
+  pipes.update(dt)
 
   if storage.timer > 0 then
-    storage.timer = storage.timer - entity.dt()
+    storage.timer = storage.timer - dt
 
     if storage.timer <= 0 then
       deactivate()
@@ -43,23 +41,23 @@ end
 
 function updateAnimationState()
   if storage.state then
-    entity.setAnimationState("switchState", "on")
+    animator.setAnimationState("switchState", "on")
   else
-    entity.setAnimationState("switchState", "off")
+    animator.setAnimationState("switchState", "off")
   end
 end
 
 function activate()
   storage.timer = self.detectCooldown
   storage.state = true
-  entity.setAlloutputNodes(true)
+  object.setAlloutputNodes(true)
   updateAnimationState()
 end
 
 function deactivate()
   storage.state = false
   updateAnimationState()
-  entity.setAlloutputNodes(false)
+  object.setAlloutputNodes(false)
 end
 
 function output(item)

@@ -1,37 +1,36 @@
-function init(args)  
-  entity.setInteractive(true)
-  if args == false then
-    pipes.init({liquidPipe})
-    local initInv = entity.configParameter("initialInventory")
-    if initInv and storage.liquid == nil then
+function init()  
+  object.setInteractive(true)
+  pipes.init({liquidPipe})
+  local initInv = config.getParameter("initialInventory")
+  if initInv and storage.liquid == nil then
       storage.liquid = initInv
-    end
-    
-    entity.scaleGroup("liquid", {1, 0})
-    self.liquidMap = {}
-    self.liquidMap[1] = "water"
-    self.liquidMap[3] = "lava"
-    self.liquidMap[4] = "poison"
-    self.liquidMap[6] = "tentacle juice"
-    self.liquidMap[7] = "tar"
-    
-    self.capacity = entity.configParameter("liquidCapacity")
-    self.pushAmount = entity.configParameter("liquidPushAmount")
-    self.pushRate = entity.configParameter("liquidPushRate")
-    
-    if storage.liquid == nil then storage.liquid = {} end
-    
-    self.pushTimer = 0
   end
+
+  animator.resetTransformationGroup("liquid")
+  animator.scaleTransformationGroup("liquid", {1, 0})
+  self.liquidMap = {}
+  self.liquidMap[1] = "water"
+  self.liquidMap[2] = "lava"
+  self.liquidMap[4] = "poison"
+  self.liquidMap[6] = "tentacle juice"
+  self.liquidMap[7] = "tar"
+
+  self.capacity = config.getParameter("liquidCapacity")
+  self.pushAmount = config.getParameter("liquidPushAmount")
+  self.pushRate = config.getParameter("liquidPushRate")
+
+  if storage.liquid == nil then storage.liquid = {} end
+
+  self.pushTimer = 0
 end
 
 function die()
-  local position = entity.position()
-  if storage.liquid[1] ~= nil then
-    world.spawnItem("liquidtank", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.liquid})
-  else
-    world.spawnItem("liquidtank", {position[1] + 1.5, position[2] + 1}, 1)
-  end
+    local position = entity.position()
+    if storage.liquid[1] ~= nil then
+        world.spawnItem("sfliquidtank", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.liquid})
+    else
+        world.spawnItem("sfliquidtank", {position[1] + 1.5, position[2] + 1}, 1)
+    end
 end
 
 
@@ -45,42 +44,43 @@ function onInteraction(args)
 
   local popupMessage
   if count ~= nil then
-    popupMessage = string.format("^white;Holding ^green;%d^white; / ^green;%d^white; units of liquid ^green;%s", count, capacity, liquid)
+    popupMessage = string.format("^white;Holding ^green;%f^white; / ^green;%d^white; units of liquid ^green;%s", count, capacity, liquid)
   else
     popupMessage = "Tank is empty."
   end
   return { "ShowPopup", { message = popupMessage }}
 end
 
-function main(args)
-  pipes.update(entity.dt())
+function update(dt)
+  pipes.update(dt)
   
   local liquidState = self.liquidMap[storage.liquid[1]]
   if liquidState then
-    entity.setAnimationState("liquid", liquidState)
+    animator.setAnimationState("liquid", liquidState)
   else
-    entity.setAnimationState("liquid", "other")
+    animator.setAnimationState("liquid", "other")
   end
   
   if storage.liquid[2] then
     local liquidScale = storage.liquid[2] / self.capacity
-    entity.scaleGroup("liquid", {1, liquidScale})
+    animator.resetTransformationGroup("liquid")
+    animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -1)
   else
-    entity.scaleGroup("liquid", {1, 0})
+    animator.scaleTransformationGroup("liquid", {1, 0})
   end
   
   if self.pushTimer > self.pushRate and storage.liquid[2] ~= nil then
     local pushedLiquid = {storage.liquid[1], storage.liquid[2]}
     if storage.liquid[2] > self.pushAmount then pushedLiquid[2] = self.pushAmount end
     for i=1,2 do
-      if entity.getInputNodeLevel(i-1) and pushLiquid(i, pushedLiquid) then
+      if object.getInputNodeLevel(i-1) and pushLiquid(i, pushedLiquid) then
         storage.liquid[2] = storage.liquid[2] - pushedLiquid[2]
         break;
       end
     end
     self.pushTimer = 0
   end
-  self.pushTimer = self.pushTimer + entity.dt()
+  self.pushTimer = self.pushTimer + dt
   
   clearLiquid()
 end
@@ -107,7 +107,7 @@ function onLiquidPut(liquid, nodeId)
     storage.liquid = newLiquid
     
     --Try to push excess liquid
-    if excess > 0 and (entity.isInputNodeConnected(nodeMap[nodeId]-1) == false or entity.getInputNodeLevel(nodeMap[nodeId]-1)) then 
+    if excess > 0 and (object.isInputNodeConnected(nodeMap[nodeId]-1) == false or object.getInputNodeLevel(nodeMap[nodeId]-1)) then 
       return pushLiquid(nodeMap[nodeId], {newLiquid[1], excess}) 
     elseif excess ~= liquid[2] then
       return true
@@ -128,7 +128,7 @@ function beforeLiquidPut(liquid, nodeId)
       excess = newLiquid[2] - self.capacity
     end
     
-    if excess == liquid[2] and (entity.isInputNodeConnected(nodeMap[nodeId]-1) == false or entity.getInputNodeLevel(nodeMap[nodeId]-1)) then
+    if excess == liquid[2] and (object.isInputNodeConnected(nodeMap[nodeId]-1) == false or object.getInputNodeLevel(nodeMap[nodeId]-1)) then
       return peekPushLiquid(nodeMap[nodeId], {newLiquid[1], excess}) 
     elseif excess < liquid[2] then
       return true
