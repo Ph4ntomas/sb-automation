@@ -1,11 +1,11 @@
 {
   "input" : [
-    { "item" : "itemfilter", "count" : 4 },
+    { "item" : "sfitemfilter", "count" : 4 },
     { "item" : "tungstenbar", "count" : 2 },
     { "item" : "siliconboard", "count" : 1 }
   ],
   "output" : {
-    "item" : "itemsorter",
+    "item" : "sfitemsorter",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]

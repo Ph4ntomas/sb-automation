@@ -1,7 +1,7 @@
 {
   "input" : [ ],
   "output" : {
-    "item" : "itemfilter",
+    "item" : "sfitemsorter",
     "count" : 1
   },
   "groups" : [ "mod", "sfmod" ]

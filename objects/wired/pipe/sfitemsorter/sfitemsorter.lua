@@ -1,5 +1,4 @@
 function init(virtual)
-  if not virtual then
     pipes.init({liquidPipe,itemPipe})
 
     self.connectionMap = {}
@@ -8,10 +7,10 @@ function init(virtual)
     self.connectionMap[3] = {1, 2, 4}
     self.connectionMap[4] = {1, 2, 3}
 
-    self.filtermap = {3, 2, 2, 1,
-                      3, 2, 2, 1,
-                      3, 4, 4, 1,
-                      3, 4, 4, 1}
+    self.filtermap = {1, 2, 2, 3,
+                      1, 2, 2, 3,
+                      1, 4, 4, 3,
+                      1, 4, 4, 3}
 
     filter = {}
     filter[1] = {}
@@ -24,21 +23,20 @@ function init(virtual)
     self.filterCount = {}
 
     buildFilter()
-  end
 end
 
 --------------------------------------------------------------------------------
-function main(args)
+function update(dt)
   buildFilter()
-  pipes.update(entity.dt())
+  pipes.update(dt)
 end
 
 function showPass(direction)
-  entity.setAnimationState("filterState", "pass." .. direction)
+  animator.setAnimationState("filterState", "pass." .. direction)
 end
 
 function showFail()
-  entity.setAnimationState("filterState", "fail")
+  animator.setAnimationState("filterState", "fail")
 end
 
 function beforeLiquidGet(filter, nodeId)
@@ -62,6 +60,7 @@ function onLiquidPut(liquid, nodeId)
 end
 
 function beforeItemPut(item, nodeId)
+    sb.logInfo("beforeItemPut(%s, %s)\n connectionMap = %s", item, nodeId, self.connectionMap )
   for _,node in ipairs(self.connectionMap[nodeId]) do
     if self.filterCount[node] > 0 then
       if self.filter[node][item.name] then
@@ -76,10 +75,25 @@ function onItemPut(item, nodeId)
   local pushResult = false
   local resultNode = 1
 
+  if item.name == "coalore" or item.name == "dirtmaterial" then
+      sb.logInfo("pipes.nodes %s", pipes.nodes["item"])
+      sb.logInfo("onItemPut(%s, %s)", item, nodeId)
+      sb.logInfo("item = %s", item)
+      sb.logInfo("filter = %s",self.filter)
+      sb.logInfo("filterCount = %s",self.filterCount)
+      sb.logInfo("connectionMap = %s", self.connectionMap[nodeId])
+  end
+
   for _,node in ipairs(self.connectionMap[nodeId]) do
+      if item.name == "coalore" then
+          sb.logInfo("node = %s, filter = %s", node, self.filter[node])
+      end
     if self.filterCount[node] > 0 then
       if self.filter[node][item.name] then
         pushResult = pushItem(node, item)
+        if item.name == "coalore" then
+            sb.logInfo("pushItem result %s", pushResult)
+        end
         if pushResult then resultNode = node end
       end
     end
@@ -95,6 +109,7 @@ function onItemPut(item, nodeId)
 end
 
 function beforeItemGet(filter, nodeId)
+    sb.logInfo("beforeItemGet(%s, %s)\n connectionMap = %s", item, nodeId, self.connectionMap )
   for _,node in ipairs(self.connectionMap[nodeId]) do
     if self.filterCount[node] > 0 then
       local pullFilter = {}
@@ -116,6 +131,7 @@ function beforeItemGet(filter, nodeId)
 end
 
 function onItemGet(filter, nodeId)
+    sb.logInfo("onItemGet(%s, %s)\n connectionMap = %s", item, nodeId, self.connectionMap )
   local pullResult = false
   local resultNode = 1
 
@@ -164,9 +180,9 @@ function buildFilter()
     end
   end
 
-  if totalCount > 0 and entity.animationState("filterState") == "off" then
-    entity.setAnimationState("filterState", "on")
+  if totalCount > 0 and animator.animationState("filterState") == "off" then
+    animator.setAnimationState("filterState", "on")
   elseif totalCount <= 0 then
-    entity.setAnimationState("filterState", "off")
+    animator.setAnimationState("filterState", "off")
   end
 end

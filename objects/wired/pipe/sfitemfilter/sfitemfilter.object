@@ -1,5 +1,5 @@
 {
-  "objectName" : "itemfilter",
+  "objectName" : "sfitemfilter",
   "rarity" : "Common",
   "objectType" : "container",
 
@@ -9,58 +9,58 @@
   "category" : "wire",
   "printable" : false,
 
-  "inventoryIcon" : "itemfiltericon.png",
+  "inventoryIcon" : "sfitemfiltericon.png",
   "orientations" : [
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
 
       "spaceScan" : 0.1,
       "anchors" : [ "background" ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
 
       "spaceScan" : 0.1,
       "anchors" : [ "bottom" ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
 
       "spaceScan" : 0.1,
       "anchors" : [ "top" ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
 
       "spaceScan" : 0.1,
       "anchors" : [ "left" ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
 
       "spaceScan" : 0.1,
       "anchors" : [ "right" ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, 1] ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [1, 0] ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, -1] ]
     },
     {
-      "image" : "itemfilter.png:on",
+      "image" : "sfitemfilter.png:on",
       
       "spaceScan" : 0.1,
       "bgAnchors" : [ [-1, 0] ]
@@ -73,7 +73,7 @@
   "autoCloseCooldown" : 3600,
 
   "scripts" : [
-    "/objects/wired/pipe/itemfilter/itemfilter.lua",
+    "/objects/wired/pipe/sfitemfilter/sfitemfilter.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
@@ -82,9 +82,9 @@
   ],
   "scriptDelta" : 30,
   
-  "animation" : "/objects/wired/pipe/itemfilter/itemfilter.animation",
+  "animation" : "/objects/wired/pipe/sfitemfilter/sfitemfilter.animation",
   "animationParts" : {
-    "pipe" : "itemfilter.png"
+    "pipe" : "sfitemfilter.png"
   },
   "animationPosition" : [0, 0],
 

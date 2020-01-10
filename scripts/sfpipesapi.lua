@@ -16,8 +16,11 @@ function entityConnectsAt(_, _, pipeName, position, pipeDirection)
   
   for i,node in ipairs(pipes.nodes[pipeName]) do
     local absNodePos = object.toAbsolutePosition(node.offset)
+    local absNodePosOff = { absNodePos[1] + pipeDirection[1], absNodePos[2] + pipeDirection[2] }
     local distance = world.distance(position, absNodePos)
-    if distance[1] == 0 and distance[2] == 0 then
+    local distanceOff = world.distance(position, absNodePosOff)
+    
+    if distance[1] == 0 and distance[2] == 0 and pipeDirection[1] == -1 * node.dir[1] and pipeDirection[2] == -1 * node.dir[2] then
       return i
     end
   end

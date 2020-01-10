@@ -13,17 +13,17 @@ function init(virtual)
 end
 
 --------------------------------------------------------------------------------
-function main(args)
+function update(dt)
   buildFilter()
-  pipes.update(entity.dt())
+  pipes.update(dt)
 end
 
 function showPass()
-  entity.setAnimationState("filterState", "pass")
+  animator.setAnimationState("filterState", "pass")
 end
 
 function showFail()
-  entity.setAnimationState("filterState", "fail")
+  animator.setAnimationState("filterState", "fail")
 end
 
 function beforeLiquidGet(filter, nodeId)
@@ -49,21 +49,22 @@ end
 function beforeItemPut(item, nodeId)
   if self.filterCount > 0 then
     if self.filter[item.name] then
-      return peekPushItem(self.connectionMap[nodeId], item)
+      return false
     end
   end
 
-  return false
+  return peekPushItem(self.connectionMap[nodeId], item)
 end
 
 function onItemPut(item, nodeId)
-  local pushResult = false
-
   if self.filterCount > 0 then
     if self.filter[item.name] then
-      pushResult = pushItem(self.connectionMap[nodeId], item)
+      showFail()
+      return false
     end
   end
+
+  local pushResult = pushItem(self.connectionMap[nodeId], item)
 
   if pushResult then
     showPass()
@@ -75,49 +76,46 @@ function onItemPut(item, nodeId)
 end
 
 function beforeItemGet(filter, nodeId)
+  local filterMatch = false
+
   if self.filterCount > 0 then
-    local pullFilter = {}
-    local filterMatch = false
     for filterString, amount in pairs(filter) do
       if self.filter[filterString] then
-        pullFilter[filterString] = amount
         filterMatch = true
       end
     end
-
-    if filterMatch then
-      return peekPullItem(self.connectionMap[nodeId], pullFilter)
-    end
   end
 
-  return false
+  if filterMatch then
+    return false
+  else
+    return peekPullItem(self.connectionMap[nodeId], filter)
+  end
 end
 
 function onItemGet(filter, nodeId)
-  local pullResult = false
+  local filterMatch = false
 
   if self.filterCount > 0 then
-    local pullFilter = {}
-    local filterMatch = false
     for filterString, amount in pairs(filter) do
       if self.filter[filterString] then
-        pullFilter[filterString] = amount
         filterMatch = true
       end
     end
-
-    if filterMatch then
-      pullResult = pullItem(self.connectionMap[nodeId], pullFilter)
-    end
   end
 
-  if pullResult then
-    showPass()
-  else
+  if filterMatch then
     showFail()
+    return false
+  else
+    local pullResult = pullItem(self.connectionMap[nodeId], filter)
+    if pullResult then
+      showPass()
+    else
+      showFail()
+    end
+    return pullResult
   end
-
-  return pullResult
 end
 
 function buildFilter()
@@ -135,9 +133,9 @@ function buildFilter()
     end
   end
 
-  if self.filterCount > 0 and entity.animationState("filterState") == "off" then
-    entity.setAnimationState("filterState", "on")
+  if self.filterCount > 0 and animator.animationState("filterState") == "off" then
+    animator.setAnimationState("filterState", "on")
   elseif self.filterCount <= 0 then
-    entity.setAnimationState("filterState", "off")
+    animator.setAnimationState("filterState", "off")
   end
 end

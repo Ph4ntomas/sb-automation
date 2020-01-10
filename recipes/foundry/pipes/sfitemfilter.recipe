@@ -1,10 +1,10 @@
 {
   "input" : [
-    { "item" : "valve", "count" : 1 },
+    { "item" : "sfvalve", "count" : 1 },
     { "item" : "siliconboard", "count" : 1 }
   ],
   "output" : {
-    "item" : "itemfilter",
+    "item" : "sfitemfilter",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]
