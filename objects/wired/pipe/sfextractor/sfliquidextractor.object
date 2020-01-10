@@ -1,6 +1,5 @@
 {
-  "objectName" : "liquidextractor",
-  "objectType" : "wire",
+  "objectName" : "sfliquidextractor",
   "rarity" : "Common",
   "description" : "This device creates liquid from moist, slimy, or igneous blocks.",
   "shortdescription" : "Liquid Extractor",
@@ -8,10 +7,10 @@
   "category" : "wire",
   "printable" : false,
 
-  "inventoryIcon" : "liquidextractor.png:open.on",
+  "inventoryIcon" : "sfliquidextractor.png:open.on",
   "orientations" : [
     {
-      "dualImage" : "liquidextractor.png:open.on",
+      "dualImage" : "sfliquidextractor.png:open.on",
 
       "imagePosition" : [0, 0],
       "frames" : 1,
@@ -23,7 +22,7 @@
   ],
   
   "scripts" : [
-    "/objects/wired/pipe/extractor/liquidextractor.lua",
+    "/objects/wired/pipe/sfextractor/sfliquidextractor.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfenergy.lua",
@@ -33,9 +32,9 @@
   ],
   "scriptDelta" : 5,
   
-  "animation" : "/objects/wired/pipe/extractor/liquidextractor.animation",
+  "animation" : "/objects/wired/pipe/sfextractor/sfliquidextractor.animation",
   "animationParts" : {
-    "extractor" : "liquidextractor.png"
+    "extractor" : "sfliquidextractor.png"
   },
   "animationPosition" : [12, 12],
   

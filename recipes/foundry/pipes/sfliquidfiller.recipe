@@ -5,7 +5,7 @@
     { "item" : "tungstenbar", "count" : 6 }
   ],
   "output" : {
-    "item" : "liquidfiller",
+    "item" : "sfliquidfiller",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]

@@ -1,6 +1,5 @@
 {
-  "objectName" : "extractorblock",
-  "objectType" : "wire",
+  "objectName" : "sfextractorblock",
   "rarity" : "Common",
   "description" : "Liquid is being extracted from this.",
   "shortdescription" : "Extractor tile",
@@ -9,10 +8,10 @@
   
   "health" : 1000,
 
-  "inventoryIcon" : "extractorblock.png:snow",
+  "inventoryIcon" : "sfextractorblock.png:snow",
   "orientations" : [
     {
-      "dualImage" : "extractorblock.png:snow",
+      "dualImage" : "sfextractorblock.png:snow",
 
       "imagePosition" : [-4, -2],
       "frames" : 1,
@@ -23,15 +22,15 @@
     }
   ],
   
-  "animation" : "/objects/wired/pipe/extractor/extractorblock.animation",
+  "animation" : "/objects/wired/pipe/sfextractor/sfextractorblock.animation",
   "animationParts" : {
-    "block" : "extractorblock.png",
-    "damage" : "blockdamage.png"
+    "block" : "sfextractorblock.png",
+    "damage" : "sfblockdamage.png"
   },
   "animationPosition" : [4, 4],
   
   "scripts" : [
-    "/objects/wired/pipe/extractor/extractorblock.lua",
+    "/objects/wired/pipe/sfextractor/sfextractorblock.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],

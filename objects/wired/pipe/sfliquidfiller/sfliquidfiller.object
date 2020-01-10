@@ -1,5 +1,5 @@
 {
-  "objectName" : "liquidfiller",
+  "objectName" : "sfliquidfiller",
   "objectType" : "wire",
   "rarity" : "Common",
   "description" : "Puts liquids into portable, throwable capsules.",
@@ -8,10 +8,10 @@
   "category" : "wire",
   "printable" : false,
 
-  "inventoryIcon" : "liquidfiller.png:on",
+  "inventoryIcon" : "sfliquidfiller.png:on",
   "orientations" : [
     {
-      "dualImage" : "liquidfiller.png:on",
+      "dualImage" : "sfliquidfiller.png:on",
 
       "imagePosition" : [-8, -8],
       "frames" : 1,
@@ -23,7 +23,7 @@
   ],
   
   "scripts" : [
-    "/objects/wired/pipe/filler/liquidfiller.lua",
+    "/objects/wired/pipe/sfliquidfiller/sfliquidfiller.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfenergy.lua",
@@ -33,9 +33,9 @@
   ],
   "scriptDelta" : 5,
   
-  "animation" : "/objects/wired/pipe/filler/liquidfiller.animation",
+  "animation" : "/objects/wired/pipe/sfliquidfiller/sfliquidfiller.animation",
   "animationParts" : {
-    "filler" : "liquidfiller.png"
+    "filler" : "sfliquidfiller.png"
   },
   "animationPosition" : [0, 0],
   

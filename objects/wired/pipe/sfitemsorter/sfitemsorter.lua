@@ -60,7 +60,6 @@ function onLiquidPut(liquid, nodeId)
 end
 
 function beforeItemPut(item, nodeId)
-    sb.logInfo("beforeItemPut(%s, %s)\n connectionMap = %s", item, nodeId, self.connectionMap )
   for _,node in ipairs(self.connectionMap[nodeId]) do
     if self.filterCount[node] > 0 then
       if self.filter[node][item.name] then
@@ -75,25 +74,10 @@ function onItemPut(item, nodeId)
   local pushResult = false
   local resultNode = 1
 
-  if item.name == "coalore" or item.name == "dirtmaterial" then
-      sb.logInfo("pipes.nodes %s", pipes.nodes["item"])
-      sb.logInfo("onItemPut(%s, %s)", item, nodeId)
-      sb.logInfo("item = %s", item)
-      sb.logInfo("filter = %s",self.filter)
-      sb.logInfo("filterCount = %s",self.filterCount)
-      sb.logInfo("connectionMap = %s", self.connectionMap[nodeId])
-  end
-
   for _,node in ipairs(self.connectionMap[nodeId]) do
-      if item.name == "coalore" then
-          sb.logInfo("node = %s, filter = %s", node, self.filter[node])
-      end
     if self.filterCount[node] > 0 then
       if self.filter[node][item.name] then
         pushResult = pushItem(node, item)
-        if item.name == "coalore" then
-            sb.logInfo("pushItem result %s", pushResult)
-        end
         if pushResult then resultNode = node end
       end
     end
@@ -109,7 +93,6 @@ function onItemPut(item, nodeId)
 end
 
 function beforeItemGet(filter, nodeId)
-    sb.logInfo("beforeItemGet(%s, %s)\n connectionMap = %s", item, nodeId, self.connectionMap )
   for _,node in ipairs(self.connectionMap[nodeId]) do
     if self.filterCount[node] > 0 then
       local pullFilter = {}
@@ -131,7 +114,6 @@ function beforeItemGet(filter, nodeId)
 end
 
 function onItemGet(filter, nodeId)
-    sb.logInfo("onItemGet(%s, %s)\n connectionMap = %s", item, nodeId, self.connectionMap )
   local pullResult = false
   local resultNode = 1
 
