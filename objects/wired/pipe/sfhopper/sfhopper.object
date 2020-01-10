@@ -1,5 +1,5 @@
 {
-  "objectName" : "hopper",
+  "objectName" : "sfhopper",
   "rarity" : "Common",
   "objectType" : "container",
 
@@ -17,41 +17,41 @@
   "humanDescription" : "Hopper",
   "hylotlDescription" : "Hopper",
 
-  "inventoryIcon" : "hopper.png",
+  "inventoryIcon" : "sfhopper.png",
 
   "orientations" : [
     {
-      "image" : "hopper.png",
+      "image" : "sfhopper.png",
       "collision" : "platform",
       "spaceScan" : 0.1,
       "anchors" : [ "background" ]
     },
     {
-      "image" : "hopper.png",
+      "image" : "sfhopper.png",
       "collision" : "platform",
       "spaceScan" : 0.1,
       "anchors" : [ "bottom" ]
     },
     {
-      "image" : "hopper.png",
+      "image" : "sfhopper.png",
       "collision" : "platform",
       "spaceScan" : 0.1,
       "fgAnchors" : [ [0, -1] ]
     },
     {
-      "image" : "hopper.png",
+      "image" : "sfhopper.png",
       "collision" : "platform",
       "spaceScan" : 0.1,
       "fgAnchors" : [ [1, -1] ]
     },
     {
-      "image" : "hopper.png",
+      "image" : "sfhopper.png",
       "collision" : "platform",
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, -1] ]
     },
     {
-      "image" : "hopper.png",
+      "image" : "sfhopper.png",
       "collision" : "platform",
       "spaceScan" : 0.1,
       "bgAnchors" : [ [1, -1] ]
@@ -65,7 +65,7 @@
   "autoCloseCooldown" : 3600,
   
   "scripts" : [
-    "/objects/wired/pipe/hopper/hopper.lua",
+    "/objects/wired/pipe/sfhopper/sfhopper.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
@@ -73,9 +73,9 @@
   ],
   "scriptDelta" : 10,
   
-  "animation" : "/objects/wired/pipe/hopper/hopper.animation",
+  "animation" : "/objects/wired/pipe/sfhopper/sfhopper.animation",
   "animationParts" : {
-    "hopper" : "hopper.png"
+    "hopper" : "sfhopper.png"
   },
   "animationPosition" : [0, 0],
   

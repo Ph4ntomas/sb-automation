@@ -66,7 +66,7 @@ function update(dt)
   
   --Push out items if switched on
   if self.pushTimer > self.pushRate then
-    --pullItems()
+    pullItems()
     pushItems()
     self.pushTimer = 0
   end
@@ -75,28 +75,27 @@ end
 
 function pullItems()
     if not storageApi.isFull() then
-        for node = 0, 1 do
-            local item = pullItem(node, nil)
+        local item = pullItem(1, nil)
+        --sb.logInfo("pulledItem = %s", item)
 
-            if item then
-                storageApi.storeItem(item.name, item.count, item.parameters)
-            end
+        if item then
+            storageApi.storeItem(item.name, item.count, item.parameters)
         end
     end
 end
 
 
 function pushItems()
-  for node = 0, 1 do
+    for node = 0, 1 do
     if object.getInputNodeLevel(node) then
-      for i, item in storageApi.getIterator() do
-        local result = pushItem(node+1, item)
-        if result == true then storageApi.returnItem(i) end --Whole stack was accepted
-        if result and result ~= true then item.count = item.count - result end --Only part of the stack was accepted
-        if result then break end
-      end
+        for i, item in storageApi.getIterator() do
+            local result = pushItem(node + 1, item)
+            if result == true then storageApi.returnItem(i) end --Whole stack was accepted
+            if result and result ~= true then item.count = item.count - result end --Only part of the stack was accepted
+            if result then break end
+        end
     end
-  end
+end
 end
 
 function onItemPut(item, nodeId)

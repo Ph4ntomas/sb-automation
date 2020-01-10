@@ -1,7 +1,7 @@
 {
   "input" : [ ],
   "output" : {
-    "item" : "hopper",
+    "item" : "sfhopper",
     "count" : 1
   },
   "groups" : [ "mod", "sfmod" ]

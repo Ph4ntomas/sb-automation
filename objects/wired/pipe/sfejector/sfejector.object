@@ -1,6 +1,5 @@
 {
-  "objectName" : "ejector",
-  "objectType" : "wire",
+  "objectName" : "sfejector",
   "rarity" : "Common",
   "description" : "This is a pipe output, for ejecting items.",
   "shortdescription" : "Ejector",
@@ -15,65 +14,65 @@
   "humanDescription" : "Ejector",
   "hylotlDescription" : "Ejector",
 
-  "inventoryIcon" : "ejector.png",
+  "inventoryIcon" : "sfejector.png",
 
-  "animation" : "/objects/wired/pipe/ejector/ejector.animation",
+  "animation" : "/objects/wired/pipe/sfejector/sfejector.animation",
   "animationParts" : {
-    "ejector" : "ejector.png"
+    "ejector" : "sfejector.png"
   },
   "animationPosition" : [0, 0],
 
   "orientations" : [
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "anchors" : [ "background" ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "anchors" : [ "top" ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "anchors" : [ "bottom" ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "anchors" : [ "left" ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "anchors" : [ "right" ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, 1] ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "bgAnchors" : [ [1, 0] ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "bgAnchors" : [ [0, -1] ]
     },
     {
-      "image" : "ejector.png",
+      "image" : "sfejector.png",
       "direction" : "right",
       "spaceScan" : 0.1,
       "bgAnchors" : [ [-1, 0] ]
@@ -81,7 +80,7 @@
   ],
   
   "scripts" : [
-    "/objects/wired/pipe/ejector/ejector.lua",
+    "/objects/wired/pipe/sfejector/sfejector.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",

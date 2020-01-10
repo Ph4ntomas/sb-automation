@@ -1,16 +1,14 @@
 function init(virtual)
-  if not virtual then
     pipes.init({itemPipe})
 
     self.dropPoint = {entity.position()[1] + 0.5, entity.position()[2] + 0.5} --Temporarily spawn inside until someone bothers adding several drop points based on orientation
     
     self.usedNode = 0
-  end
 end
 
 --------------------------------------------------------------------------------
-function main(args)
-  pipes.update(entity.dt())
+function update(dt)
+  pipes.update(dt)
   
   local position = entity.position()
   local checkDirs = {}
@@ -24,7 +22,7 @@ function main(args)
     for i=0,3 do 
       local angle = (math.pi / 2) * i
       if #pipes.nodeEntities["item"][i+1] > 0 then
-        entity.rotateGroup("ejector", angle)
+        animator.rotateGroup("ejector", angle)
         self.usedNode = i + 1
       elseif i == 3 then --Not connected to an object, look for pipes instead
         for i=0,3 do 
@@ -32,7 +30,7 @@ function main(args)
           local tilePos = {position[1] + checkDirs[i][1], position[2] + checkDirs[i][2]}
           local pipeDirections = pipes.getPipeTileData("item", tilePos, "foreground", checkDirs[i])
           if pipeDirections then
-            entity.rotateGroup("ejector", angle)
+            animator.rotateGroup("ejector", angle)
             self.usedNode = i + 1
           end
         end
@@ -43,13 +41,14 @@ function main(args)
 end
 
 function beforeItemPut(item, nodeId)
+    --sb.logInfo("beforeItemPut")
   if nodeId == self.usedNode then
     return true
   end
 end
 
 function onItemPut(item, nodeId)
-  --world.logInfo(item)
+  --sb.logInfo("onItemPut  %s", item)
   --world.logInfo(nodeId)
   if item and nodeId == self.usedNode then
     local position = entity.position()
