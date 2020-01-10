@@ -1,7 +1,7 @@
 {
   "input" : [ ],
   "output" : {
-    "item" : "chestinterface",
+    "item" : "sfchestinterface",
     "count" : 1
   },
   "groups" : [ "mod", "sfmod" ]

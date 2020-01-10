@@ -1,30 +1,28 @@
 function init(virtual)
-  if not virtual then
     pipes.init({itemPipe})
 
-    if entity.direction() < 0 then
-      pipes.nodes["liquid"] = entity.configParameter("flippedLiquidNodes")
-      pipes.nodes["item"] = entity.configParameter("flippedItemNodes")
+    if object.direction() < 0 then
+      pipes.nodes["liquid"] = config.getParameter("flippedLiquidNodes")
+      pipes.nodes["item"] = config.getParameter("flippedItemNodes")
     end
 
     connectChest()
-  end
 end
 
-function main(args)
-  pipes.update(entity.dt())
+function update(dt)
+  pipes.update(dt)
 
   connectChest()
   
   --Push out items if switched on
-  if self.chest and entity.getInputNodeLevel(0) then
+  if self.chest and object.getInputNodeLevel(0) then
     pushItems()
   end
 end
 
 function connectChest()
   self.chest = false
-  local pos = object.toAbsolutePosition({entity.direction(), 1})
+  local pos = object.toAbsolutePosition({object.direction(), 1})
   local searchPos = {pos[1] + 0.5, pos[2] + 0.1}
   local entityIds = world.objectLineQuery(searchPos, searchPos, { withoutEntityId = entity.id(), order = "nearest" })
   --world.logInfo("searched for chests, found entities %s", entityIds)

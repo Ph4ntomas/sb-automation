@@ -5,7 +5,7 @@
     { "item" : "siliconboard", "count" : 1 }
   ],
   "output" : {
-    "item" : "chestinterface",
+    "item" : "sfchestinterface",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "pipes" ]

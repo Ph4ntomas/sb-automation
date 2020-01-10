@@ -7,7 +7,7 @@
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfbattery" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfbatterycharger" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "binarizer" } },
-{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "chestinterface" } },
+{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfchestinterface" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfcleanpipe" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "comparator" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "conveyorbelt" } },

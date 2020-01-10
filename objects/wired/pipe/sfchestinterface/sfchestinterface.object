@@ -1,6 +1,5 @@
 {
-  "objectName" : "chestinterface",
-  "objectType" : "wire",
+  "objectName" : "sfchestinterface",
   "rarity" : "Common",
   "description" : "Connects to a storage chest to provide pipe access.",
   "shortdescription" : "Pipe Chest Adaptor",
@@ -8,10 +7,10 @@
   "category" : "wire",
   "printable" : false,
 
-  "inventoryIcon" : "chestinterface.png",
+  "inventoryIcon" : "sfchestinterface.png",
   "orientations" : [
     {
-      "dualImage" : "chestinterface.png",
+      "dualImage" : "sfchestinterface.png",
 
       "imagePosition" : [0, 0],
 
@@ -19,7 +18,7 @@
       "anchors" : [ "background" ]
     },
     {
-      "dualImage" : "chestinterface.png",
+      "dualImage" : "sfchestinterface.png",
 
       "imagePosition" : [0, 0],
 
@@ -28,14 +27,14 @@
     }
   ],
   
-  "animation" : "chestinterface.animation",
+  "animation" : "sfchestinterface.animation",
   "animationParts" : {
-    "interface" : "chestinterface.png"
+    "interface" : "sfchestinterface.png"
   },
   "animationPosition" : [0, 0],
   
   "scripts" : [
-    "chestinterface.lua",
+    "sfchestinterface.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua"
   ],
