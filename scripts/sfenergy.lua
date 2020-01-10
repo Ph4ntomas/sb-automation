@@ -349,7 +349,6 @@ end
 function energy.checkCollisionBlocks(collisionBlocks, ignoreBlocksSrc, ignoreBlocksTar)
   for i, colBlock in ipairs(collisionBlocks) do
     local colBlockHash = energy.blockHash(colBlock)
-    sb.logInfo("blockHash %s", colBlockHash)
     if not ((ignoreBlocksSrc and ignoreBlocksSrc[colBlockHash]) or (ignoreBlocksTar and ignoreBlocksTar[colBlockHash])) then
       --this block is not ignored by either side
       return true
