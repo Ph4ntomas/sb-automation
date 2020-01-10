@@ -1,21 +1,29 @@
 {
-  "objectName" : "submersiontank",
-  "objectType" : "wire",
+  "objectName" : "sfsubmersiontank",
   "rarity" : "Common",
   "description" : "A big tank, big enough to fit a person inside...",
   "shortdescription" : "Submersion Tank",
   "race" : "generic",
   "category" : "wire",
   "printable" : false,
-  
-  "breakDropOptions": [],
-  "sitPosition" : [7, 22],
 
-  "inventoryIcon" : "submersiontankicon.png",
+  "objectType" : "loungeable",
+  "sitAngle" : 0,
+  "sitCoverImage" : "/objects/wired/pipe/sfsubmersiontank/sfsubmersiontank.png:foreground",
+  "sitPosition" : [-15, 35],
+  "sitOrientation" : "lay",
+  "sitEmote" : "sleep",
+  "sitStatusEffects" :  [
+      "nude"
+  ],
+
+  "breakDropOptions": [],
+
+  "inventoryIcon" : "sfsubmersiontankicon.png",
   "orientations" : [
     {
-      "dualImage" : "submersiontank.png",
-      "imageLayers" : [ { "image" : "submersiontank.png:foreground" }, {"image" : "submersiontank.png:background"}],
+      "dualImage" : "sfsubmersiontank.png",
+      "imageLayers" : [ { "image" : "sfsubmersiontank.png:foreground" }, {"image" : "sfsubmersiontank.png:background"}],
       "imagePosition" : [0, 0],
       "frames" : 1,
       "animationCycle" : 1.0,
@@ -25,16 +33,16 @@
     }
   ],
   
-  "animation" : "submersiontank.animation",
+  "animation" : "sfsubmersiontank.animation",
   "animationParts" : {
-    "fore" : "submersiontank.png",
-    "back" : "submersiontank.png",
-    "liquid" : "submersiontank_bar.png"
+    "fore" : "sfsubmersiontank.png",
+    "back" : "sfsubmersiontank.png",
+    "liquid" : "sfsubmersiontank_bar.png"
   },
   "animationPosition" : [16,31],
   
   "scripts" : [
-    "submersiontank.lua",
+    "sfsubmersiontank.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",

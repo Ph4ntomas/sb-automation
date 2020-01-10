@@ -25,15 +25,30 @@
             "frames" : 1
           }
         }
-      }
+      },
+          "foreground" : {
+            "default" : "active",
+            "states" : {
+                "hidden" : {},
+                "active" : {}
+            }
+          }
     },
     "parts" : {
       "fore" : {
         "properties" : {
-          "image" : "<partImage>:foreground",
           "offset" : [0, 0],
           "centered" : true,
           "zLevel" : 3
+        },
+        "partStates" : {
+            "foreground" : {
+                "active" : {
+                    "properties" : {
+                        "image" :"<partImage>:foreground" 
+                    }
+                }
+            }
         }
       },
       "back" : {
@@ -49,7 +64,7 @@
           "offset" : [-1.375, -2.25],
           "centered" : false,
           "zLevel" : 2,
-          "scalingGroup" : "liquid"
+          "transformationGroups" : [ "liquid" ]
         },
         "partStates" : {
           "liquid" : {
@@ -88,9 +103,9 @@
       }
     }
   },
-  "scalingGroups" : {
+  "transformationGroups" : {
     "liquid" : {
-      "pivot" : [0, 0]
+        "interpolated" : false
     }
   }
 }

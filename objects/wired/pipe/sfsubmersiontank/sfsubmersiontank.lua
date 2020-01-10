@@ -1,40 +1,40 @@
-function init(args)  
-  entity.setInteractive(true)
-  if args == false then
+function init()  
+  object.setInteractive(true)
     pipes.init({liquidPipe})
-    local initInv = entity.configParameter("initialInventory")
+    local initInv = config.getParameter("initialInventory")
     if initInv and storage.liquid == nil then
       storage.liquid = initInv
     end
     
-    entity.scaleGroup("liquid", {1, 0})
+    animator.resetTransformationGroup("liquid")
+    animator.scaleTransformationGroup("liquid", {1, 0})
     self.liquidMap = {}
     self.liquidMap[1] = "water"
-    self.liquidMap[3] = "lava"
+    self.liquidMap[2] = "lava"
     self.liquidMap[4] = "poison"
     self.liquidMap[6] = "juice"
     self.liquidMap[7] = "tar"
     
-    self.capacity = entity.configParameter("liquidCapacity")
-    self.pushAmount = entity.configParameter("liquidPushAmount")
-    self.pushRate = entity.configParameter("liquidPushRate")
+    self.capacity = config.getParameter("liquidCapacity")
+    self.pushAmount = config.getParameter("liquidPushAmount")
+    self.pushRate = config.getParameter("liquidPushRate")
     
     if storage.liquid == nil then storage.liquid = {} end
     
     self.pushTimer = 0
-  end
+    self.occupied = false
 end
 
 function die()
   local position = entity.position()
   if storage.liquid[1] ~= nil then
-    world.spawnItem("submersiontank", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.liquid})
+    world.spawnItem("sfsubmersiontank", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.liquid})
   else
-    world.spawnItem("submersiontank", {position[1] + 1.5, position[2] + 1}, 1)
+    world.spawnItem("sfsubmersiontank", {position[1] + 1.5, position[2] + 1}, 1)
   end
 end
 
-function onInteraction(args)
+function onInteraction_(args)
   local liquid = self.liquidMap[storage.liquid[1]]
   local count = storage.liquid[2]
   local capacity = self.capacity
@@ -47,54 +47,89 @@ function onInteraction(args)
       "^white; units of liquid ^green;" .. liquid
     }}
   else
-    return { "ShowPopup", { message = "Tank is empty."}}
+      return { "ShowPopup", { message = "Tank is empty."}}
   end
 end
 
-function onInteractionNew(args)
-  world.logInfo("SUBMERSIONTANK: onInteraction")
-  return { "SitDown", {config={
-    ["sitFlipDirection"] = false,
-    ["sitPosition"] = {20,20},
-    ["sitOrientation"] = "lay",
-    ["sitAngle"] = 0,
-    ["sitCoverImage"] = "/objects/wired/pipe/submersiontank.png:foreground",
-    ["sitEmote"] = "sleep",
-    ["sitStatusEffects"] =  {
-      ["kind"] = "Nude",
-    },
-  }}}
+function onInteraction(args)
+    local liquid = self.liquidMap[storage.liquid[1]]
+    local count = storage.liquid[2]
+    local capacity = self.capacity
+    local itemList = ""
+
+    if liquid == nil then liquid = "other" end
+
+    if not world.loungeableOccupied(entity.id()) then
+        if count ~= nil and count < capacity then 
+            return { "ShowPopup", { message = "^white;You manage to suppress the desire to climb into the tank... for now.\n\n^white;Holding ^green;" .. count ..
+                "^white; / ^green;" .. capacity ..
+                "^white; units of liquid ^green;" .. liquid
+            }}
+        elseif count ~= nil then
+            return { "SitDown", 0} --,{config={
+            --["sitFlipDirection"] = false,
+            --["sitPosition"] = {20,20},
+            --["sitOrientation"] = "lay",
+            --["sitAngle"] = 0,
+            --["sitCoverImage"] = "/objects/wired/pipe/sfsubmersiontank.png:foreground",
+            --["sitEmote"] = "sleep",
+            --["sitStatusEffects"] =  {
+            --["kind"] = "Nude",
+            --},
+            --}}}
+        else
+            return { "ShowPopup", { message = "Tank is empty."}}
+        end
+    else
+        return { "ShowPopup", { message = "^white;The tank is occupied^white;Holding ^green;" .. count ..
+            "^white; / ^green;" .. capacity ..
+            "^white; units of liquid ^green;" .. liquid
+        }}
+    end
 end
 
-function main(args)
-  pipes.update(entity.dt())
+function cycleForeground(occupied)
+    if occupied then
+        animator.setAnimationState("foreground", "hidden")
+    else
+        animator.setAnimationState("foreground", "active")
+    end
+end
+
+
+function update(dt)
+  pipes.update(dt)
   
   local liquidState = self.liquidMap[storage.liquid[1]]
   if liquidState then
-    entity.setAnimationState("liquid", liquidState)
+    animator.setAnimationState("liquid", liquidState)
   else
-    entity.setAnimationState("liquid", "other")
+    animator.setAnimationState("liquid", "other")
   end
   
   if storage.liquid[2] then
     local liquidScale = storage.liquid[2] / self.capacity
-    entity.scaleGroup("liquid", {1, liquidScale})
+    animator.resetTransformationGroup("liquid")
+    animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -2.2 * (1 - liquidScale))
   else
-    entity.scaleGroup("liquid", {1, 0})
+    animator.scaleTransformationGroup("liquid", {1, 0})
   end
-  
+
+
+  cycleForeground(world.loungeableOccupied(entity.id()))
+
   if self.pushTimer > self.pushRate and storage.liquid[2] ~= nil then
     local pushedLiquid = {storage.liquid[1], storage.liquid[2]}
     if storage.liquid[2] > self.pushAmount then pushedLiquid[2] = self.pushAmount end
     for i=1,2 do
-      if entity.getInputNodeLevel(i-1) and pushLiquid(i, pushedLiquid) then
+      if object.getInputNodeLevel(i-1) and pushLiquid(i, pushedLiquid) then
         storage.liquid[2] = storage.liquid[2] - pushedLiquid[2]
         break;
       end
     end
     self.pushTimer = 0
   end
-  self.pushTimer = self.pushTimer + entity.dt()
+  self.pushTimer = self.pushTimer + dt
   
   clearLiquid()
 end
