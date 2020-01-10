@@ -21,7 +21,7 @@
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "freeformmarker" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "gravityelevator" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "hopper" } },
-{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "itembox" } },
+{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfitembox" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "itemexcluder" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "itemfilter" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "itemsorter" } },

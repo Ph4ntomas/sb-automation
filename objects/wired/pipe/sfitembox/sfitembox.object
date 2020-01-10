@@ -1,6 +1,5 @@
 {
-  "objectName" : "itembox",
-  "objectType" : "wire",
+  "objectName" : "sfitembox",
   "rarity" : "Common",
   "description" : "Item storage and retrieval.",
   "shortdescription" : "Item Storage Box",
@@ -17,10 +16,10 @@
   
   "breakDropOptions": [],
 
-  "inventoryIcon" : "itembox.png",
+  "inventoryIcon" : "sfitembox.png",
   "orientations" : [
     {
-      "dualImage" : "itembox.png",
+      "dualImage" : "sfitembox.png",
 
       "imagePosition" : [0, 0],
       "frames" : 1,
@@ -32,15 +31,15 @@
     }
   ],
   
-  "animation" : "/objects/wired/pipe/itembox/itembox.animation",
+  "animation" : "/objects/wired/pipe/sfitembox/sfitembox.animation",
   "animationParts" : {
-    "box" : "itembox.png",
-    "invbar" : "invbar.png"
+    "box" : "sfitembox.png",
+    "invbar" : "sfinvbar.png"
   },
   "animationPosition" : [12, 8],
   
   "scripts" : [
-    "/objects/wired/pipe/itembox/itembox.lua",
+    "/objects/wired/pipe/sfitembox/sfitembox.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/storageapi.lua",

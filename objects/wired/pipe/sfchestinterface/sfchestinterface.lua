@@ -13,7 +13,7 @@ function update(dt)
   pipes.update(dt)
 
   connectChest()
-  
+
   --Push out items if switched on
   if self.chest and object.getInputNodeLevel(0) then
     pushItems()
@@ -100,18 +100,19 @@ end
 
 function onItemGet(filter, nodeId)
   if self.chest then
+
     if filter then
       for itemName, amount in pairs(filter) do
         local filterItem = {name=itemName, count=amount[1], data={}}
         local availableAmount = world.containerAvailable(self.chest, filterItem)
         if availableAmount >= 1 then
           filterItem.count = math.min(availableAmount * amount[1], amount[2])
-          world.containerConsume(self.chest, filterItem)
           return filterItem
         end
       end
     else
       for key, item in pairs(world.containerItems(self.chest)) do
+          world.containerConsume(self.chest, item)
         return item
       end
     end

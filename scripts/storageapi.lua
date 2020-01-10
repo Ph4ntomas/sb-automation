@@ -39,15 +39,15 @@ storageApi = {}
 --      -ondeath: (int) Should object 0 do nothing, 1 drop items or 2 store items on death
 function storageApi.init(args)
     if storage.sApi == nil then
-        storage.sApi = args.content or entity.configParameter("storageapi.content") or { }
+        storage.sApi = args.content or config.getParameter("storageapi.content") or { }
     end
-    storageApi.mode = args.mode or entity.configParameter("storageapi.mode") or 0
+    storageApi.mode = args.mode or config.getParameter("storageapi.mode") or 0
     storageApi.isin = storageApi.mode % 2 == 1
     storageApi.isout = storageApi.mode % 4 >= 2
-    storageApi.capacity = math.min(999, args.capacity or entity.configParameter("storageapi.capacity") or 1)
-    storageApi.isjoin = args.merge or entity.configParameter("storageapi.merge")
-    storageApi.dropPosition = args.dropPosition or entity.configParameter("storageapi.dropPosition")
-    storageApi.ondeath = args.ondeath or entity.configParameter("storageapi.ondeath") or 0
+    storageApi.capacity = math.min(999, args.capacity or config.getParameter("storageapi.capacity") or 1)
+    storageApi.isjoin = args.merge or config.getParameter("storageapi.merge")
+    storageApi.dropPosition = args.dropPosition or config.getParameter("storageapi.dropPosition")
+    storageApi.ondeath = args.ondeath or config.getParameter("storageapi.ondeath") or 0
     storageApi.ignoreDropIds = {}
 end
 
@@ -133,7 +133,7 @@ end
 function storageApi.getMaxStackSize(itemname)
     if itemname == "climbingrope" then return 1000
     elseif itemname == "money" then return 25000 end
-    local t = world.itemType(itemname)
+    local t = root.itemType(itemname)
     if (t == "generic") or (t == "coin") or (t == "material") or (t == "consumable") or (t == "thrownitem") or (t == "object") then return 1000
     else return 1 end
 end
@@ -334,7 +334,7 @@ function storageApi.die()
     if storageApi.ondeath == 1 then
         storageApi.dropAll()
     elseif (storageApi.ondeath == 2) and (world.entityType(entity.id()) == "object") then
-        world.spawnItem(entity.configParameter("objectName"), storageApi.dropPosition, 1, { content = storage.sApi()} )
+        world.spawnItem(config.getParameter("objectName"), storageApi.dropPosition, 1, { content = storage.sApi()} )
     end
 end
 
