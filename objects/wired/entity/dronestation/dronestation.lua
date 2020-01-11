@@ -99,7 +99,7 @@ end
 function main()
   local dt = entity.dt()
   pipes.update(dt)
-  energy.update()
+  energy.update(dt)
   if self.pushTimer > self.pushRate then
     for i,item in storageApi.getIterator() do
       local result = pushItem(1, item)

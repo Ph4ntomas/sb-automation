@@ -42,7 +42,7 @@ function onInteraction(args)
 end
 
 function main()
-  energy.update()
+  energy.update(dt)
 
   cleanupMods()
 

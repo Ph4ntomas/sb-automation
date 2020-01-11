@@ -73,7 +73,7 @@ end
 
 function update(dt)
     pipes.update(dt)
-    energy.update()
+    energy.update(dt)
 
     if storage.state then
         --Pull item if we don't have any

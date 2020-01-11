@@ -40,7 +40,7 @@ function main()
     energy.generateEnergy()
     rotateTurbine()
   end
-  energy.update()
+  energy.update(dt)
   datawire.update()
   pipes.update(entity.dt())
 end

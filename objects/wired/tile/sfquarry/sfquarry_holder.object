@@ -1,5 +1,5 @@
 {
-  "objectName" : "quarry_holder",
+  "objectName" : "sfquarry_holder",
   "rarity" : "Common",
   "category" : "decorative",
   "price" : 5,
@@ -18,7 +18,7 @@
 
   "orientations" : [
     {
-      "image" : "quarry_holder.png",
+      "image" : "sfquarry_holder.png",
       "imagePosition" : [0, 0],
       "zLevel" : 2,
 
@@ -27,5 +27,5 @@
     }
   ],
   
-  "damageTable" : "/objects/wired/tile/quarry/quarryDamage.config"
+  "damageTable" : "/objects/wired/tile/sfquarry/sfquarryDamage.config"
 }

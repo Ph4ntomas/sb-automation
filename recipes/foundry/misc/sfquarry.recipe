@@ -6,7 +6,7 @@
       { "item" : "diamonddrill", "count" : 1 }
   ],
   "output" : {
-    "item" : "quarry",
+    "item" : "sfquarry",
     "count" : 1
   },
   "groups" : [ "foundry", "all", "misc" ]

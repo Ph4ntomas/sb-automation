@@ -1,7 +1,6 @@
 {
-  "objectName" : "quarry",
+  "objectName" : "sfquarry",
   "rarity" : "Common",
-  "objectType" : "wire",
   "description" : "Uses energy to automatically mine an area of blocks.",
   "shortdescription" : "Quarry",
   "race" : "generic",
@@ -10,10 +9,10 @@
   "price" : 750,
   "printable" : false,
 
-  "inventoryIcon" : "quarryicon.png",
+  "inventoryIcon" : "sfquarryicon.png",
   "orientations" : [
     {
-      "dualImage" : "quarry.png:run.1",
+      "dualImage" : "sfquarry.png:run.1",
       "imagePosition" : [-8, -8],
 
       "spaceScan" : 0.1,
@@ -25,18 +24,19 @@
     "/scripts/datawire.lua",
     "/scripts/sfenergy.lua",
     "/scripts/stateMachine.lua",
-    "quarry.lua",
+    "sfquarry.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/storageapi.lua",
+    "/scripts/sfutil.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
   "scriptDelta" : 2,
 
-  "animation" : "quarry.animation",
+  "animation" : "sfquarry.animation",
   "animationParts" : {
-    "quarry" : "quarry.png"
+    "quarry" : "sfquarry.png"
   },
   "animationPosition" : [-8, -8],
   "inputNodes" : [ [0, -1] ],

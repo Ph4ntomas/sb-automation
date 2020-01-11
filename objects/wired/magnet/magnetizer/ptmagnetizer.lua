@@ -54,7 +54,7 @@ function output(state)
 end
 
 function main()
-  energy.update()
+  energy.update(dt)
 
   -- Ensure that this magnetizer is still in the global table
   if not math.magnetizers[entity.id()] then

@@ -1,7 +1,7 @@
 {
   "input" : [ ],
   "output" : {
-    "item" : "quarry",
+    "item" : "sfquarrymarker",
     "count" : 1
   },
   "groups" : [ "mod", "sfmod" ]

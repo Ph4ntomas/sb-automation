@@ -9,7 +9,6 @@ function init(virtual)
 end
 
 function setBlockState(state)
-  sb.logInfo("Block state: %s", state)
   
 end
 

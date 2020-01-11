@@ -29,7 +29,7 @@ function firstValidEntity(eids)
 end
 
 function main()
-  energy.update()
+  energy.update(dt)
   if self.jumpt > 0 then 
     self.jumpt = self.jumpt - 1
   else

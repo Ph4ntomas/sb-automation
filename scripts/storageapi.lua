@@ -3,6 +3,9 @@
 -------------------------------------------------
 
 function compareTables(firstTable, secondTable)
+    if firstTable == nil or secondTable == nil then
+        return true
+    end
     if (next(firstTable) == nil) and (next(secondTable) == nil) then
         return true
     end
@@ -145,8 +148,10 @@ end
 function storageApi.canFitItem(itemname, count, data)
     local max = storageApi.getMaxStackSize(itemname)
     local spacecnt = (storageApi.getCapacity() - storageApi.getCount()) * max
+
     if spacecnt >= count then return true
-    elseif max > 1 then return false end
+    elseif max == 1 then return false end
+
     for i,v in storageApi.getIterator() do
         if (itemname == v.name) and compareTables(data, v.data) then
             spacecnt = spacecnt + max - v.count

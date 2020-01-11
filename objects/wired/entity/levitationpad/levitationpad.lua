@@ -66,7 +66,7 @@ function rand()
 end
 
 function main()
-  energy.update()
+  energy.update(dt)
   if storage.active then
     if not energy.consumeEnergy() then
       setActive(false)

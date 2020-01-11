@@ -1,5 +1,5 @@
 {
-  "objectName" : "quarry_fake",
+  "objectName" : "sfquarry_fake",
   "rarity" : "Common",
   "description" : "Mines out blocks for you.",
   "shortdescription" : "Quarry end node",
@@ -16,10 +16,10 @@
   "humanDescription" : "todo",
   "hylotlDescription" : "todo",
 
-  "inventoryIcon" : "quarryicon.png",
+  "inventoryIcon" : "sfquarryicon.png",
   "orientations" : [
     {
-      "dualImage" : "quarry.png:fake",
+      "dualImage" : "sfquarry.png:fake",
       "imagePosition" : [-8, -8],
 
       "spaceScan" : 0.1,
@@ -27,5 +27,5 @@
     }
   ],
   
-  "damageTable" : "/objects/wired/tile/quarry/quarryDamage.config"
+  "damageTable" : "/objects/wired/tile/sfquarry/sfquarryDamage.config"
 }

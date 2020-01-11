@@ -1,5 +1,5 @@
 {
-  "objectName" : "quarry_marker",
+  "objectName" : "sfquarrymarker",
   "printable" : false,
   "rarity" : "Common",
   "category" : "light",
@@ -43,10 +43,10 @@
     }
   },
 
-  "inventoryIcon" : "quarry_markericon.png",
+  "inventoryIcon" : "sfquarrymarkericon.png",
   "orientations" : [
     {
-      "dualImage" : "quarry_marker.png:default",
+      "dualImage" : "sfquarrymarker.png:default",
       "imagePosition" : [0, 0],
       "spaces" : [
         [-1,0], [0,0]
@@ -55,7 +55,7 @@
       "anchors" : [ "bottom" ]
     },
     {
-      "dualImage" : "quarry_marker.png:default",
+      "dualImage" : "sfquarrymarker.png:default",
       "imagePosition" : [0, 0],
       "direction" : "right",
       "spaces" : [
@@ -66,7 +66,7 @@
     }
   ],
 
-  "soundEffect" : "/sfx/objects/torch.wav",
+  "soundEffect" : "/sfx/objects/torch.ogg",
   "soundEffectRadius" : 50
 
 }

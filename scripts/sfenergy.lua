@@ -107,7 +107,7 @@ function energy.init(args)
   --helper table for energy.connections that sorts the id's in order of proximity/precedence
   energy.sortedConnections = {}
 
-  --flag used to run more initialization the first time main() is called (in energy.update())
+  --flag used to run more initialization the first time main() is called (in energy.update(dt))
   self.energyInitialized = false
 
   message.setHandler("energy.getProjectileSourcePosition", getProjectileSourcePositionHndl)

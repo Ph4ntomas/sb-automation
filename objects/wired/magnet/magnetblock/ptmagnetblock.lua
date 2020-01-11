@@ -84,7 +84,7 @@ end
 
 function main()
   if storage.usesEnergy then
-    energy.update()
+    energy.update(dt)
   end
   if (storage.dataID == nil or (storage.dataID ~= nil and not world.entityExists(storage.dataID))) then
     updateMagnetData()

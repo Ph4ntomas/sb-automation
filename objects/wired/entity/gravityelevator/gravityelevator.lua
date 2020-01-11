@@ -50,7 +50,7 @@ function consumeEnergy()
 end
 
 function main()
-   energy.update()
+   energy.update(dt)
    if self.state and consumeEnergy() then
       local force = self.forceRegion or checkForceRegion()
       setForce()

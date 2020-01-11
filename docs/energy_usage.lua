@@ -16,7 +16,7 @@ function init(virtual)
 end
 
 function main()
-  energy.update()
+  energy.update(dt)
 end
 
 function die()
