@@ -333,12 +333,14 @@ function energy.checkLoS(srcPos, tarPos, entityId)
 
       for _, collision in ipairs(collisions) do
           local material = world.material(collision, "foreground")
-          local materialConfig = root.materialConfig(material)
+          if material then
+              local materialConfig = root.materialConfig(material)
 
-          if materialConfig["config"] == nil 
-              or materialConfig["config"]["renderParameters"] == nil 
-              or not materialConfig["config"]["renderParameters"]["lightTransparent"] then
-              return collision
+              if materialConfig["config"] == nil 
+                  or materialConfig["config"]["renderParameters"] == nil 
+                  or not materialConfig["config"]["renderParameters"]["lightTransparent"] then
+                  return collision
+              end
           end
       end
     return false

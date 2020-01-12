@@ -245,6 +245,17 @@ function runState.update(dt, data)
 
             if data.dig then
                 local colCheck = world.collisionBlocksAlongLine(data.dig[1],data.dig[2])
+                local bgCheck = {}
+
+                for i, bgPos in ipairs(data.dig) do
+                    local mod = world.mod(bgPos, "background")
+                    if mod ~= nil then
+                        bgCheck[#bgCheck + 1] = { mod = mod, mat = world.material(bgPos, "background"), pos = bgPos}
+                    end
+                end
+
+                if #bgCheck > 0 then
+                end
 
                 if data.dig[3] and #colCheck == 0 then
                     local colCheck2 = world.collisionBlocksAlongLine(data.dig[3],data.dig[4])
@@ -254,10 +265,25 @@ function runState.update(dt, data)
                     end
                 end
 
-                if #colCheck > 0 then
-                    world.damageTiles(data.dig, "foreground", quarryPos, "blockish", 25000)
+                if #colCheck > 0 or #bgCheck > 0 then
+                    if #colCheck > 0 then
+                        world.damageTiles(data.dig, "foreground", quarryPos, "blockish", 25000)
+                    end
+
+                    if #bgCheck > 0 then
+                        for _, v in ipairs(bgCheck) do
+                            local mconfig = root.modConfig(v.mod)
+                            if mconfig["config"]["itemDrop"] ~= nil then
+                                world.placeMod(v.pos, "background", "grass", nil, false)
+                                world.damageTiles({v.pos}, "background", quarryPos, "blockish", 0, 0)
+                                world.spawnItem({name = mconfig["config"]["itemDrop"], amount = 1}, v.pos)
+                            end
+                        end
+                    end
+
                     return false
                 end
+
                 data.dig = false
                 storageApi.take(toAbsolutePosition(quarryPos, {0,-2}), 3, data.id)
             end
@@ -291,7 +317,29 @@ function runState.update(dt, data)
                 local collisions1 = world.collisionBlocksAlongLine(toAbsolutePosition(data.homePos, {-0.5, data.curY - 1.5}), toAbsolutePosition(data.homePos, {data.width * data.dir + 0.5, data.curY - 1.5}))
                 local collisions2 = world.collisionBlocksAlongLine(toAbsolutePosition(data.homePos, {-0.5, data.curY - 2.5}), toAbsolutePosition(data.homePos, {data.width * data.dir + 0.5, data.curY - 2.5}))
 
-                if #collisions1 == 0 and #collisions2 == 0 then
+                local bckCol = false
+
+                for posX = -0.5, data.width * data.dir + 0.5 do
+                    local mod1 = world.mod(toAbsolutePosition(data.homePos, {posX, data.curY - 1.5}), "background")
+                    local mod2 = world.mod(toAbsolutePosition(data.homePos, {posX, data.curY - 2.5}), "background")
+                    local m1config = false
+                    local m2config = false
+
+                    if mod1 then
+                        m1config = root.modConfig(mod1)
+                    end
+
+                    if mod2 then
+                        local m2config = root.modConfig(mod2)
+                    end
+
+                    if (mod1 and m1config["config"]["itemDrop"]) or (mo2 and m2config["config"]["itemDrop"]) then
+                        bckCol = true
+                        break
+                    end
+                end
+
+                if #collisions1 == 0 and #collisions2 == 0 and bckCol then
                     data.curY = data.curY - 2
                     movedDown = true
                 end
@@ -480,7 +528,7 @@ function moveQuarry(distance)
         end
         sfutil.safe_await(world.sendEntityMessage(storage.quarry.id, "move", {velocity = distance, chain = chainlength}))
         animator.resetTransformationGroup("chain")
-        animator.transformTransformationGroup("chain", 1, 0, 0, chainlength, -object.direction() * (xtrans + 2.75), 1.5 - chainlength / 8)
+        animator.transformTransformationGroup("chain", 1, 0, 0, chainlength, -object.direction() * (xtrans + (-object.direction()) * 2.75), 1.5 - chainlength / 8)
 
         return true
     end
