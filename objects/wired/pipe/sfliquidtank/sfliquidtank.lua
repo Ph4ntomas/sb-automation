@@ -8,6 +8,8 @@ function init()
 
   animator.resetTransformationGroup("liquid")
   animator.scaleTransformationGroup("liquid", {1, 0})
+
+  -- TODO: We can do the same thing by using root.getLiquidName(id) when needed
   self.liquidMap = {}
   self.liquidMap[1] = "water"
   self.liquidMap[2] = "lava"
@@ -140,13 +142,16 @@ end
 function onLiquidGet(filter, nodeId)
   if storage.liquid[1] ~= nil then
     local liquids = {{storage.liquid[1], storage.liquid[2]}}
+    local returnLiquid, _ = filterLiquids(filter, liquids)
 
-    local returnLiquid = filterLiquids(filter, liquids)
     if returnLiquid then
-      if filter == nil and returnLiquid[2] > self.pushAmount then returnLiquid[2] = self.pushAmount end
+      if filter == nil and returnLiquid[2] > self.pushAmount then 
+          returnLiquid[2] = self.pushAmount 
+      end
       
       storage.liquid[2] = storage.liquid[2] - returnLiquid[2]
-      if storage.liquid[2] <= 0 then
+
+      if storage.liquid[2] == 0 then
         storage.liquid = {}
       end
 
@@ -159,9 +164,12 @@ end
 function beforeLiquidGet(filter, nodeId)
   if storage.liquid[1] ~= nil then
     local liquids = {{storage.liquid[1], storage.liquid[2]}}
+    local returnLiquid, _ = filterLiquids(filter, liquids)
 
-    local returnLiquid = filterLiquids(filter, liquids)
-    if filter == nil and returnLiquid[2] > self.pushAmount then returnLiquid[2] = self.pushAmount end
+    if filter == nil and returnLiquid[2] > self.pushAmount then 
+        returnLiquid[2] = self.pushAmount 
+    end
+
     return returnLiquid
   end
   return false

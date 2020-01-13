@@ -91,6 +91,8 @@ function filterLiquids(filter, liquids)
         end
       end
     end
+
+    return nil, 0
   else
     return liquids[1], 1
   end

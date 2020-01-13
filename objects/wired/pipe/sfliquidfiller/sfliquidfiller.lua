@@ -74,47 +74,76 @@ function onItemPut(item, nodeId)
     return false
 end
 
+function createCapsule(dt, liquidId, amount, pushExcess)
+    if amount >= self.liquidAmount then
+        local capsule = fillCapsule({liquidId, self.liquidAmount})
+
+        if capsule and energy.consumeEnergy(dt, 10) then
+            pushItem(1, capsule)
+            storage.liquids[liquidId] = amount - self.liquidAmount
+
+            if storage.liquids[liquidId] > self.liquidAmount then 
+                local excess = storage.liquids[liquidId] - self.liquidAmount
+                storage.liquids[liquidId] = self.liquidAmount
+
+                if excess and pushExcess then
+                    pushLiquid(1, {liquidId, excess})
+                end
+            end
+
+            animator.setAnimationState("fillstate", "work")
+            return true
+        end
+    end
+
+    return false
+end
+
+function tryPullingLiquid(dt)
+    local pulledLiquid = peekPullLiquid(1)
+
+    if pulledLiquid then
+        local amount = pulledLiquid[2]
+        local toPull = amount
+
+        if storage.liquids[liquid[1]] then
+            amount = liquid[2] + storage.liquids[liquid[1]] -- checking total amount available
+            toPull = liquid[2] - storage.liquids[liquid[1]] -- if we have enough, we'll only pull the necessary amount
+        end
+
+        if amount >= self.liquidAmount then
+            if createCapsule(dt, pulledLiquid[1], self.liquidAmount, true) then
+                local pullFilter = {}
+                pullFilter[tostring(liquid[1])] = {toPull, toPull}
+                pullLiquid(1, pullFilter)
+            end
+        else
+            pullLiquid(1) -- pulling everything available
+            storage.liquids[pulledLiquid[1]] = amount
+        end
+    end
+
+    animator.setAnimationState("fillstate", "on")
+end
+
 function update(dt)
     pipes.update(dt)
     energy.update(dt)
 
     if storage.state then
-        --Pull item if we don't have any
         if self.fillTimer > self.fillInterval then
             local done = false
-            sb.logInfo("update :storage = %s", storage.liquids)
 
             for i, v in pairs(storage.liquids) do
-                if v >= self.liquidAmount then
-                    local capsule = fillCapsule({i, v})
-                    sb.logInfo("capsule %s", capsule)
-                    if capsule and energy.consumeEnergy(dt, 10) then
-                        pushItem(1, capsule)
-                        storage.liquids[i] = 0
-                        animator.setAnimationState("fillstate", "work")
-                        done = true
-                    end
+                done = createCapsule(dt, i, v, false)
+
+                if done then
+                    break
                 end
             end
 
             if not done then
-                local pulledLiquid = peekPullLiquid(1)
-                if pulledLiquid and pulledLiquid >= self.liquidAmoun then
-                    local newCapsule = fillCapsule(pulledLiquid)
-                    if newCapsule and energy.consumeEnergy(dt, 10) then
-                        local pullFilter = {}
-                        pullFilter[tostring(liquid[1])] = {self.liquidAmount, self.liquidAmount}
-                        pullLiquid(1, pullFilter)
-                        pushItem(1, newCapsule)
-                        animator.setAnimationState("fillstate", "work")
-                    else
-                        animator.setAnimationState("fillstate", "on")
-                    end
-                elseif pulledLiquid then
-
-                else
-                    animator.setAnimationState("fillstate", "on")
-                end
+                tryPullingLiquid(dt)
             end
             self.fillTimer = 0
         end
@@ -124,17 +153,8 @@ function update(dt)
     end
 end
 
-function fillCapsuleOld(liquid)
-    if self.conversions[liquid[1]] and liquid[2] == liquid[1][2] then
-        local capsule = {name = self.conversions[liquid[1]], count = 1, data = {}}
-        if peekPushItem(1, capsule) == true then return capsule end
-    end
-    return false
-end
-
 function fillCapsule(liquid)
     local liquidName = root.liquidName(liquid[1])
-    sb.logInfo("fillingCapsule with %s %s", liquid, liquidName)
 
     if liquidName then
         if self.conversions[tostring(liquid[1])] ~= nil then
@@ -153,37 +173,37 @@ function fillCapsule(liquid)
                     }
                 }
             }
-    }
+        }
         local capsule = {name = "sfcapsule", count = 1, data = data}
 
-        if peekPushItem(1, capsule) then return capsule end
+        if peekPushItem(1, capsule) then 
+            return capsule 
+        end
     end
+
     return nil
 end
 
 function beforeLiquidPut(liquid, nodeId)
-    sb.logInfo("Beforeputting %s", liquid)
-    sb.logInfo("storage %s", storage.liquids)
     if storage.state and liquid then
-        amount = liquid[2]
+        local amount = liquid[2]
+        local inStore = 0
+
         if storage.liquids[liquid[1]] then
             amount = amount + storage.liquids[liquid[1]]
+            inStore = storage.liquids[liquid[1]]
         end
 
         if amount <= self.liquidAmount then
             return liquid
         else
-            return liquid[1], self.liquidAmount
+            return liquid[1], self.liquidAmount - inStore
         end
-
     end
     return false
 end
 
 function onLiquidPut(liquid, nodeId)
-    sb.logInfo("putting %s", liquid)
-    sb.logInfo("storage %s", storage.liquids)
-
     if storage.state and liquid then
         local amount = liquid[2]
 
@@ -193,11 +213,13 @@ function onLiquidPut(liquid, nodeId)
         
         if amount <= self.liquidAmount then
             storage.liquids[liquid[1]] = amount
-        else
+        else -- should not happen, yet did
             local excess = amount - self.liquidAmount
+
             storage.liquids[liquid[1]] = self.liquidAmount
             pushLiquid(1, {liquid[1], excess})
         end
+        return true
     end
     return false
 end

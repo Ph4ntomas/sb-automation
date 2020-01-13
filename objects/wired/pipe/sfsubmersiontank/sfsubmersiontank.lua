@@ -182,7 +182,7 @@ function onLiquidGet(filter, nodeId)
   if storage.liquid[1] ~= nil then
     local liquids = {{storage.liquid[1], math.min(storage.liquid[2], self.pushAmount)}}
 
-    local returnLiquid = filterLiquids(filter, liquids)
+    local returnLiquid, _ = filterLiquids(filter, liquids)
     if returnLiquid then
       storage.liquid[2] = storage.liquid[2] - returnLiquid[2]
       if storage.liquid[2] <= 0 then
@@ -198,7 +198,7 @@ function beforeLiquidGet(filter, nodeId)
   if storage.liquid[1] ~= nil then
     local liquids = {{storage.liquid[1], math.min(storage.liquid[2], self.pushAmount)}}
 
-    local returnLiquid = filterLiquids(filter, liquids)
+    local returnLiquid, _ = filterLiquids(filter, liquids)
 
     return returnLiquid
   end
