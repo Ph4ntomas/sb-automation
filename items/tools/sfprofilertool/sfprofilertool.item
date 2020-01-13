@@ -1,0 +1,7 @@
+{
+  "itemName" : "sfprofilertool",
+  "rarity" : "Common",
+  "inventoryIcon" : "sfprofilertool.png",
+  "description" : "A developer could do something useful with this, probably.",
+  "shortdescription" : "Profiler Tool"
+}

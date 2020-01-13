@@ -1,5 +1,4 @@
-function init(virtual)
-  if not virtual then
+function init()
     energy.init()
     datawire.init()
     pipes.init({itemPipe})
@@ -13,7 +12,6 @@ function init(virtual)
     self.smeltTimer = 0
     
     object.setInteractive(not object.isInputNodeConnected(0))
-  end
 end
 
 function die()
@@ -53,7 +51,7 @@ function update(dt)
     pullOre()
   end
   
-  if storage.ore.name and storage.state and energy.consumeEnergy() then
+  if storage.ore.name and storage.state and energy.consumeEnergy(dt) then
     local oreConversion = self.conversions[storage.ore.name]
     local bar = {name = oreConversion[3], count = oreConversion[2], data = {}}
     

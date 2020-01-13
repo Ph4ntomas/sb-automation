@@ -54,10 +54,7 @@ function canGetLiquid(filter, nodeId)
   if availableLiquid then
     local liquid = convertEndlessLiquid(availableLiquid)
 
-    local returnLiquid = filterLiquids(filter, {liquid})
-    if returnLiquid then
-      return returnLiquid
-    end
+    return liquid
   end
   return false
 end

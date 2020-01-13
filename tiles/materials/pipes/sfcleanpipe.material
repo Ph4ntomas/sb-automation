@@ -9,7 +9,7 @@
   "floranDescription" : "Lying down pipe.",
   "footstepSound" : "/sfx/blocks/footstep_lightmetal.ogg",
   "health" : 10,
-  "category" : "pipes",
+  "category" : "materials",
 
   "renderTemplate" : "/tiles/pipetemplate.config",
   "renderParameters" : {

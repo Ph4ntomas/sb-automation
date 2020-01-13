@@ -46,7 +46,7 @@
         {
           "particle" : {
             "type" : "animated",
-            "animation" : "/animations/statuseffects/battcharge/battcharge.animation",
+            "animation" : "/animations/statuseffects/sfbattcharge/sfbattcharge.animation",
             "position" : [0.5, 1],
             "finalVelocity" : [0, 4],
             "approach" : [0, 50],

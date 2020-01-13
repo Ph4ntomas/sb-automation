@@ -10,72 +10,69 @@ function init()
     self.pumpRate = config.getParameter("pumpRate", 0)
     self.pumpTimer = 0
 
-    buildFilter()
-
     if storage.state == nil then storage.state = false end
 end
 
 function onInputNodeChange(args)
-  storage.state = args.level
+    storage.state = args.level
 end
 
 function onNodeConnectionChange()
-  storage.state = object.getInputNodeLevel(0)
+    storage.state = object.getInputNodeLevel(0)
 end
 
 function onInteraction(args)
-  --pump liquid
-  if object.isInputNodeConnected(0) == false then
-    storage.state = not storage.state
-  end
+    --pump liquid
+    if object.isInputNodeConnected(0) == false then
+        storage.state = not storage.state
+    end
 end
 
 function die()
-  energy.die()
+    energy.die()
 end
 
 function update(dt)
-  pipes.update(dt)
-  energy.update(dt)
-  
-  if storage.state then
-    local srcNode
-    local tarNode
-    if object.direction() == 1 then
-      srcNode = 1
-      tarNode = 2
+    pipes.update(dt)
+    energy.update(dt)
+
+    if storage.state then
+        local srcNode
+        local tarNode
+        if object.direction() == 1 then
+            srcNode = 1
+            tarNode = 2
+        else
+            srcNode = 2
+            tarNode = 1
+        end
+
+        if self.pumpTimer > self.pumpRate then
+            local liquid = peekPullLiquid(srcNode)
+            local canGetLiquid = false
+
+            if liquid then
+                local filter = {}
+                filter[tostring(liquid[1])] = {1, self.pumpAmount}
+                canGetLiquid = peekPullLiquid(srcNode, filter)
+            end
+            local canPutLiquid = peekPushLiquid(tarNode, canGetLiquid)
+
+            if canGetLiquid and canPutLiquid and energy.consumeEnergy(dt) then
+                animator.setAnimationState("pumping", "pump")
+                object.setAllOutputNodes(true)
+
+                local liquid = pullLiquid(srcNode, filter)
+                pushLiquid(tarNode, liquid)
+            else
+                object.setAllOutputNodes(false)
+                animator.setAnimationState("pumping", "error")
+            end
+            self.pumpTimer = 0
+        end
+        self.pumpTimer = self.pumpTimer + dt
     else
-      srcNode = 2
-      tarNode = 1
-    end
-    
-    if self.pumpTimer > self.pumpRate then
-      local canGetLiquid = peekPullLiquid(srcNode, self.filter)
-      local canPutLiquid = peekPushLiquid(tarNode, canGetLiquid)
-
-      if canGetLiquid and canPutLiquid and energy.consumeEnergy(dt) then
-        animator.setAnimationState("pumping", "pump")
-        object.setAllOutputNodes(true)
-        
-        local liquid = pullLiquid(srcNode, self.filter)
-        pushLiquid(tarNode, liquid)
-      else
+        animator.setAnimationState("pumping", "idle")
         object.setAllOutputNodes(false)
-        animator.setAnimationState("pumping", "error")
-      end
-      self.pumpTimer = 0
     end
-    self.pumpTimer = self.pumpTimer + dt
-  else
-    animator.setAnimationState("pumping", "idle")
-    object.setAllOutputNodes(false)
-  end
-end
-
-function buildFilter()
-  local pullAmount = config.getParameter("pumpAmount")
-  self.filter = {}
-  for i = 0, 7 do
-    self.filter[tostring(i)] = {1, pullAmount}
-  end
 end

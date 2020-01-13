@@ -107,6 +107,7 @@ function onItemGet(filter, nodeId)
         local availableAmount = world.containerAvailable(self.chest, filterItem)
         if availableAmount >= 1 then
           filterItem.count = math.min(availableAmount * amount[1], amount[2])
+          world.containerConsume(self.chest, filterItem)
           return filterItem
         end
       end

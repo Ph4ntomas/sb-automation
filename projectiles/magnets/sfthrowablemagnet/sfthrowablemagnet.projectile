@@ -1,0 +1,20 @@
+{
+  "projectileName" : "sfthrowablemagnet",
+  "physics" : "bullet",
+  "bounces" : 0,
+  "level" : 1,
+  "timeToLive" : 0.05,
+  "image" : "sfthrowablemagnet.png",
+  "animationCycle" : 1,
+  "frameNumber" : 1,
+  "actionOnReap" : [
+    {
+      "action" : "spawnmonster",
+      "offset" : [0, 0],
+      "type" : "sfthrowablemagnet",
+      "arguments" : { }
+    }
+  ],
+  "power" : 0,
+  "damageKind" : "default"
+}

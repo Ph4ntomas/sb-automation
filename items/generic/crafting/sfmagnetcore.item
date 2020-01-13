@@ -1,0 +1,7 @@
+{
+  "itemName" : "sfmagnetcore",
+  "rarity" : "Common",
+  "inventoryIcon" : "sfmagnetcore.png",
+  "description" : "A strongly magnetized ferrous rod.",
+  "shortdescription" : "Magnetic Core"
+}

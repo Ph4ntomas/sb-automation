@@ -1,7 +1,7 @@
 {
   "input" : [
-    { "item" : "magnetcore", "count" : 3 },
-    { "item" : "energycrystal", "count" : 1 },
+    { "item" : "sfmagnetcore", "count" : 3 },
+    { "item" : "sfenergycrystal", "count" : 1 },
     { "item" : "tungstenbar", "count" : 5 }
   ],
   "output" : { "item" : "ptmagnetizer", "count" : 1 },

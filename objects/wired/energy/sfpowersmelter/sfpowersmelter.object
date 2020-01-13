@@ -46,21 +46,25 @@
 
   "smeltRecipes" : {
     "copperore" : [2, 1, "copperbar"],
+    "goldore" : [2, 1, "goldbar"],
     "ironore" : [2, 1, "ironbar"],
     "silverore" : [2, 1, "silverbar"],
-    "goldore" : [2, 1, "goldbar"],
-    "diamondore" : [4, 1, "diamond"],
-    "platinumore" : [2, 1, "platinumbar"],
+    "tungstenore" : [2, 1, "tungstenbar"],
+
+    "clay" : [2, 1, "firedclay"],
+    "corefragmentore" : [2, 1, "volatilepowder"],
+
+    "durasteelore" : [2, 1, "durasteelbar"],
     "titaniumore" : [2, 1, "titaniumbar"],
-    "aegisaltore" : [2, 1, "aegisaltbar"],
-    "Rubiumore" : [2, 1, "Rubiumbar"],
-    "Ceruliumore" : [2, 1, "Ceruliumbar"],
-    "plutoniumore" : [2, 1, "plutoniumrod"],
-    "uraniumore" : [2, 1, "uraniumrod"],
-    "solariumore" : [2, 1, "solariumrod"],
-    "sand" : [3, 1, "glassmaterial"],
-    "sand2" : [3, 1, "glassmaterial"],
-    "fullwood1" : [10, 1, "coalore"]
+    
+    "aegisaltore" : [2, 1, "refinedaegisalt"],
+    "feroziumore" : [2, 1, "refinedferozium"],
+    "violiumore" : [2, 1, "refinedviolium"],
+    "solariumore" : [2, 1, "solariumstar"],
+    
+    "sand" : [3, 1, "glass"],
+    "sand2" : [2, 1, "glass"],
+    "logblock" : [10, 1, "coalore"]
   },
   "smeltRate" : 0.5
 }

@@ -336,7 +336,7 @@ function energy.checkLoS(srcPos, tarPos, entityId)
           if material then
               local materialConfig = root.materialConfig(material)
 
-              if materialConfig["config"] == nil 
+              if materialConfig == nil or materialConfig["config"] == nil 
                   or materialConfig["config"]["renderParameters"] == nil 
                   or not materialConfig["config"]["renderParameters"]["lightTransparent"] then
                   return collision

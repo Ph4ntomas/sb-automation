@@ -1,0 +1,28 @@
+{
+  "itemName" : "sfcapsule",
+  "rarity" : "Common",
+  "inventoryIcon" : "/projectiles/liquid/sfcapsule.png",
+  "image" : "/projectiles/liquid/sfcapsule.png",
+  "shortdescription" : "Capsule",
+  "description" : "You can see some liquid inside.",
+
+  "ammoUsage" : 1,
+
+  "edgeTrigger" : true,
+  "windupTime" : 0.0,
+  "cooldown" : 0.4,
+
+  "projectileType" : "sfcapsule",
+  "projectileConfig" : {
+    "speed" : 45,
+    "power" : 0,
+    "actionOnReap" : [
+      {
+        "action" : "liquid",
+        "quantity" : 30,
+        "liquid" : "water"
+      }
+    ]
+  }
+}
+

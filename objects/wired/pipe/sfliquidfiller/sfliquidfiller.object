@@ -1,6 +1,5 @@
 {
   "objectName" : "sfliquidfiller",
-  "objectType" : "wire",
   "rarity" : "Common",
   "description" : "Puts liquids into portable, throwable capsules.",
   "shortdescription" : "Liquid Filler",
@@ -49,6 +48,9 @@
   "energyConsumptionRate" : 5,
   "energyCapacity" : 10,
 
-  "liquidConversions" : [ ["watercapsule", 3000], ["watercapsule", 3000], ["lavacapsule", 3000], ["acidcapsule", 3000], ["lavacapsule", 3000], ["juicecapsule", 3000], ["tarcapsule", 3000]],
-  "fillInterval" : 2
+  "liquidConversions" : {
+      "8" : 2
+  },
+  "fillInterval" : 2,
+  "liquidAmount" : 30
 }

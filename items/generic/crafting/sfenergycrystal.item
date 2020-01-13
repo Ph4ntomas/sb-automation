@@ -1,0 +1,7 @@
+{
+  "itemName" : "sfenergycrystal",
+  "rarity" : "Common",
+  "inventoryIcon" : "sfenergycrystal.png",
+  "description" : "A crystal component which stores energy.",
+  "shortdescription" : "Energy Crystal"
+}

@@ -1,0 +1,21 @@
+{
+  "itemName" : "sfthrowablemagnet",
+  "rarity" : "Common",
+  "inventoryIcon" : "sfthrowablemagneticon.png",
+  "image" : "sfthrowablemagneticon.png",
+  "shortdescription" : "Throwable Magnet",
+  "description" : "Such magnet. Much speed. Very boom. Wow.",
+
+  "ammoUsage" : 1,
+
+  "edgeTrigger" : true,
+  "windupTime" : 0.0,
+  "cooldown" : 0.4,
+
+  "projectileType" : "sfthrowablemagnet",
+  "projectileConfig" : {
+    "speed" : 20,
+    "level" : 1
+  }
+}
+
