@@ -1,11 +1,9 @@
-function init(virtual)
-  if virtual == false then
+function init()
     object.setInteractive(false)
     self.maxHealth = config.getParameter("health")
     if storage.health == nil then storage.health = self.maxHealth end
     local initState = config.getParameter("initState")
     if initState then animator.setAnimationState("blocktype", initState) end
-  end
 end
 
 function setBlockState(state)

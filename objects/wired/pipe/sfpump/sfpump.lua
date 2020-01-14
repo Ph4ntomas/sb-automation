@@ -59,6 +59,8 @@ function update(dt)
             local canPutLiquid = peekPushLiquid(tarNode, canGetLiquid)
 
             if canGetLiquid and canPutLiquid and energy.consumeEnergy(dt) then
+                filter[liquid[1]][2] = max(filter[liquid[1]][2], canPutLiquid[2])
+
                 animator.setAnimationState("pumping", "pump")
                 object.setAllOutputNodes(true)
 

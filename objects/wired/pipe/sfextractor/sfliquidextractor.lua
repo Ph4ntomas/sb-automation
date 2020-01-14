@@ -7,26 +7,12 @@ function init(args)
       pipes.nodes["item"] = config.getParameter("flippedItemNodes")
     end
     
+    local dir = root.itemConfig(object.name())["directory"]
+    sb.logInfo("conversions = %s", root.assetJson(dir .. config.getParameter("conversions"))["snow"] )
+
     object.setInteractive(true)
     
-    self.conversions = {}
-    --Water
-    self.conversions["snow"] = {liquid = 1, material = "snow", input = 20, output = 1400}
-    self.conversions["slush"] = {liquid = 1, material = "slush", input = 20, output = 1400}
-    self.conversions["ice"] = {liquid = 1, material = "ice", input = 20, output = 1400}
-    self.conversions["mud"] = {liquid = 1, material = "mud", input = 20, output = 1400}
-    self.conversions["wetdirt"] = {liquid = 1, material = "wetdirt", input = 20, output = 1400}
-    --Lava
-    self.conversions["magmarock"] = {liquid = 3, material = "magmarock", input = 20, output = 1400}
-    self.conversions["obsidian"] = {liquid = 3, material = "obsidian", input = 20, output = 1400}
-    --Poison
-    self.conversions["sewage"] = {liquid = 4, material = "sewage", input = 20, output = 1400}
-    self.conversions["slime"] = {liquid = 4, material = "slime", input = 20, output = 1400}
-    --Tar
-    self.conversions["tar"] = {liquid = 7, material = "tar", input = 20, output = 1400}
-    --Tentacle Juice
-    self.conversions["fleshblock"] = {liquid = 6, material = "fleshblock", input = 20, output = 1400}
-    
+    self.conversions = root.assetJson(dir .. config.getParameter("conversions"))
     
     self.damageRate = config.getParameter("damageRate")
     self.damageAmount = config.getParameter("damageAmount")
@@ -45,7 +31,7 @@ function die()
   energy.die()
   
   local placePosition = blockPosition()
-  local extractorBlock = world.objectQuery(placePosition, 1, {name = "extractorblock"})
+  local extractorBlock = world.objectQuery(placePosition, 1, {name = "sfextractorblock"})
   if extractorBlock and #extractorBlock > 0 then
     world.logInfo("%s", extractorBlock)
     world.callScriptedEntity(extractorBlock[1], "damageBlock", 999999) --Really Big Number
@@ -187,7 +173,7 @@ function placeBlock()
     local blockConversion = self.conversions[storage.block.name]
     if blockConversion then
       local placePosition = blockPosition()
-      local placedObject = world.placeObject("extractorblock", placePosition, object.direction(), {initState = storage.block.name})
+      local placedObject = world.placeObject("sfextractorblock", placePosition, object.direction(), {initState = storage.block.name})
       if placedObject then
         local placedBlock = {}
         placedBlock[1] = storage.block.name
@@ -210,7 +196,7 @@ end
 function checkBlock()
   if storage.placedBlock[1] then
     local placePosition = blockPosition()
-    local extractorBlock = world.objectQuery(placePosition, 1, {name = "extractorblock"})
+    local extractorBlock = world.objectQuery(placePosition, 1, {name = "sfextractorblock"})
     if extractorBlock and #extractorBlock == 1 then
       storage.blockId = extractorBlock[1]
       return storage.blockId

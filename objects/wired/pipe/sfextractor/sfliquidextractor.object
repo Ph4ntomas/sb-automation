@@ -51,5 +51,7 @@
   
   "damageRate" : 0.25,
   "damageAmount" : 201,
-  "blockOffset" : [1.5, 1.5]
+  "blockOffset" : [1.5, 1.5],
+
+  "conversions" : "conversions.config"
 }
