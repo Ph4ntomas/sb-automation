@@ -2,7 +2,7 @@
   "projectileName" : "sfcapsule",
   "physics" : "grenade",
   "level" : 1,
-  "image" : "sfcapsule2.png",
+  "image" : "sfcapsule.png",
   "animationCycle" : 1,
   "frameNumber" : 1,
   "timeToLive" : 8,

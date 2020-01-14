@@ -14,3 +14,58 @@ function sfutil.safe_await(promise)
   return promise
 end
 --------------------------------------------------------------------------------
+function fmax(val)
+    if val ~= nil then
+        max = val[1]
+        for _,v in ipairs(val) do
+            if max < v then
+                max = v
+            end
+        end
+        return max
+    end
+
+    return nil
+end
+
+function fmin(val)
+    if val ~= nil then
+        min = val[1]
+        for _, v in ipairs(val) do
+            if min > v then
+                min = v
+            end
+        end
+        return min
+    end
+
+    return nil
+end
+
+function sfutil.rgb2hsv(rgb)
+    local r = rgb[1] / 255
+    local g = rgb[2] / 255
+    local b = rgb[3] / 255
+    local maxColor = fmax({r, g, b})
+    local minColor = fmin({r, g, b})
+    local delta = maxColor - minColor
+
+    local hue = 0
+    if delta == 0 then
+    elseif maxColor == r then
+        hue = 60 * (((g - b) / delta) % 6)
+    elseif maxColor == g then
+        hue = 60 * (((b - r) / delta) + 2)
+    elseif maxColor == b then
+        hue = 60 * (((r - g) / delta) + 4)
+    end
+
+    local sat = 0
+    if maxColor ~= 0 then
+        sat = delta / maxColor
+    end
+
+    local val = (maxColor + minColor) / 2
+
+    return {hue = hue, sat = sat, val = val}
+end

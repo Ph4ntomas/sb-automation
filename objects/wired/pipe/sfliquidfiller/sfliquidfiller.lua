@@ -153,7 +153,76 @@ function update(dt)
     end
 end
 
+local function getColorShiftForLiquid(name)
+    local waterconfig = root.liquidConfig("water")
+    local config = root.liquidConfig(name)
+
+        sb.logInfo("waterConfig %s", waterconfig["config"])
+        sb.logInfo("Config %s", config["config"])
+
+    if config and waterconfig then
+        local waterRgb = waterconfig["config"]["color"]
+        local rgb = config["config"]["color"]
+        local lrgb = config["config"]["radiantLight"]
+        local brgb = config["config"]["bottomLightMix"]
+
+        if lrgb then
+            if brgb then
+                rgb[1] = (rgb[1] + lrgb[1] + brgb[1]) / 3
+                rgb[2] = (rgb[2] + lrgb[2] + brgb[2]) / 3
+                rgb[3] = (rgb[3] + lrgb[3] + brgb[3]) / 3
+            else
+                rgb[1] = (rgb[1] + lrgb[1]) / 2
+                rgb[2] = (rgb[2] + lrgb[2]) / 2
+                rgb[3] = (rgb[3] + lrgb[3]) / 2
+            end
+        end
+
+        if waterRgb and rgb then
+            local waterHsv = sfutil.rgb2hsv(waterRgb)
+            local liquidHsv = sfutil.rgb2hsv(rgb)
+
+            return {
+                hue = liquidHsv.hue - waterHsv.hue,
+                sat = liquidHsv.sat - waterHsv.sat,
+                val = liquidHsv.val - waterHsv.val,
+                rgb[4]
+            }
+        end
+    end
+    return nil
+end
+
+local function buildData(name, amount, hsvShift)
+    local config = root.itemConfig({name = "sfcapsule", count = 1})["config"]
+    local data = {
+        image = config["image"],
+        inventoryIcon = config["inventoryIcon"],
+        projectileConfig = { actionOnReap = config["projectileConfig"]["actionOnReap"] }
+    }
+
+    data["projectileConfig"]["actionOnReap"][1]["liquid"] = name
+    if amount then
+        data["projectileConfig"]["actionOnReap"][1]["quantity"] = amount
+    end
+
+    if hsvShift then
+        local hueshift = "?hueshift=" .. tostring(hsvShift.hue)
+        local saturation = "?saturation=" .. tostring(hsvShift.sat * 100)
+        local brightness = "?brightness=" .. tostring(hsvShift.val * 100)
+
+        local directives = hueshift .. saturation .. brightness
+
+        data["image"] = data["image"] .. directives
+        data["inventoryIcon"] = data["image"]
+        data["projectileConfig"]["processing"] = directives
+    end
+
+    return data
+end
+
 function fillCapsule(liquid)
+    sb.logInfo("liquid = %s", liquid)
     local liquidName = root.liquidName(liquid[1])
 
     if liquidName then
@@ -162,19 +231,13 @@ function fillCapsule(liquid)
         end
 
         --get  directive here
+        local hsvShift = getColorShiftForLiquid(liquidName)
+        sb.logInfo("hsvShift = %s", hsvShift)
+        local data = buildData(liquidName, self.liquidAmount, hsvShift)
 
-        local data = {
-            projectileConfig = {
-                actionOnReap = {
-                    {
-                        action = "liquid",
-                        quantity = self.liquidAmount,
-                        liquid = liquidName
-                    }
-                }
-            }
-        }
         local capsule = {name = "sfcapsule", count = 1, data = data}
+
+        sb.logInfo("filled capsule = %s",  capsule)
 
         if peekPushItem(1, capsule) then 
             return capsule 
