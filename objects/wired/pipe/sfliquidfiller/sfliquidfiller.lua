@@ -10,7 +10,6 @@ function init(args)
     object.setInteractive(true)
 
     self.conversions = config.getParameter("liquidConversions")
-    sb.logInfo("conversion = %s", self.conversions)
     self.liquidAmount = config.getParameter("liquidAmount")
     self.energyRate = config.getParameter("energyConsumptionRate")
 
@@ -157,30 +156,31 @@ local function getColorShiftForLiquid(name)
     local waterconfig = root.liquidConfig("water")
     local config = root.liquidConfig(name)
 
-        sb.logInfo("waterConfig %s", waterconfig["config"])
-        sb.logInfo("Config %s", config["config"])
-
     if config and waterconfig then
         local waterRgb = waterconfig["config"]["color"]
         local rgb = config["config"]["color"]
         local lrgb = config["config"]["radiantLight"]
         local brgb = config["config"]["bottomLightMix"]
 
-        if lrgb then
-            if brgb then
-                rgb[1] = (rgb[1] + lrgb[1] + brgb[1]) / 3
-                rgb[2] = (rgb[2] + lrgb[2] + brgb[2]) / 3
-                rgb[3] = (rgb[3] + lrgb[3] + brgb[3]) / 3
-            else
-                rgb[1] = (rgb[1] + lrgb[1]) / 2
-                rgb[2] = (rgb[2] + lrgb[2]) / 2
-                rgb[3] = (rgb[3] + lrgb[3]) / 2
-            end
-        end
-
         if waterRgb and rgb then
             local waterHsv = sfutil.rgb2hsv(waterRgb)
             local liquidHsv = sfutil.rgb2hsv(rgb)
+
+            if lrgb then
+                local lHsv = sfutil.rgb2hsv(lrgb)
+
+                if brgb then
+                    local bHsv = sfutil.rgb2hsv(lrgb)
+
+                    liquidHsv.hue = (liquidHsv.hue + lHsv.hue + bHsv.hue) / 3
+                    liquidHsv.sat = (liquidHsv.sat + lHsv.sat + bHsv.sat) / 3
+                    liquidHsv.val = (liquidHsv.val + lHsv.val + bHsv.val) / 3
+                else
+                    liquidHsv.hue = (liquidHsv.hue + lHsv.hue) / 2
+                    liquidHsv.sat = (liquidHsv.sat + lHsv.sat) / 2
+                    liquidHsv.val = (liquidHsv.val + lHsv.val) / 2
+                end
+            end
 
             return {
                 hue = liquidHsv.hue - waterHsv.hue,
@@ -193,6 +193,24 @@ local function getColorShiftForLiquid(name)
     return nil
 end
 
+function getLiquidName(name)
+    local liquidConfig = root.liquidConfig(name)
+    if liquidConfig then
+        local liquidConfig = liquidConfig["config"]
+
+        if liquidConfig["itemDrop"] then
+            local config = root.itemConfig({name = liquidConfig["itemDrop"], count = 1})
+
+            if config then
+                local config = config["config"]
+                return config["shortdescription"]
+            end
+        end
+    end
+
+    return nil
+end
+
 local function buildData(name, amount, hsvShift)
     local config = root.itemConfig({name = "sfcapsule", count = 1})["config"]
     local data = {
@@ -200,6 +218,13 @@ local function buildData(name, amount, hsvShift)
         inventoryIcon = config["inventoryIcon"],
         projectileConfig = { actionOnReap = config["projectileConfig"]["actionOnReap"] }
     }
+
+    local liquidName = getLiquidName(name)
+    if liquidName ~= nil then
+        data["shortdescription"] = liquidName .. " " .. config["shortdescription"]
+        data["description"] = config["description"]:gsub("liquid", liquidName:lower())
+    end
+
 
     data["projectileConfig"]["actionOnReap"][1]["liquid"] = name
     if amount then
@@ -222,7 +247,6 @@ local function buildData(name, amount, hsvShift)
 end
 
 function fillCapsule(liquid)
-    sb.logInfo("liquid = %s", liquid)
     local liquidName = root.liquidName(liquid[1])
 
     if liquidName then
@@ -232,12 +256,9 @@ function fillCapsule(liquid)
 
         --get  directive here
         local hsvShift = getColorShiftForLiquid(liquidName)
-        sb.logInfo("hsvShift = %s", hsvShift)
         local data = buildData(liquidName, self.liquidAmount, hsvShift)
 
         local capsule = {name = "sfcapsule", count = 1, data = data}
-
-        sb.logInfo("filled capsule = %s",  capsule)
 
         if peekPushItem(1, capsule) then 
             return capsule 
