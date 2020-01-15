@@ -16,6 +16,7 @@ function liquidPipe.msgHooks.put(_, _, liquid, nodeId)
     if onLiquidPut then
         return onLiquidPut(liquid, nodeId)
     end
+    return false
 end
 
 function liquidPipe.msgHooks.peekPut(_, _, liquid, nodeId)
@@ -29,6 +30,7 @@ function liquidPipe.msgHooks.get(_, _, filter, nodeId)
     if onLiquidGet then
         return onLiquidGet(filter, nodeId)
     end
+    return false
 end
 
 function liquidPipe.msgHooks.peekGet(_, _, filter, nodeId)
@@ -83,7 +85,7 @@ function filterLiquids(filter, liquids)
   if filter then
     for i,liquid in ipairs(liquids) do
       local liquidId = tostring(liquid[1])
-      if filter[liquidId] and liquid[2] >= filter[liquidId][1]then
+      if filter[liquidId] and liquid[2] > filter[liquidId][1]then
         if liquid[2] <= filter[liquidId][2] then
           return liquid, i
         else

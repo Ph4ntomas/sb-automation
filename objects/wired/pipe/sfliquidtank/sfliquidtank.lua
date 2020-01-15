@@ -120,7 +120,7 @@ end
 
 function beforeLiquidPut(liquid, nodeId)
   if storage.liquid[1] == nil then
-    return true
+    return liquid
   elseif liquid and liquid[1] == storage.liquid[1] then
     local excess = 0
     local newLiquid = {liquid[1], storage.liquid[2] + liquid[2]}
@@ -133,9 +133,10 @@ function beforeLiquidPut(liquid, nodeId)
     if excess == liquid[2] and (object.isInputNodeConnected(nodeMap[nodeId]-1) == false or object.getInputNodeLevel(nodeMap[nodeId]-1)) then
       return peekPushLiquid(nodeMap[nodeId], {newLiquid[1], excess}) 
     elseif excess < liquid[2] then
-      return true
+      return liquid
     end
   end
+
   return false
 end
 
