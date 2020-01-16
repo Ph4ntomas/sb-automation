@@ -42,24 +42,24 @@ end
 
 --- Pushes liquid
 -- @param nodeId the node to push from
--- @param liquid the liquid to push, specified as array {liquidId, amount}
--- @returns true if successful, false if unsuccessful
-function pushLiquid(nodeId, liquid)
-  return pipes.push("liquid", nodeId, liquid)
+-- @param liquids - An array of liquids to push, specified as array {liquidId, amount}
+-- @returns And array of results if successful, an empty array otherwise
+function pushLiquid(nodeId, liquids)
+  return pipes.push("liquid", nodeId, liquids)
 end
 
 --- Pulls liquid
 -- @param nodeId the node to push from
 -- @param filter array of filters of liquids {liquidId = {minAmount,maxAmount}, otherLiquidId = {minAmount,maxAmount}}
--- @returns liquid if successful, false if unsuccessful
-function pullLiquid(nodeId, filter)
-  return pipes.pull("liquid", nodeId, filter)
+-- @returns An array of liquids, if successful, an empty array otherwise
+function pullLiquid(nodeId, filters)
+  return pipes.pull("liquid", nodeId, filters)
 end
 
 --- Peeks a liquid push, does not go through with the transfer
 -- @param nodeId the node to push from
 -- @param liquid the liquid to push, specified as array {liquidId, amount}
--- @returns true if successful, false if unsuccessful
+-- @returns An array filled with liquids accepted by each entities.
 function peekPushLiquid(nodeId, liquid)
   return pipes.peekPush("liquid", nodeId, liquid)
 end
@@ -67,9 +67,84 @@ end
 --- Peeks a liquid pull, does not go through with the transfer
 -- @param nodeId the node to push from
 -- @param filter array of filters of liquids {liquidId = {minAmount,maxAmount}, otherLiquidId = {minAmount,maxAmount}}
--- @returns liquid if successful, false if unsuccessful
+-- @returns An array liquid available for each entities if successful
 function peekPullLiquid(nodeId, filter)
   return pipes.peekPull("liquid", nodeId, filter)
+end
+
+--- Build a map containing the total amount of liquid to send at a certain distance, as well as the number of liquid to be sent.
+function buildDistMap(liquids)
+    local min = liquids[1][3]
+    local max = liquids[#liquids][3]
+    local delta = (max - min) / max
+    local map = {}
+    local percent = 1
+
+    if delta then
+        for i, l in pairs(liquids) do
+            if l[2] > 0 then
+                local dist = l[3]
+
+                if not filter[dist] then
+                    filter[dist] = { 1 - ((l[3] - min) / (delta)), 1 }
+                else
+                    filter[dist][2] = filter[dist][2] + 1
+                end
+            end
+        end
+    else
+        map[max] = { 1, #liquids }
+    end
+
+    return map
+end
+
+--- Load balance a given liquid between all request
+-- @param threshold - The liquid to be distributed in the format {liquidId, amount}
+-- @param liquids - An array of max amount of liquids (in the format {liquidId, amount, distance})
+-- @return An array similar to liquids, but with the proper amount of each liquid
+function balanceLoadLiquid(threshold, liquids)
+    if threshold ~= nil and liquids and #liquids > 0 then
+        local maxAmount = 0
+        local ret = {}
+        local filter = {}
+
+
+        for i, l in pairs(liquids) do
+            maxAmount = maxAmount + l[2]
+        end
+
+        if maxAmount > threshold[2] then
+            local percent = {}
+            local amount = threshold[2]
+
+            for i, l in pairs(liquids) do
+                local percent = l[2] / maxAmount
+                local dist = l[3]
+
+                if filter[dist] then
+                    percent = (percent + (dist[1] / dist[2])) / 2
+                end
+                
+                local avail = amount * percent
+
+                if l[2] < avail then
+                    amount = amount - l[2]
+                else
+                    l[2] = avail
+                    amount = amount - avail
+                end
+
+                ret[i] = l
+            end
+
+            return ret
+        else
+            return liquids
+        end
+    end
+
+    return {}
 end
 
 function isLiquidNodeConnected(nodeId)

@@ -71,11 +71,14 @@ function pipes.init(pipeTypes)
         pipes.types[pipeType.pipeName] = pipeType
     end
 
+    -- Setup Nodes
     for pipeName,pipeType in pairs(pipes.types) do
         pipes.nodes[pipeName] = config.getParameter(pipeType.nodesConfigParameter)
         pipes.nodeEntities[pipeName] = {}
+
         if pipes.nodes[pipeName] ~= nil then
             local nodeList = {}
+
             for offset,node in ipairs(pipes.nodes[pipeName]) do
                 nodeList[offset] = { node.offset, "sfinvisipipe" }
             end
@@ -83,7 +86,6 @@ function pipes.init(pipeTypes)
             object.setMaterialSpaces(nodeList)
         end
     end
-
 
     pipes.rejectNode = {}
 
@@ -101,50 +103,87 @@ end
 -- @returns Hook return if successful, false if unsuccessful
 function pipes.push(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
-        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
-            pipes.rejectNode[nodeId] = true
-            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.put, args, entity.nodeId))
+        local ret = {}
 
-            pipes.rejectNode[nodeId] = false
-            if pEntityReturn:succeeded() then return pEntityReturn:result() end
+        pipes.rejectNode[nodeId] = true
+        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
+            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.put, args[i], entity.nodeId))
+
+            if pEntityReturn:succeeded() then --return pEntityReturn:result() end
+                local res = pEntityReturn:result()
+
+                if res then
+                    res[#res + 1] = #entity.path
+                end
+
+                ret[i] = res
+            end
         end
+        pipes.rejectNode[nodeId] = false
+
+        return ret
     end
-    return false
+    return {}
 end
 
 --- Pull, calls the get hook on the closest connected object that returns true
 -- @param pipeName string - name of the pipe type to pull through
 -- @param nodeId number - ID of the node to pull through
--- @param args - The arguments to send to the hook
--- @returns Hook return if successful, false if unsuccessful
+-- @param args - An array of arguments to send to the hooks
+-- @returns An array of successful hooks return
 function pipes.pull(pipeName, nodeId, args)
     if pipes.nodeEntities[pipeName] and pipes.nodeEntities[pipeName][nodeId] and #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
-        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
-            pipes.rejectNode[nodeId] = true
-            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.get, args, entity.nodeId))
+        local ret = {}
 
-            pipes.rejectNode[nodeId] = false
-            if pEntityReturn:succeeded() and pEntityReturn:result() then return pEntityReturn:result() end
+        pipes.rejectNode[nodeId] = true
+        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
+            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.get, args[i], entity.nodeId))
+
+            if pEntityReturn:succeeded() and pEntityReturn:result() then --return pEntityReturn:result() end
+                local res = pEntityReturn:result()
+
+                if res then
+                    res[#res + 1] = #entity.path
+                end
+
+                ret[i] = res
+            end
         end
+        pipes.rejectNode[nodeId] = false
+
+        return ret
     end
-    return false
+    return {}
 end
 
 --- Peek push, calls the peekPut hook on the closest connected object that returns true
 -- @param pipeName string - name of the pipe type to peek through
 -- @param nodeId number - ID of the node to peek through
 -- @param args - The arguments to send to the hook
--- @returns Hook return if successful, false if unsuccessful
+-- @returns An array of successful hooks return
 function pipes.peekPush(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
+        local ret = {}
+
+        pipes.rejectNode[nodeId] = true
         for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
-            pipes.rejectNode[nodeId] = true
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPut, args, entity.nodeId))
-            pipes.rejectNode[nodeId] = false
-            if pEntityReturn:succeeded() then return pEntityReturn:result() end
+
+            if pEntityReturn:succeeded() then --return pEntityReturn:result() end
+                local res = pEntityReturn:result()
+
+                if res then
+                    res[#res + 1] = #entity.path
+                end
+
+                ret[i] = res
+            end
         end
+        pipes.rejectNode[nodeId] = false
+
+        return ret
     end
-    return false
+    return {}
 end
 
 --- Peek pull, calls the peekPull hook on the closest connected object that returns true
@@ -161,15 +200,21 @@ function pipes.peekPull(pipeName, nodeId, args)
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekGet, args, entity.nodeId))
             pipes.rejectNode[nodeId] = false
 
-            if pEntityReturn:succeeded() then return pEntityReturn:result() end
-                --ret[i] = {pEntityReturn:result()}
-            --end
+            if pEntityReturn:succeeded() then --return pEntityReturn:result() end
+                local res = pEntityReturn:result()
+
+                if res then
+                    res[#res + 1] = #entity.path
+                end
+
+                ret[i] = res
+            end
         end
 
-        --return ret
+        return ret
     end
 
-    return false
+    return {}
 end
 
 --- Checks if two pipes connect up, direction-wise
@@ -238,6 +283,7 @@ function pipes.getNodeEntities(pipeName)
     local nodesTable = {}
 
     if pipes.nodes[pipeName] == nil then return {} end
+
     for i,pipeNode in ipairs(pipes.nodes[pipeName]) do
         nodeEntities[i] = pipes.walkPipes(pipeName, pipeNode.offset, pipeNode.dir)
     end
