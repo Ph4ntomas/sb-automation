@@ -40,7 +40,7 @@ function liquidPipe.msgHooks.peekGet(_, _, filter, nodeId)
     return false
 end
 
---- Pushes liquid
+--- Pushes liquids
 -- @param nodeId the node to push from
 -- @param liquids - An array of liquids to push, specified as array {liquidId, amount}
 -- @returns And array of results if successful, an empty array otherwise
@@ -61,7 +61,7 @@ end
 -- @param liquid the liquid to push, specified as array {liquidId, amount}
 -- @returns An array filled with liquids accepted by each entities.
 function peekPushLiquid(nodeId, liquid)
-  return pipes.peekPush("liquid", nodeId, liquid)
+    return balanceLoadLiquid(liquid, pipes.peekPush("liquid", nodeId, liquid))
 end
 
 --- Peeks a liquid pull, does not go through with the transfer
@@ -86,7 +86,7 @@ function buildDistMap(liquids)
                 local dist = l[3]
 
                 if not filter[dist] then
-                    filter[dist] = { 1 - ((l[3] - min) / (delta)), 1 }
+                    filter[dist] = { 0.5 , 1 }
                 else
                     filter[dist][2] = filter[dist][2] + 1
                 end
@@ -109,7 +109,6 @@ function balanceLoadLiquid(threshold, liquids)
         local ret = {}
         local filter = {}
 
-
         for i, l in pairs(liquids) do
             maxAmount = maxAmount + l[2]
         end
@@ -117,17 +116,17 @@ function balanceLoadLiquid(threshold, liquids)
         if maxAmount > threshold[2] then
             local percent = {}
             local amount = threshold[2]
+            local distMap = buildDistMap(liquids)
 
             for i, l in pairs(liquids) do
                 local percent = l[2] / maxAmount
                 local dist = l[3]
 
                 if filter[dist] then
-                    percent = (percent + (dist[1] / dist[2])) / 2
+                    percent = (dist[1] / dist[2])
                 end
-                
-                local avail = amount * percent
 
+                local avail = amount * percent
                 if l[2] < avail then
                     amount = amount - l[2]
                 else
