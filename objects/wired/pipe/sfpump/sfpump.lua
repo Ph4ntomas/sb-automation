@@ -37,11 +37,11 @@ end
 function pump(dt)
     local srcNode, tarNode = orderNode(object.direction())
 
-    local liquid = peekPullLiquid(srcNode)
+    local liquid = peekPullLiquid(srcNode) -- self.liquid
     local canGetLiquid = false
+    local filter = {}
 
     if liquid then
-        local filter = {}
         filter[tostring(liquid[1])] = {0, self.pumpAmount}
         canGetLiquid = peekPullLiquid(srcNode, filter)
     end
@@ -51,11 +51,11 @@ function pump(dt)
     if canGetLiquid and canPutLiquid and energy.consumeEnergy(dt) then
         filter[liquid[1]][2] = min(filter[liquid[1]][2], canPutLiquid[2])
 
-        animator.setAnimationState("pumping", "pump")
-        object.setAllOutputNodes(true)
-
         local liquid = pullLiquid(srcNode, filter)
         pushLiquid(tarNode, liquid)
+
+        animator.setAnimationState("pumping", "pump")
+        object.setAllOutputNodes(true)
     else
         object.setAllOutputNodes(false)
         animator.setAnimationState("pumping", "error")
@@ -77,9 +77,6 @@ function update(dt)
     energy.update(dt)
 
     if storage.state then
-        -- consume for passive mode
-        self.pushedSinceUpdate = 0
-
         if self.pumpTimer > self.pumpRate then
             pump(dt)
         end
