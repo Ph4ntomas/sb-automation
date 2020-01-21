@@ -105,9 +105,15 @@ function pipes.push(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
+        sb.logInfo("push : nodeId = %s", nodeId)
+        sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
+        sb.logInfo("args = %s", args)
+
         pipes.rejectNode[nodeId] = true
         for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
+            sb.logInfo("trying to put %s", args[i])
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.put, args[i], entity.nodeId))
+            sb.logInfo("push hook return %s", pEntityReturn:succeeded())
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
@@ -132,11 +138,13 @@ end
 -- @param args - An array of arguments to send to the hooks
 -- @returns An array of successful hooks return
 function pipes.pull(pipeName, nodeId, args)
-    if pipes.nodeEntities[pipeName] and pipes.nodeEntities[pipeName][nodeId] and #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
+    --sb.logInfo("nodeId = %s", nodeId)
+    --sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
+    if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
         pipes.rejectNode[nodeId] = true
-        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
+        for i,entity in pairs(pipes.nodeEntities[pipeName][nodeId]) do
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.get, args[i], entity.nodeId))
 
             if pEntityReturn:succeeded() and pEntityReturn:result() then --return pEntityReturn:result() end
@@ -165,6 +173,9 @@ function pipes.peekPush(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
+    sb.logInfo("peek push nodeId = %s", nodeId)
+    sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
+
         pipes.rejectNode[nodeId] = true
         for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPut, args, entity.nodeId))
@@ -192,16 +203,19 @@ end
 -- @param args - The arguments to send to the hook
 -- @returns Hook return if successful, false if unsuccessful
 function pipes.peekPull(pipeName, nodeId, args)
+    --sb.logInfo("nodeId = %s", nodeId)
+    --sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
-        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
+        for i,entity in pairs(pipes.nodeEntities[pipeName][nodeId]) do
             pipes.rejectNode[nodeId] = true
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekGet, args, entity.nodeId))
             pipes.rejectNode[nodeId] = false
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
+                --sb.logInfo("Can Pull %s", res)
 
                 if res then
                     res[#res + 1] = #entity.path

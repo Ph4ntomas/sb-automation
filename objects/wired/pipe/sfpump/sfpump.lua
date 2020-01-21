@@ -8,7 +8,12 @@ function init()
 
     self.pumping = false
     self.pumpRate = config.getParameter("pumpRate", 0)
+    self.pumpAmount = config.getParameter("pumpAmount", 0)
     self.pumpTimer = 0
+
+    self.capacity = self.pumpAmount
+    self.capacity = self.pumpAmount
+    storage.liquid = nil
 
     self.pushedSinceUpdate = 0
 
@@ -34,28 +39,83 @@ function die()
     energy.die()
 end
 
-function pump(dt)
-    local srcNode, tarNode = orderNode(object.direction())
-
-    local liquid = peekPullLiquid(srcNode) -- self.liquid
+function tryPull(nodeId)
+    local liquid = storage.liquid
+    local inStore = 0
     local canGetLiquid = false
-    local filter = {}
 
     if liquid then
-        filter[tostring(liquid[1])] = {0, self.pumpAmount}
-        canGetLiquid = peekPullLiquid(srcNode, filter)
+        filter = {liquid[1], {0, self.pumpAmount - liquid[2]}}
+        canGetLiquid = peekPullLiquid(nodeId, filter)
+        inStore = liquid[2]
+    else
+        filter = {nil, {0, self.pumpAmount}}
+        canGetLiquid = peekPullLiquid(nodeId, filter)
     end
 
-    local canPutLiquid = peekPushLiquid(tarNode, canGetLiquid)
+    if canGetLiquid then
+        local pulledLiquid = pullLiquid(nodeId, canGetLiquid[1])
+        sb.logInfo("canGetLiquid = %s", canGetLiquid[1])
+        sb.logInfo("pulled %s", pulledLiquid)
+        if pulledLiquid then
+            pulledLiquid[2][2] = pulledLiquid[2][2] + inStore
+            sb.logInfo("pulledLiquid[2] = %s", pulledLiquid[2])
+            storage.liquid = pulledLiquid[2]
 
-    if canGetLiquid and canPutLiquid and energy.consumeEnergy(dt) then
-        filter[liquid[1]][2] = min(filter[liquid[1]][2], canPutLiquid[2])
+            return true
+        end
+    end
 
-        local liquid = pullLiquid(srcNode, filter)
-        pushLiquid(tarNode, liquid)
+    return false
+end
 
-        animator.setAnimationState("pumping", "pump")
-        object.setAllOutputNodes(true)
+function tryPush(nodeId)
+    local liquid = storage.liquid
+    sb.logInfo("storage.liquid = %s", storage.liquid)
+    
+    if liquid then
+        local canPutLiquid = peekPushLiquid(nodeId, liquid)
+        sb.logInfo("canPutLiquid = %s", canPutLiquid)
+
+        if canPutLiquid then
+            local pushedLiquid = pushLiquid(nodeId, canPutLiquid[1])
+            sb.logInfo("PushLiquid = %s", canPutLiquid)
+
+            if pushedLiquid then
+                local amount = pushedLiquid[2][2]
+
+                if amount >= storage.liquid[2] then
+                    storage.liquid = nil
+                else
+                    storage.liquid[2] = storage.liquid[2] - amount
+                end
+
+
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+function pump(dt)
+    local srcNode, tarNode = orderNode(object.direction())
+    local filter = {}
+
+    sb.logInfo("pumping from %s, to %s", srcNode, tarNode)
+
+    if energy.consumeEnergy(dt, nil, true) then
+        local resPull = tryPull(srcNode)
+        local resPush = tryPush(tarNode)
+
+        if (resPull or resPush) and energy.consumeEnergy(dt) then
+            animator.setAnimationState("pumping", "pump")
+            object.setAllOutputNodes(true)
+        else
+            object.setAllOutputNodes(false)
+            animator.setAnimationState("pumping", "error")
+        end
     else
         object.setAllOutputNodes(false)
         animator.setAnimationState("pumping", "error")
@@ -66,9 +126,9 @@ end
 
 function orderNode(direction)
     if direction == 1 then
-        return { 1, 2 }
+        return 1, 2
     else
-        return { 2, 1 }
+        return 2, 1
     end
 end
 
@@ -89,22 +149,57 @@ end
 
 function beforeLiquidPut(liquid, nodeId)
     local srcNode, tarNode = orderNode(object.direction())
+    local res = nil
 
-    if nodeId == srcNode then
-        return peekPushLiquid(tarNode, liquid)
+    if nodeId == srcNode and storage.state and liquid then
+        if storage.liquid and liquid[1] == storage.liquid[1] then
+            if storage.liquid[2] == self.capacity then
+                res = nil
+            elseif storage.liquid[1] == liquid[1] then
+                if liquid[2] >= (self.capacity - storage.liquid[2]) then
+                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                else
+                    res = liquid
+                end
+            end
+        elseif not storage.liquid or not storage.liquid[1] then
+            if liquid[2] > self.capacity then
+                res = {liquid[1], self.capacity}
+            else
+                res = liquid
+            end
+        end
     end
 
-    return nil
+    return res
 end
 
 function onLiquidPut(liquid, nodeId)
     local srcNode, tarNode = orderNode(object.direction())
+    local res = nil
 
-    if nodeId == srcNode and storage.state then
-        animator.setAnimationState("pumping", "pump")
-        object.setAllOutputNodes(true)
-        self.pushedSinceUpdate = self.pushedSinceUpdate + 1
-        return pushLiquid(tarNode, liquid)
+    if nodeId == srcNode and storage.state and liquid then
+        if storage.liquid and storage.liquid[1] == liquid[1] then
+            if storage.liquid[2] >= self.capacity then
+                res = nil
+            else
+                if liquid[2] > (self.capacity - storage.liquid[2]) then
+                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                else
+                    res = liquid
+                end
+
+                storage.liquid[2] = min(storage.liquid[2] + liquid[2], self.capacity)
+            end
+        elseif not storage.liquid or not storage.liquid[1] then
+            if liquid[2] > self.capacity then
+                res = {liquid[1], self.capacity}
+            else
+                res = liquid
+            end
+
+            storage.liquid = res
+        end
     end
 
     return nil

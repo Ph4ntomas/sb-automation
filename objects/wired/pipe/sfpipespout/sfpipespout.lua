@@ -40,10 +40,14 @@ function update(dt)
 end
 
 function convertEndlessLiquid(liquid)
+    local endless = false
+
     if self.convertLiquid[liquid[1]] ~= nil then
         liquid[1] = self.convertLiquid[liquid[1]]
+        endless = true
     end
-    return liquid
+
+    return liquid, endless
 end
 
 function canGetLiquid(filter, nodeId)
@@ -57,32 +61,32 @@ function canGetLiquid(filter, nodeId)
         return liquid
     end
 
-    return false
+    return nil, nil
 end
 
 function beforeLiquidGet(filter, nodeId)
-    return canGetLiquid(filter, nodeId)
+    local liquid, _ = canGetLiquid(filter, nodeId)
+    return liquid
 end
 
 function onLiquidGet(filter, nodeId)
     local position = entity.position()
     local liquidPos = {position[1] + 0.5, position[2] + 0.5}
-    local getLiquid = canGetLiquid(filter, nodeId)
+    local getLiquid, endless = canGetLiquid(filter, nodeId)
 
     if getLiquid then
-        sb.logInfo("spout onLiquidGet => %s", getLiquid)
-        local destroyed = world.destroyLiquid(liquidPos)
-        sb.logInfo("spout destroyed liquid = %s", destroyed)
+        if not endless then
+            local destroyed = world.destroyLiquid(liquidPos)
 
-        if destroyed[2] > getLiquid[2] then
-            world.spawnLiquid(liquidPos, destroyed[1], destroyed[2] - getLiquid[2])
+            if destroyed[2] > getLiquid[2] then
+                world.spawnLiquid(liquidPos, destroyed[1], destroyed[2] - getLiquid[2])
+            end
         end
 
-        getLiquid = convertEndlessLiquid(getLiquid)
         return getLiquid
     end
 
-    return false
+    return nil
 end
 
 function canPutLiquid(liquid, nodeId)
@@ -105,9 +109,9 @@ function onLiquidPut(liquid, nodeId)
         end
 
         world.spawnLiquid(liquidPos, liquid[1], liquid[2])
-        return true
+        return liquid
     else
-        return false
+        return nil
     end
 end
 
