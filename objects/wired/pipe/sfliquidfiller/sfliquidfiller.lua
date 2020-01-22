@@ -1,5 +1,4 @@
 function init(args)
-    pipes.init({liquidPipe, itemPipe})
     energy.init()
 
     if object.direction() < 0 then
@@ -35,13 +34,13 @@ function onNodeConnectionChange()
 end
 
 function onInteraction(args)
-    --pump liquid
     if object.isInputNodeConnected(0) == false then
         storage.state = not storage.state
         if storage.state then animator.setAnimationState("fillstate", "on") end
     end
 end
 
+-- DAFUQ
 function beforeItemPut(item, nodeId)
     if storage.block.name == nil or storage.block.count <= 0 then
         local acceptItem = false
@@ -72,6 +71,7 @@ function onItemPut(item, nodeId)
     end
     return false
 end
+-- !DAFUQ
 
 function createCapsule(dt, liquidId, amount, pushExcess)
     if amount >= self.liquidAmount then
@@ -141,9 +141,6 @@ function update(dt)
                 end
             end
 
-            if not done then
-                tryPullingLiquid(dt)
-            end
             self.fillTimer = 0
         end
         self.fillTimer = self.fillTimer + dt
@@ -274,37 +271,43 @@ function beforeLiquidPut(liquid, nodeId)
         local inStore = 0
 
         if storage.liquids[liquid[1]] then
-            amount = amount + storage.liquids[liquid[1]]
+            --amount = amount + storage.liquids[liquid[1]]
             inStore = storage.liquids[liquid[1]]
         end
 
-        if amount <= self.liquidAmount then
+        if amount <= (self.liquidAmount - inStore) then
             return liquid
         else
             return liquid[1], self.liquidAmount - inStore
         end
     end
-    return false
+    return nil
 end
 
 function onLiquidPut(liquid, nodeId)
     if storage.state and liquid then
         local amount = liquid[2]
+        local inStore = 0
 
         if storage.liquids[liquid[1]] then
-            amount = amount + storage.liquids[liquid[1]]
+            --amount = amount + storage.liquids[liquid[1]]
+            inStore = storage.liquids[liquid[1]]
         end
         
-        if amount <= self.liquidAmount then
-            storage.liquids[liquid[1]] = amount
-        else -- should not happen, yet did
-            local excess = amount - self.liquidAmount
+        if amount <= (self.liquidAmount - inStore) then
+            storage.liquids[liquid[1]] = amount + inStore
+        else
+            local excess = (amount + inStore) - self.liquidAmount
 
             storage.liquids[liquid[1]] = self.liquidAmount
-            pushLiquid(1, {liquid[1], excess})
+            liquid[2] = liquid[2] - excess
+
+            --if liquid[2] <= 0 then -- should not happen, but just in case
+            --    liquid[2] = 0
+            --end
         end
-        return true
+        return liquid
     end
-    return false
+    return nil
 end
 

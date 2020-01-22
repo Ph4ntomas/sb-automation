@@ -57,7 +57,6 @@ end
 function pullLiquid(nodeId, filters)
     local liquid = nil
     local res = pipes.pull("liquid", nodeId, filters)
-    sb.logInfo("res = %s", res)
 
     return {res, sumUpLiquid(res)}
 end
@@ -84,7 +83,6 @@ function peekPullLiquid(nodeId, filter)
     local liquid = nil
     local res = pipes.peekPull("liquid", nodeId, filter)
 
-    sb.logInfo("filter = %s", filter)
     if res then
         local balanced = balanceLoadLiquid(filter[2][2], res)
 
@@ -124,8 +122,6 @@ function buildDistMap(liquids)
     local map = {}
     local percent = 1
 
-    sb.logInfo("dist delta = %s", delta)
-
     if delta ~= 0 then
         for i, l in pairs(liquids) do
             if l[2] > 0 then
@@ -157,15 +153,9 @@ end
 function balanceLoadLiquid(threshold, liquids)
     if liquids and #liquids > 0 then
         local ret = {}
-
-        local percent = {}
         local amount = threshold
         local distMap = buildDistMap(liquids)
         local count = 0
-        local leftover = 0
-
-        sb.logInfo("liquids = %s", liquids)
-        sb.logInfo("distmap = %s", distMap)
 
         for i, l in pairs(liquids) do
             local percent = 0
@@ -176,7 +166,6 @@ function balanceLoadLiquid(threshold, liquids)
                 distMap[dist][3] = amount * percent
                 amount = amount - (amount * distMap[dist][1])
                 count = 1
-                leftover = 0
             else
                 count = count + 1
             end

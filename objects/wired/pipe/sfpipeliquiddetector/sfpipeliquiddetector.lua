@@ -17,7 +17,7 @@ function init()
     self.connectionMap[3] = 4
     self.connectionMap[4] = 3
   
-    pipes.init({liquidPipe,itemPipe})
+    pipes.init({liquidPipe})
     datawire.init()
 end
 
@@ -73,12 +73,17 @@ end
 
 function onLiquidGet(filter, nodeId)
   --world.logInfo("passing liquid get from %s to %s", nodeId, self.connectionMap[nodeId])
-  local result = pullLiquid(self.connectionMap[nodeId], filter)
-  if result then
-    activate()
-    output(result)
+  local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
+
+  if peek then
+      local result = pullLiquid(self.connectionMap[nodeId], peek[1])
+      if result then
+          activate()
+          output(result)
+      end
+      return result
   end
-  return result
+  return nil
 end
 
 function beforeLiquidPut(liquid, nodeId)
@@ -88,30 +93,15 @@ end
 
 function onLiquidPut(liquid, nodeId)
   --world.logInfo("passing liquid from %s to %s", nodeId, self.connectionMap[nodeId])
-  local result = pushLiquid(self.connectionMap[nodeId], liquid)
-  if result then
-    activate()
-    output(liquid)
+  local peek = peekPushLiquid(self.connectionMap[nodeId], liquid)
+
+  if peek then
+      local result = pushLiquid(self.connectionMap[nodeId], peek[1])
+      if result then
+          activate()
+          output(liquid)
+      end
+      return result
   end
-  return result
-end
-
-function beforeItemPut(item, nodeId)
-  --world.logInfo("passing item peek from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPushItem(self.connectionMap[nodeId], item)
-end
-
-function onItemPut(item, nodeId)
-  --world.logInfo("passing item from %s to %s", nodeId, self.connectionMap[nodeId])
-  return pushItem(self.connectionMap[nodeId], item)
-end
-
-function beforeItemGet(filter, nodeId)
-  --world.logInfo("passing item peek get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPullItem(self.connectionMap[nodeId], filter)
-end
-
-function onItemGet(filter, nodeId)
-  --world.logInfo("passing item get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return pullItem(self.connectionMap[nodeId], filter)
+  return nil
 end

@@ -37,6 +37,7 @@ end
 
 
 function onInteraction(args)
+    --TODO: Get liquid name from root functions.
     local liquid = self.liquidMap[storage.liquid[1]]
     local count = storage.liquid[2]
     local capacity = self.capacity
@@ -56,6 +57,7 @@ end
 function update(dt)
     pipes.update(dt)
 
+    --TODO: change the liquid state by hue shifting a base color (CF capsules)
     local liquidState = self.liquidMap[storage.liquid[1]]
     if liquidState then
         animator.setAnimationState("liquid", liquidState)
@@ -110,7 +112,7 @@ function onLiquidPut(liquid, nodeId)
 
                 storage.liquid[2] = min(storage.liquid[2] + liquid[2], self.capacity)
             end
-        elseif not storage.liquid or not storage.liquid[1] then
+        elseif not storage.liquid then
             if liquid[2] > self.capacity then
                 res = {liquid[1], self.capacity}
             else
@@ -152,14 +154,10 @@ end
 
 function onLiquidGet(filter, nodeId)
     if storage.liquid[1] ~= nil then
-        local liquids = {{storage.liquid[1], storage.liquid[2]}}
+        local liquids = {{storage.liquid[1], math.min(storage.liquid[2], pushAmount)}}
         local returnLiquid, _ = filterLiquids(filter, liquids)
 
         if returnLiquid then
-            if filter == nil and returnLiquid[2] > self.pushAmount then 
-                returnLiquid[2] = self.pushAmount 
-            end
-
             storage.liquid[2] = storage.liquid[2] - returnLiquid[2]
 
             if storage.liquid[2] == 0 then
@@ -174,12 +172,9 @@ end
 
 function beforeLiquidGet(filter, nodeId)
     if storage.liquid[1] ~= nil then
-        local liquids = {{storage.liquid[1], storage.liquid[2]}}
-        local returnLiquid, _ = filterLiquids(filter, liquids)
+        local liquids = {{storage.liquid[1], math.min(storage.liquid[2], self.pushAmount)}}
 
-        if filter == nil and returnLiquid[2] > self.pushAmount then 
-            returnLiquid[2] = self.pushAmount 
-        end
+        local returnLiquid, _ = filterLiquids(filter, liquids)
 
         return returnLiquid
     end

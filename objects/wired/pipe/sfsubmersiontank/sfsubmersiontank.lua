@@ -8,6 +8,8 @@ function init()
     
     animator.resetTransformationGroup("liquid")
     animator.scaleTransformationGroup("liquid", {1, 0})
+
+    --TODO use root function to get this
     self.liquidMap = {}
     self.liquidMap[1] = "water"
     self.liquidMap[2] = "lava"
@@ -34,7 +36,8 @@ function die()
   end
 end
 
-function onInteraction_(args)
+-- legacy function, soon to be removed
+function onInteraction(args)
   local liquid = self.liquidMap[storage.liquid[1]]
   local count = storage.liquid[2]
   local capacity = self.capacity
@@ -100,6 +103,7 @@ end
 function update(dt)
   pipes.update(dt)
   
+  --TODO: use root functions, and get a hue on color (see capsule)
   local liquidState = self.liquidMap[storage.liquid[1]]
   if liquidState then
     animator.setAnimationState("liquid", liquidState)
@@ -118,17 +122,18 @@ function update(dt)
 
   cycleForeground(world.loungeableOccupied(entity.id()))
 
-  if self.pushTimer > self.pushRate and storage.liquid[2] ~= nil then
-    local pushedLiquid = {storage.liquid[1], storage.liquid[2]}
-    if storage.liquid[2] > self.pushAmount then pushedLiquid[2] = self.pushAmount end
-    for i=1,2 do
-      if object.getInputNodeLevel(i-1) and pushLiquid(i, pushedLiquid) then
-        storage.liquid[2] = storage.liquid[2] - pushedLiquid[2]
-        break;
-      end
-    end
-    self.pushTimer = 0
-  end
+  --TODO: Reactivate timer pushing
+  --if self.pushTimer > self.pushRate and storage.liquid[2] ~= nil then
+    --local pushedLiquid = {storage.liquid[1], storage.liquid[2]}
+    --if storage.liquid[2] > self.pushAmount then pushedLiquid[2] = self.pushAmount end
+    --for i=1,2 do
+      --if object.getInputNodeLevel(i-1) and pushLiquid(i, pushedLiquid) then
+        --storage.liquid[2] = storage.liquid[2] - pushedLiquid[2]
+        --break;
+      --end
+    --end
+    --self.pushTimer = 0
+  --end
   self.pushTimer = self.pushTimer + dt
   
   clearLiquid()
@@ -141,41 +146,59 @@ function clearLiquid()
 end
 
 function onLiquidPut(liquid, nodeId)
-  if storage.liquid[1] == nil then
-    storage.liquid = liquid
-    return true
-  elseif liquid and liquid[1] == storage.liquid[1] then
-    local excess = 0
-    local newLiquid = {liquid[1], storage.liquid[2] + liquid[2]}
-    
-    if newLiquid[2] > self.capacity then 
-      excess = newLiquid[2] - self.capacity
-      newLiquid[2] = self.capacity
+    local res = nil
+
+    if liquid then
+        if storage.liquid and liquid[1] == storage.liquid[1] then
+            if storage.liquid[2] >= self.capacity then
+                res = nil
+            else
+                if liquid[2] > (self.capacity - storage.liquid[2]) then
+                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                else
+                    res = liquid
+                end
+
+                storage.liquid[2] = min(storage.liquid[2] + liquid[2], self.capacity)
+            end
+        elseif not storage.liquid then
+            if liquid[2] > self.capacity then
+                res = {liquid[1], self.capacity}
+            else
+                res = liquid
+            end
+
+            storage.liquid[2] = res
+        end
     end
-    storage.liquid = newLiquid
-    
-    --Try to push excess liquid
-    if excess > 0 then return pushLiquid(2, {newLiquid[1], excess}) end
-    return true
-  end
-  return false
+
+    return res
 end
 
 function beforeLiquidPut(liquid, nodeId)
-  if storage.liquid[1] == nil then
-    return true
-  elseif liquid and liquid[1] == storage.liquid[1] then
-    local excess = 0
-    local newLiquid = {liquid[1], storage.liquid[2] + liquid[2]}
-    
-    if newLiquid[2] > self.capacity then 
-      excess = newLiquid[2] - self.capacity
+    local res = nil
+
+    if liquid then
+        if storage.liquid and liquid[1] == storage.liquid[1] then
+            if storage.liquid[2] >= self.capacity then
+                res = nil
+            else
+                if liquid[2] > (self.capacity - storage.liquid[2]) then
+                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                else
+                    res = liquid
+                end
+            end
+        elseif not storage.liquid or not storage.liquid[1] then
+            if liquid[2] > self.capacity then
+                res = {liquid[1], self.capacity}
+            else
+                res = liquid
+            end
+        end
     end
-    
-    if excess == liquid[2] then return peekPushLiquid(2, {newLiquid[1], excess}) end
-    return true
-  end
-  return false
+
+    return res
 end
 
 function onLiquidGet(filter, nodeId)

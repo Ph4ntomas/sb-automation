@@ -17,7 +17,7 @@ function init()
     self.connectionMap[3] = 4
     self.connectionMap[4] = 3
   
-    pipes.init({liquidPipe,itemPipe})
+    pipes.init({itemPipe})
     datawire.init()
 end
 
@@ -66,26 +66,6 @@ function output(item)
   end
 end
 
-function beforeLiquidGet(filter, nodeId)
-  --world.logInfo("passing liquid peek get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPullLiquid(self.connectionMap[nodeId], liquid)
-end
-
-function onLiquidGet(filter, nodeId)
-  --world.logInfo("passing liquid get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return pullLiquid(self.connectionMap[nodeId], filter)
-end
-
-function beforeLiquidPut(liquid, nodeId)
-  --world.logInfo("passing liquid peek from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPushLiquid(self.connectionMap[nodeId], liquid)
-end
-
-function onLiquidPut(liquid, nodeId)
-  --world.logInfo("passing liquid from %s to %s", nodeId, self.connectionMap[nodeId])
-  return pushLiquid(self.connectionMap[nodeId], liquid)
-end
-
 function beforeItemPut(item, nodeId)
   --world.logInfo("passing item peek from %s to %s", nodeId, self.connectionMap[nodeId])
   return peekPushItem(self.connectionMap[nodeId], item)
@@ -93,12 +73,17 @@ end
 
 function onItemPut(item, nodeId)
   --world.logInfo("passing item from %s to %s", nodeId, self.connectionMap[nodeId])
-  local result = pushItem(self.connectionMap[nodeId], item)
-  if result then
-    activate()
-    output(item)
+  local peek = peekPushItem(self.connectionMap[nodeId], item)
+
+  if peek then
+      local result = pushItem(self.connectionMap[nodeId], peek[1])
+      if result then
+          activate()
+          output(item)
+      end
+      return result
   end
-  return result
+  return nil
 end
 
 function beforeItemGet(filter, nodeId)

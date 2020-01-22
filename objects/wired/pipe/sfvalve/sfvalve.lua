@@ -60,16 +60,18 @@ function beforeLiquidGet(filter, nodeId)
     --world.logInfo("passing liquid peek get from %s to %s", nodeId, self.connectionMap[nodeId])
     return peekPullLiquid(self.connectionMap[nodeId], filter)
   else
-    return false
+    return nil
   end
 end
 
 function onLiquidGet(filter, nodeId)
   if storage.state then
-    --world.logInfo("passing liquid get from %s to %s", nodeId, self.connectionMap[nodeId])
-    return pullLiquid(self.connectionMap[nodeId], filter)
-  else
-    return false
+      local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
+
+      if peek then
+          return pullLiquid(self.connectionMap[nodeId], peek[1])
+      end
+      return nil
   end
 end
 
@@ -78,25 +80,29 @@ function beforeLiquidPut(liquid, nodeId)
     --world.logInfo("passing liquid peek from %s to %s", nodeId, self.connectionMap[nodeId])
     return peekPushLiquid(self.connectionMap[nodeId], liquid)
   else
-    return false
+    return nil
   end
 end
 
 function onLiquidPut(liquid, nodeId)
   if storage.state then
-    --world.logInfo("passing liquid from %s to %s", nodeId, self.connectionMap[nodeId])
-    return pushLiquid(self.connectionMap[nodeId], liquid)
-  else
-    return false
+      peek = peekPushLiquid(self.connectionMap[nodeId], liquid)o
+      
+      if peek then
+          return pushLiquid(self.connectionMap[nodeId], liquid)
+      end
   end
+  return nil
 end
 
+
+--TODO: Fix Items
 function beforeItemPut(item, nodeId)
   if storage.state then
     --world.logInfo("passing item peek from %s to %s", nodeId, self.connectionMap[nodeId])
     return peekPushItem(self.connectionMap[nodeId], item)
   else
-    return false
+    return nil
   end
 end
 
@@ -105,7 +111,7 @@ function onItemPut(item, nodeId)
     --world.logInfo("passing item from %s to %s", nodeId, self.connectionMap[nodeId])
     return pushItem(self.connectionMap[nodeId], item)
   else
-    return false
+    return nil
   end
 end
 
@@ -114,7 +120,7 @@ function beforeItemGet(filter, nodeId)
     --world.logInfo("passing item peek get from %s to %s", nodeId, self.connectionMap[nodeId])
     return peekPullItem(self.connectionMap[nodeId], filter)
   else
-    return false
+    return nil
   end
 end
 
@@ -123,6 +129,6 @@ function onItemGet(filter, nodeId)
     --world.logInfo("passing item get from %s to %s", nodeId, self.connectionMap[nodeId])
     return pullItem(self.connectionMap[nodeId], filter)
   else
-    return false
+    return nil
   end
 end

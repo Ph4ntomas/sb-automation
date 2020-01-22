@@ -55,11 +55,8 @@ function tryPull(nodeId)
 
     if canGetLiquid then
         local pulledLiquid = pullLiquid(nodeId, canGetLiquid[1])
-        sb.logInfo("canGetLiquid = %s", canGetLiquid[1])
-        sb.logInfo("pulled %s", pulledLiquid)
         if pulledLiquid then
             pulledLiquid[2][2] = pulledLiquid[2][2] + inStore
-            sb.logInfo("pulledLiquid[2] = %s", pulledLiquid[2])
             storage.liquid = pulledLiquid[2]
 
             return true
@@ -71,15 +68,12 @@ end
 
 function tryPush(nodeId)
     local liquid = storage.liquid
-    sb.logInfo("storage.liquid = %s", storage.liquid)
     
     if liquid then
         local canPutLiquid = peekPushLiquid(nodeId, liquid)
-        sb.logInfo("canPutLiquid = %s", canPutLiquid)
 
         if canPutLiquid then
             local pushedLiquid = pushLiquid(nodeId, canPutLiquid[1])
-            sb.logInfo("PushLiquid = %s", canPutLiquid)
 
             if pushedLiquid then
                 local amount = pushedLiquid[2][2]
