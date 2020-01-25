@@ -70,6 +70,12 @@ function peekPullItem(nodeId, filter)
   return pipes.peekPull("item", nodeId, filter)
 end
 
+function balanceLoadItem(threshold, items)
+    if items and #items > 0 then
+
+    end
+end
+
 function isItemNodeConnected(nodeId)
   if pipes.nodeEntities["item"] == nil or pipes.nodeEntities["item"][nodeId] == nil then return false end
   if #pipes.nodeEntities["item"][nodeId] > 0 then
