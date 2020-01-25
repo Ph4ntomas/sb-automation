@@ -1,3 +1,5 @@
+require '/scripts/sfutil.lua'
+
 liquidPipe = {
     pipeName = "liquid",
     nodesConfigParameter = "liquidNodes",
@@ -47,7 +49,7 @@ end
 function pushLiquid(nodeId, liquids)
     local res = pipes.push("liquid", nodeId, liquids)
 
-    return {res, sumUpLiquid(res)}
+    return {res, pipes.sumUpResources(res)}
 end
 
 --- Pulls liquid
@@ -58,7 +60,7 @@ function pullLiquid(nodeId, filters)
     local liquid = nil
     local res = pipes.pull("liquid", nodeId, filters)
 
-    return {res, sumUpLiquid(res)}
+    return {res, pipes.sumUpResources(res)}
 end
 
 --- Peeks a liquid push, does not go through with the transfer
@@ -69,7 +71,7 @@ function peekPushLiquid(nodeId, liquid)
     local res = balanceLoadLiquid(liquid[2], pipes.peekPush("liquid", nodeId, liquid))
 
     if res then
-        return {res, sumUpLiquid(res, liquid)}
+        return {res, pipes.sumUpResources(res, liquid)}
     end
 
     return nil
@@ -86,64 +88,9 @@ function peekPullLiquid(nodeId, filter)
     if res then
         local balanced = balanceLoadLiquid(filter[2][2], res)
 
-        return {balanced, sumUpLiquid(balanced)}
+        return {balanced, pipes.sumUpResources(balanced)}
     end
     return nil
-end
-
-function sumUpLiquid(liquids, liquid)
-    local ret = nil
-
-    if liquid then
-        ret = {liquid[1], 0}
-    end
-
-    if liquids ~= nil then
-        for i, l in pairs(liquids) do
-            if l ~= nil and ret == nil then
-                ret = l
-            elseif l ~= nil and ret[1] == l[1] then
-                ret[2] = ret[2] + l[2]
-            end
-        end
-
-        return ret
-    end
-
-    return nil
-end
-
-
---- Build a map containing the total amount of liquid to send at a certain distance, as well as the number of liquid to be sent.
-function buildDistMap(liquids)
-    local min = liquids[1][3]
-    local max = liquids[#liquids][3]
-    local delta = max - min
-    local map = {}
-    local percent = 1
-
-    if delta ~= 0 then
-        for i, l in pairs(liquids) do
-            if l[2] > 0 then
-                local dist = l[3]
-                local percent = 0.5
-
-                if i == #liquids then
-                    percent = 1
-                end
-
-                if not map[dist] then
-                    map[dist] = { percent, 1 }
-                else
-                    map[dist][2] = map[dist][2] + 1
-                end
-            end
-        end
-    else
-        map[max] = { 1, #liquids }
-    end
-
-    return map
 end
 
 --- Load balance a given liquid between all request
@@ -151,11 +98,13 @@ end
 -- @param liquids - An array of max amount of liquids (in the format {liquidId, amount, distance})
 -- @return An array similar to liquids, but with the proper amount of each liquid
 function balanceLoadLiquid(threshold, liquids)
+    local ret = {}
+
     if liquids and #liquids > 0 then
-        local ret = {}
         local amount = threshold
-        local distMap = buildDistMap(liquids)
+        local distMap = pipes.buildDistMap(liquids)
         local count = 0
+        ret = {}
 
         for i, l in pairs(liquids) do
             local percent = 0
@@ -180,11 +129,9 @@ function balanceLoadLiquid(threshold, liquids)
 
             ret[i] = l
         end
-
-        return ret
     end
 
-    return {}
+    return ret
 end
 
 function isLiquidNodeConnected(nodeId)

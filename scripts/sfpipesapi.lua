@@ -390,3 +390,54 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
     table.sort(validEntities, function(a,b) return #a.path < #b.path end)
     return validEntities
 end
+
+function pipes.buildDistMap(resources)
+    local min = resources[1][3]
+    local max = resources[#resources][3]
+    local delta = max - min
+    local map = {}
+    local percent = 1
+
+    if delta ~= 0 then
+        for i, r in pairs(resources) do
+            if r[2] > 0 then
+                local dist = r[3]
+                local percent = 0.5
+
+                if i == #resources then
+                    percent = 1
+                end
+
+                if not map[dist] then
+                    map[dist] = { percent, 1 }
+                else
+                    map[dist][2] = map[dist][2] + 1
+                end
+            end
+        end
+    else
+        map[max] = { 1, #resources }
+    end
+
+    return map
+end
+
+function pipes.sumUpResources(resources, resource)
+    local ret = nil
+
+    if resource then
+        ret = {resource[1], 0}
+    end
+
+    if resources ~= nil then
+        for _, r in pairs(resources) do
+            if r ~= nil and ret == nil then
+                ret = r
+            elseif r ~= nil and ret[1] == i[1] then
+                ret[2] = ret[2] + i[2]
+            end
+        end
+    end
+
+    return ret
+end
