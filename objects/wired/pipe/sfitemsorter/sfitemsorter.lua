@@ -1,5 +1,5 @@
-function init(virtual)
-    pipes.init({liquidPipe,itemPipe})
+function init()
+    pipes.init({itemPipe})
 
     self.connectionMap = {}
     self.connectionMap[1] = {2, 3, 4}
@@ -7,10 +7,12 @@ function init(virtual)
     self.connectionMap[3] = {1, 2, 4}
     self.connectionMap[4] = {1, 2, 3}
 
-    self.filtermap = {1, 2, 2, 3,
-                      1, 2, 2, 3,
-                      1, 4, 4, 3,
-                      1, 4, 4, 3}
+    self.filtermap = {
+        1, 2, 2, 3,
+        1, 2, 2, 3,
+        1, 4, 4, 3,
+        1, 4, 4, 3
+    }
 
     filter = {}
     filter[1] = {}
@@ -27,144 +29,141 @@ end
 
 --------------------------------------------------------------------------------
 function update(dt)
-  buildFilter()
-  pipes.update(dt)
+    buildFilter()
+    pipes.update(dt)
 end
 
 function showPass(direction)
-  animator.setAnimationState("filterState", "pass." .. direction)
+    animator.setAnimationState("filterState", "pass." .. direction)
 end
 
 function showFail()
-  animator.setAnimationState("filterState", "fail")
-end
-
-function beforeLiquidGet(filter, nodeId)
-  --world.logInfo("passing liquid peek get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPullLiquid(self.connectionMap[nodeId], filter)
-end
-
-function onLiquidGet(filter, nodeId)
-  --world.logInfo("passing liquid get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return pullLiquid(self.connectionMap[nodeId], filter)
-end
-
-function beforeLiquidPut(liquid, nodeId)
-  --world.logInfo("passing liquid peek from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPushLiquid(self.connectionMap[nodeId], liquid)
-end
-
-function onLiquidPut(liquid, nodeId)
-  --world.logInfo("passing liquid from %s to %s", nodeId, self.connectionMap[nodeId])
-  return pushLiquid(self.connectionMap[nodeId], liquid)
+    animator.setAnimationState("filterState", "fail")
 end
 
 function beforeItemPut(item, nodeId)
-  for _,node in ipairs(self.connectionMap[nodeId]) do
-    if self.filterCount[node] > 0 then
-      if self.filter[node][item.name] then
-        return peekPushItem(self.connectionMap[nodeId], item)
-      end
+    for _,node in ipairs(self.connectionMap[nodeId]) do
+        if self.filterCount[node] > 0 then
+            if self.filter[node][item[1]] then
+                local ret = peekPushItem(self.connectionMap[nodeId], item)
+
+                if ret then return ret[2] end
+            end
+        end
     end
-  end
-  return false
+
+    return nil
 end
 
 function onItemPut(item, nodeId)
-  local pushResult = false
-  local resultNode = 1
+    local pushResult = nil
+    local resultNode = 1
 
-  for _,node in ipairs(self.connectionMap[nodeId]) do
-    if self.filterCount[node] > 0 then
-      if self.filter[node][item.name] then
-        pushResult = pushItem(node, item)
-        if pushResult then resultNode = node end
-      end
+    for _,node in ipairs(self.connectionMap[nodeId]) do
+        if self.filterCount[node] > 0 then
+            if self.filter[node][item.name] then
+                local peek = peekPushItem(node, item)
+
+                if peek then
+                    pushResult = pushItem(node, peek[1])
+                    if pushResult then resultNode = node end
+                end
+            end
+        end
     end
-  end
 
-  if pushResult then
-    showPass(self.stateMap[resultNode])
-  else
-    showFail()
-  end
+    if pushResult then
+        showPass(self.stateMap[resultNode])
 
-  return pushResult
+        return pushResult[2]
+    else
+        showFail()
+    end
+
+    return pushResult
 end
 
 function beforeItemGet(filter, nodeId)
-  for _,node in ipairs(self.connectionMap[nodeId]) do
-    if self.filterCount[node] > 0 then
-      local pullFilter = {}
-      local filterMatch = false
-      for filterString, amount in pairs(filter) do
-        if self.filter[node][filterString] then
-          pullFilter[filterString] = amount
-          filterMatch = true
+    for _,node in ipairs(self.connectionMap[nodeId]) do
+        if self.filterCount[node] > 0 then
+            local pullFilter = {}
+            local filterMatch = false
+            for filterString, amount in pairs(filter) do
+                if self.filter[node][filterString] then
+                    pullFilter[filterString] = amount
+                    filterMatch = true
+                end
+            end
+
+            if filterMatch then
+                local ret = peekPullItem(self.connectionMap[nodeId], pullFilter)
+
+                if ret then return ret[2] end
+            end
         end
-      end
-
-      if filterMatch then
-        return peekPullItem(self.connectionMap[nodeId], pullFilter)
-      end
     end
-  end
 
-  return false
+    return nil
 end
 
 function onItemGet(filter, nodeId)
-  local pullResult = false
-  local resultNode = 1
+    local pullResult = false
+    local resultNode = 1
 
-  for _,node in ipairs(self.connectionMap[nodeId]) do
-  if self.filterCount[node] > 0 then
-    local pullFilter = {}
-    local filterMatch = false
-    for filterString, amount in pairs(filter) do
-      if self.filter[filterString] then
-        pullFilter[filterString] = amount
-        filterMatch = true
-      end
+    for _,node in ipairs(self.connectionMap[nodeId]) do
+        if self.filterCount[node] > 0 then
+            local pullFilter = {}
+            local filterMatch = false
+            for filterString, amount in pairs(filter) do
+                if self.filter[filterString] then
+                    pullFilter[filterString] = amount
+                    filterMatch = true
+                end
+            end
+
+            if filterMatch then
+                local peek = peekPullItem(self.connectionMap[nodeId], pullFilter)
+
+                if peek then 
+                    pullResult = pullItem(self.connectionMap[nodeId], peek[1])
+                    if pullResult then resultNode = node end
+                end
+            end
+        end
     end
 
-    if filterMatch then
-      pullResult = pullItem(self.connectionMap[nodeId], pullFilter)
-      if pullResult then resultNode = node end
+    if pullResult then
+        showPass(self.stateMap[resultNode])
+
+        return pullResult[2]
+    else
+        showFail()
     end
-  end
-  end
 
-  if pullResult then
-    showPass(self.stateMap[resultNode])
-  else
-    showFail()
-  end
-
-  return pullResult
+    return pullResult
 end
 
 function buildFilter()
-  self.filter = {{}, {}, {}, {}}
-  self.filterCount = {0, 0, 0, 0}
-  local totalCount = 0
+    self.filter = {{}, {}, {}, {}}
+    self.filterCount = {0, 0, 0, 0}
+    local totalCount = 0
 
-  local contents = world.containerItems(entity.id())
-  if contents then
-    for key, item in pairs(contents) do
-      if self.filter[self.filtermap[key]][item.name] then
-        self.filter[self.filtermap[key]][item.name] = math.min(self.filter[self.filtermap[key]][item.name], item.count)
-      else
-        self.filter[self.filtermap[key]][item.name] = item.count
-        self.filterCount[self.filtermap[key]] = self.filterCount[self.filtermap[key]] + 1
-        totalCount = totalCount + 1
-      end
+    local contents = world.containerItems(entity.id())
+    if contents then
+        for key, item in pairs(contents) do
+            if self.filter[self.filtermap[key]][item.name] then
+                self.filter[self.filtermap[key]][item.name] = math.min(self.filter[self.filtermap[key]][item.name], item.count)
+            else
+                self.filter[self.filtermap[key]][item.name] = item.count
+                self.filterCount[self.filtermap[key]] = self.filterCount[self.filtermap[key]] + 1
+                totalCount = totalCount + 1
+            end
+        end
     end
-  end
 
-  if totalCount > 0 and animator.animationState("filterState") == "off" then
-    animator.setAnimationState("filterState", "on")
-  elseif totalCount <= 0 then
-    animator.setAnimationState("filterState", "off")
-  end
+    if totalCount > 0 and animator.animationState("filterState") == "off" then
+        animator.setAnimationState("filterState", "on")
+    elseif totalCount <= 0 then
+        animator.setAnimationState("filterState", "off")
+    end
 end

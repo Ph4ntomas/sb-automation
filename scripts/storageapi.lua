@@ -120,7 +120,7 @@ end
 function storageApi.returnItem(index, count)
     if beforeItemTaken and beforeItemTaken(index, count) then return nil end
     local ret = storage.sApi[index]
-    if (count == nil) or (ret.count >= count) then
+    if (count == nil) or (ret.count <= count) then
         storage.sApi[index] = nil
     else
         storage.sApi[index].count = ret.count - count
@@ -240,13 +240,16 @@ end
 -- @param itemname (string) The item name
 -- @param count (int) The amount of item to store
 -- @param properties [optional] (table) The properties table of the item
+-- @param test [optional] (bool) If true, only check for leftover without actually storing the item.
 -- @return (int) The amount of item that was left
-function storageApi.storeItemFit(itemname, count, data)
+function storageApi.storeItemFit(itemname, count, data, test)
     local max = storageApi.getMaxStackSize(itemname)
+
     while (count > max) and not storageApi.isFull() do
-        storageApi.storeItem(itemname, max, data)
+        if not test then storageApi.storeItem(itemname, max, data) end
         count = count - max
     end
+
     for i,v in storageApi.getIterator() do
         if count < 1 then break end
         if (v.name == itemname) and (v.count < max) and compareTables(data, v.data) then
@@ -255,7 +258,9 @@ function storageApi.storeItemFit(itemname, count, data)
             count = count + v.count - amo
         end
     end
-    if (count > 0) and storageApi.storeItem(itemname, count, data) then return 0 end
+
+    if (count > 0) and (test or storageApi.storeItem(itemname, count, data)) then return 0 end
+
     return count
 end
 

@@ -9,20 +9,48 @@ function init()
 end
 
 --------------------------------------------------------------------------------
+local function tryPushItem(item)
+    local res = nil
+    local peek = nil
+    local node = 1
+    local peek1 = peekPushItem(1, item)
+    local peek2 = peekPushItem(2, item)
+
+    if peek1 and peek2 then
+        if peek1[2][2] >= peek[2][2] then
+            peek = peek1
+            node = 1
+        else
+            peek = peek2
+            node = 2
+        end
+    elseif peek1 then
+        peek = peek1
+        node = 1
+    elseif peek2 then
+        peek = peek2
+        node = 2
+    end
+
+    if peek then
+        res = pushItem(node, peek[1])
+    end
+
+    return res
+end
+
 function update(dt)
     pipes.update(dt)
 
     if self.timer > self.pickupCooldown and (isItemNodeConnected(1) or isItemNodeConnected(2)) then
-
         --Try to push from inventory first
-        local result = false;
+        local result = nil;
         local items = world.containerItems(entity.id())
-        for key, item in pairs(items) do
-            result = pushItem(1, item) or pushItem(2, item)
+
+        for key, wItem in pairs(items) do
+            result = tryPushItem({wItem.name, wItem.count, data = wItem.data})
             if result then
-                if result ~= true then
-                    item.count = result --amount accepted
-                end
+                item.count = result[2][2] --amount accepted
                 world.containerConsume(entity.id(), item)
 
                 break
@@ -53,22 +81,14 @@ function findItemDrops()
     return world.itemDropQuery(pos, {pos[1] + 2, pos[2] + 1})
 end
 
--- function canPushItem(item)
---   return peekPushItem(1, item) or peekPushItem(2, item)
--- end
-
 function outputItem(item)
-    -- try to push to both nodes (in a dangerous and confusing way!)
-    local result = pushItem(1, item) or pushItem(2, item)
+    local result = tryPushItem(item)
 
-    -- pushed only some of the item
-    if result and result ~= true then
-        item.count = item.count - result
-        ejectItem(item)
+    if result then
+        item.count = item.count - result[2][2]
     end
 
-    -- failed to push item
-    if not result then
+    if item.count ~= 0 then
         ejectItem(item)
     end
 end
@@ -77,7 +97,4 @@ function ejectItem(item)
     local itemDropId
     itemDropId = world.spawnItem(item.name, self.dropPoint, item.count, item.parameters)
     self.ignoreIds[itemDropId] = true
-
-    -- world.logInfo("ejected item with id %s", itemDropId)
-    -- world.logInfo(item)
 end

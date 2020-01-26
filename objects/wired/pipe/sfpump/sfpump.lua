@@ -68,7 +68,7 @@ end
 
 function tryPush(nodeId)
     local liquid = storage.liquid
-    
+
     if liquid then
         local canPutLiquid = peekPushLiquid(nodeId, liquid)
 

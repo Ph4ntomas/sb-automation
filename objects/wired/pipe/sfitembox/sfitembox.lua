@@ -1,152 +1,162 @@
 function init(args)
-  object.setInteractive(true)
-  
-  pipes.init({itemPipe})
+    object.setInteractive(true)
 
-  local initInv = config.getParameter("initialInventory")
-  if initInv and storage.sApi == nil then
-      storage.sApi = initInv
-  end
+    pipes.init({itemPipe})
 
-  storageApi.init({ mode = 3, capacity = 16, merge = true })
+    local initInv = config.getParameter("initialInventory")
+    if initInv and storage.sApi == nil then
+        storage.sApi = initInv
+    end
 
-  animator.resetTransformationGroup("invbar")
-  animator.scaleTransformationGroup("invbar", {2, 0})
+    storageApi.init({ mode = 3, capacity = 16, merge = true })
 
-  if object.direction() < 0 then
-      animator.setAnimationState("flipped", "left")
-  end
+    animator.resetTransformationGroup("invbar")
+    animator.scaleTransformationGroup("invbar", {2, 0})
 
-  self.pushRate = config.getParameter("itemPushRate")
-  self.pushTimer = 0
+    if object.direction() < 0 then
+        animator.setAnimationState("flipped", "left")
+    end
+
+    self.pushRate = config.getParameter("itemPushRate")
+    self.pushTimer = 0
 end
 
 function die()
-  local position = entity.position()
-  if storageApi.getCount() == 0 then
-    world.spawnItem("sfitembox", {position[1] + 1.5, position[2] + 1}, 1)
-  else
-    world.spawnItem("sfitembox", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.sApi})
-  end
+    local position = entity.position()
+    if storageApi.getCount() == 0 then
+        world.spawnItem("sfitembox", {position[1] + 1.5, position[2] + 1}, 1)
+    else
+        world.spawnItem("sfitembox", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.sApi})
+    end
 end
 
 function onInteraction(args)
-  local count = storageApi.getCount()
-  local capacity = storageApi.getCapacity()
-  local itemList = ""
-  
-  for _,item in storageApi.getIterator() do
-    itemList = itemList .. "^green;" .. item.name .. "^white; x " .. item.count .. ", "
-  end
-  
-  return { "ShowPopup", { message = "^white;Holding ^green;" .. count ..
-									"^white; / ^green;" .. capacity ..
-                  "^white; stacks of items." ..
-                  "\n\nStorage: " ..
-                  itemList
-									}}
-                                end
+    local count = storageApi.getCount()
+    local capacity = storageApi.getCapacity()
+    local itemList = ""
+
+    for _,item in storageApi.getIterator() do
+        itemList = itemList .. "^green;" .. item.name .. "^white; x " .. item.count .. ", "
+    end
+
+    return { "ShowPopup", { 
+        message = "^white;Holding ^green;" .. count ..
+        "^white; / ^green;" .. capacity ..
+        "^white; stacks of items." ..
+        "\n\nStorage: " ..
+        itemList
+    }}
+end
 
 function update(dt)
     pipes.update(dt)
-  
-  --Scale inventory bar
-  local relStorage = storageApi.getCount() / storageApi.getCapacity()
 
-  animator.resetTransformationGroup("invbar")
-  animator.transformTransformationGroup("invbar", 2, 0, 0, relStorage, 0.36, -0.5 * (1 - relStorage))
+    --Scale inventory bar
+    local relStorage = storageApi.getCount() / storageApi.getCapacity()
 
-  if relStorage < 0.5 then 
-    animator.setAnimationState("invbar", "low")
-  elseif relStorage < 1 then
-    animator.setAnimationState("invbar", "medium")
-  else
-    animator.setAnimationState("invbar", "full")
-  end
-  
-  --Push out items if switched on
-  if self.pushTimer > self.pushRate then
-    pullItems()
-    pushItems()
-    self.pushTimer = 0
-  end
-  self.pushTimer = self.pushTimer + dt
-end
+    animator.resetTransformationGroup("invbar")
+    animator.transformTransformationGroup("invbar", 2, 0, 0, relStorage, 0.36, -0.5 * (1 - relStorage))
 
-function pullItems()
-    if not storageApi.isFull() then
-        local item = pullItem(1, nil)
-        --sb.logInfo("pulledItem = %s", item)
-
-        if item then
-            storageApi.storeItem(item.name, item.count, item.parameters)
-        end
+    if relStorage < 0.5 then 
+        animator.setAnimationState("invbar", "low")
+    elseif relStorage < 1 then
+        animator.setAnimationState("invbar", "medium")
+    else
+        animator.setAnimationState("invbar", "full")
     end
+
+    --Push out items if switched on
+    if self.pushTimer > self.pushRate then
+        pushItems()
+        self.pushTimer = 0
+    end
+    self.pushTimer = self.pushTimer + dt
 end
 
+local function tryPushItem(node, item)
+    local peek = peekPushItem(node, item)
+
+    if peek then
+        return pushItem(node, peek[1])
+    end
+
+    return nil
+end
 
 function pushItems()
     for node = 0, 1 do
-    if object.getInputNodeLevel(node) then
-        for i, item in storageApi.getIterator() do
-            local result = pushItem(node + 1, item)
-            if result == true then storageApi.returnItem(i) end --Whole stack was accepted
-            if result and result ~= true then item.count = item.count - result end --Only part of the stack was accepted
-            if result then break end
+        if object.getInputNodeLevel(node) then
+            for i, item in storageApi.getIterator() do
+                local result = tryPushItem(node + 1, item)
+                if result then 
+                    storageApi.returnItem(i, result[2][2]) 
+                    break 
+                end
+            end
         end
     end
-end
 end
 
 function onItemPut(item, nodeId)
-  if item and not object.getInputNodeLevel(nodeId - 1) then
-    return storageApi.storeItem(item.name, item.count, item.data)
-  end
-  return false
+    if item and not object.getInputNodeLevel(nodeId - 1) then
+        local ret = storageApi.storeItemFit(item[1], item[2], item.data)
+
+        item[2] = item[2] - ret
+
+        return item
+    end
+    return nil
 end
 
 function beforeItemPut(item, nodeId)
-  if item and not object.getInputNodeLevel(nodeId - 1) then
-    return not storageApi.isFull() --TODO: Make this use the future function for fitting in a stack of items
-  end
-  return false
+    if item and not object.getInputNodeLevel(nodeId - 1) then
+        local ret = storageApi.storeItemFit(item[1], item[2], item.data, true)
+
+        item[2] = item[2] - ret
+        return item
+    end
+    return nil
 end
 
 function onItemGet(filter, nodeId)
-  if filter then
-    for i,item in storageApi.getIterator() do
-      for filterString,amount  in pairs(filter) do
-        if item.name == filterString and item.count >= amount[1] then
-          if item.count <= amount[2] then
-            return storageApi.returnItem(i)
-          else
-            item.count = item.count - amount[2]
-            return {name = item.name, count = amount[2], data = item.data}
-          end
+    if filter then
+        for i,item in storageApi.getIterator() do
+            if filter[item.name] then
+                local amount = filter[item.name]
+                
+                if amount[1] < item.count then
+                    local it = storageApi.returnItem(i, amount[2])
+
+                    return {it.name, it.count, data = it.data}
+                end
+            end
         end
-      end
+    else
+        for i,item in storageApi.getIterator() do
+            local it = storageApi.returnItem(i)
+
+            return {it.name, it.count, data = it.data}
+        end
     end
-  else
-    for i,item in storageApi.getIterator() do
-      return storageApi.returnItem(i)
-    end
-  end
-  return false
+    return nil
 end
 
 function beforeItemGet(filter, nodeId)
-  if filter then
-    for i,item in storageApi.getIterator() do
-      for filterString,amount  in ipairs(filter) do
-        if item.name == filterString and item.count >= amount[1] then
-          return true 
+    if filter then
+        for i,item in storageApi.getIterator() do
+            if filter[item.name] then
+                local amount = filter[item.name]
+
+                if amount[1] < item.count then
+                    return {item.name, math.min(amount[2], item.count), data = item.data}
+                end 
+            end
         end
-      end
+    else
+        for i,item in storageApi.getIterator() do
+            return {item.name, item.count, data = item.data}
+        end
     end
-  else
-    for i,item in storageApi.getIterator() do
-      return true
-    end
-  end
-  return false
+
+    return nil
 end

@@ -57,7 +57,6 @@ end
 -- @param filter array of filters of liquids {liquidId = {minAmount,maxAmount}, otherLiquidId = {minAmount,maxAmount}}
 -- @returns An array of liquids, if successful, an empty array otherwise
 function pullLiquid(nodeId, filters)
-    local liquid = nil
     local res = pipes.pull("liquid", nodeId, filters)
 
     return {res, pipes.sumUpResources(res)}
@@ -68,7 +67,7 @@ end
 -- @param liquid the liquid to push, specified as array {liquidId, amount}
 -- @returns An array filled with liquids accepted by each entities.
 function peekPushLiquid(nodeId, liquid)
-    local res = balanceLoadLiquid(liquid[2], pipes.peekPush("liquid", nodeId, liquid))
+    local res = pipes.balanceLoadResources(liquid[2], pipes.peekPush("liquid", nodeId, liquid))
 
     if res then
         return {res, pipes.sumUpResources(res, liquid)}
@@ -86,52 +85,11 @@ function peekPullLiquid(nodeId, filter)
     local res = pipes.peekPull("liquid", nodeId, filter)
 
     if res then
-        local balanced = balanceLoadLiquid(filter[2][2], res)
+        local balanced = pipes.balanceLoadResources(filter[2][2], res)
 
         return {balanced, pipes.sumUpResources(balanced)}
     end
     return nil
-end
-
---- Load balance a given liquid between all request
--- @param threshold - The amount of liquid to be distributed.
--- @param liquids - An array of max amount of liquids (in the format {liquidId, amount, distance})
--- @return An array similar to liquids, but with the proper amount of each liquid
-function balanceLoadLiquid(threshold, liquids)
-    local ret = {}
-
-    if liquids and #liquids > 0 then
-        local amount = threshold
-        local distMap = pipes.buildDistMap(liquids)
-        local count = 0
-        ret = {}
-
-        for i, l in pairs(liquids) do
-            local percent = 0
-            local dist = l[3]
-
-            if not distMap[dist][3] then
-                percent = (distMap[dist][1] / distMap[dist][2])
-                distMap[dist][3] = amount * percent
-                amount = amount - (amount * distMap[dist][1])
-                count = 1
-            else
-                count = count + 1
-            end
-
-            local avail = distMap[dist][3]
-
-            if l[2] < avail then
-                amount = amount + (avail - l[2])
-            else
-                l[2] = avail
-            end
-
-            ret[i] = l
-        end
-    end
-
-    return ret
 end
 
 function isLiquidNodeConnected(nodeId)

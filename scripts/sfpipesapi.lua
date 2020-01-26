@@ -119,7 +119,7 @@ function pipes.push(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res[#res + 1] = #entity.path
+                    res.dist = #entity.path
                 end
 
                 ret[i] = res
@@ -151,7 +151,7 @@ function pipes.pull(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res[#res + 1] = #entity.path
+                    res.dist = #entity.path
                 end
 
                 ret[i] = res
@@ -184,7 +184,7 @@ function pipes.peekPush(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res[#res + 1] = #entity.path
+                    res.dist = #entity.path
                 end
 
                 ret[i] = res
@@ -218,7 +218,7 @@ function pipes.peekPull(pipeName, nodeId, args)
                 --sb.logInfo("Can Pull %s", res)
 
                 if res then
-                    res[#res + 1] = #entity.path
+                    res.dist = #entity.path
                 end
 
                 ret[i] = res
@@ -392,8 +392,8 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
 end
 
 function pipes.buildDistMap(resources)
-    local min = resources[1][3]
-    local max = resources[#resources][3]
+    local min = resources[1].dist
+    local max = resources[#resources].dist
     local delta = max - min
     local map = {}
     local percent = 1
@@ -401,7 +401,7 @@ function pipes.buildDistMap(resources)
     if delta ~= 0 then
         for i, r in pairs(resources) do
             if r[2] > 0 then
-                local dist = r[3]
+                local dist = r.dist
                 local percent = 0.5
 
                 if i == #resources then
@@ -441,3 +441,50 @@ function pipes.sumUpResources(resources, resource)
 
     return ret
 end
+
+--- Load balance a given retources between all results
+-- @param threshold - The amount to be distributed.
+-- @param resources - An array of max amount of the resource (in the format {resourceId, amount, distance})
+-- @param atoms - If true, the resource is considered atomic (thus only integer amount can be passed).
+-- @return An array similar to resources, but balanced between all requests.
+function pipes.balanceLoadResources(threshold, resources, atoms)
+    local ret = {}
+
+    if resources and #resources > 0 then
+        local amount = threshold
+        local distMap = pipes.buildDistMap(resources)
+        local count = 0
+
+        for i, r in pairs(resources) do
+            local percent = 0
+            local dist = r.dist
+
+            if not distMap[dist][3] then
+                percent = (distMap[dist][1] / distMap[dist][2])
+                distMap[dist][3] = amount * percent
+
+                if atoms then
+                    distMap[dist][3] = math.ceil(amount * percent)
+                end
+
+                count = 1
+            else
+                count = count + 1
+            end
+
+            local avail = distMap[dist][3]
+
+            if avail > amount then
+                r[2] = math.min(amount, r[2])
+            else
+                r[2] = math.min(avail, r[2])
+            end
+
+            ret[i] = r
+            amount = amount - r[2]
+        end
+    end
+
+    return ret
+end
+

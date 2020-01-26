@@ -67,32 +67,39 @@ function output(liquid)
 end
 
 function beforeLiquidGet(filter, nodeId)
-  --world.logInfo("passing liquid peek get from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPullLiquid(self.connectionMap[nodeId], filter)
+    local ret = peekPullLiquid(self.connectionMap[nodeId], filter)
+
+    if ret then return ret[2] end
+
+    return nil
 end
 
 function onLiquidGet(filter, nodeId)
-  --world.logInfo("passing liquid get from %s to %s", nodeId, self.connectionMap[nodeId])
   local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
 
   if peek then
       local result = pullLiquid(self.connectionMap[nodeId], peek[1])
+
       if result then
           activate()
           output(result)
       end
-      return result
+
+      return result[2]
   end
+
   return nil
 end
 
 function beforeLiquidPut(liquid, nodeId)
-  --world.logInfo("passing liquid peek from %s to %s", nodeId, self.connectionMap[nodeId])
-  return peekPushLiquid(self.connectionMap[nodeId], liquid)
+    local ret = peekPushLiquid(self.connectionMap[nodeId], liquid)
+
+    if ret then return ret[2] end
+
+    return nil
 end
 
 function onLiquidPut(liquid, nodeId)
-  --world.logInfo("passing liquid from %s to %s", nodeId, self.connectionMap[nodeId])
   local peek = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
   if peek then
@@ -101,7 +108,7 @@ function onLiquidPut(liquid, nodeId)
           activate()
           output(liquid)
       end
-      return result
+      return result[2]
   end
   return nil
 end
