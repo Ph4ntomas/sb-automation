@@ -45,7 +45,11 @@ end
 function pushItem(nodeId, item)
     local res = pipes.push("item", nodeId, item)
 
-    return {res, pipes.sumUpResources(res)}
+    if res and #res ~= 0 then
+        return {res, pipes.sumUpResources(res)}
+    end
+
+    return nil
 end
 
 --- Pulls item from another object
@@ -55,7 +59,11 @@ end
 function pullItem(nodeId, filter)
     local res = pipes.pull("item", nodeId, filter)
 
-    return {res, pipes.sumUpResources(res)}
+    if res and #res ~= 0 then
+        return {res, pipes.sumUpResources(res)}
+    end
+
+    return nil
 end
 
 --- Peeks an item push, does not perform the push
@@ -65,7 +73,7 @@ end
 function peekPushItem(nodeId, item)
     local res = pipes.peekPush("item", nodeId, item)
 
-    if res then
+    if res and #res ~= 0 then
         return {res, pipes.sumUpResources(res, item)}
     end
 
@@ -79,7 +87,7 @@ end
 function peekPullItem(nodeId, filter)
     local res = pipes.peekPull("item", nodeId, filter)
 
-    if res then
+    if res and #res ~= 0 then
         return {res, pipes.sumUpResources(res, item)}
     end
 

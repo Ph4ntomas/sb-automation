@@ -105,15 +105,9 @@ function pipes.push(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
-        sb.logInfo("push : nodeId = %s", nodeId)
-        sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
-        sb.logInfo("args = %s", args)
-
         pipes.rejectNode[nodeId] = true
         for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
-            sb.logInfo("trying to put %s", args[i])
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.put, args[i], entity.nodeId))
-            sb.logInfo("push hook return %s", pEntityReturn:succeeded())
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
@@ -138,8 +132,6 @@ end
 -- @param args - An array of arguments to send to the hooks
 -- @returns An array of successful hooks return
 function pipes.pull(pipeName, nodeId, args)
-    --sb.logInfo("nodeId = %s", nodeId)
-    --sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
@@ -173,11 +165,8 @@ function pipes.peekPush(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
-    sb.logInfo("peek push nodeId = %s", nodeId)
-    sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
-
         pipes.rejectNode[nodeId] = true
-        for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
+        for i,entity in pairs(pipes.nodeEntities[pipeName][nodeId]) do
             local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPut, args, entity.nodeId))
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
@@ -203,8 +192,6 @@ end
 -- @param args - The arguments to send to the hook
 -- @returns Hook return if successful, false if unsuccessful
 function pipes.peekPull(pipeName, nodeId, args)
-    --sb.logInfo("nodeId = %s", nodeId)
-    --sb.logInfo("nodeEntities = %s", pipes.nodeEntities[pipeName])
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
@@ -400,7 +387,7 @@ function pipes.buildDistMap(resources)
 
     if delta ~= 0 then
         for i, r in pairs(resources) do
-            if r[2] > 0 then
+            if r.count > 0 then
                 local dist = r.dist
                 local percent = 0.5
 
@@ -426,15 +413,15 @@ function pipes.sumUpResources(resources, resource)
     local ret = nil
 
     if resource then
-        ret = {resource[1], 0}
+        ret = {name = resource.name, count = 0}
     end
 
     if resources ~= nil then
         for _, r in pairs(resources) do
             if r ~= nil and ret == nil then
                 ret = r
-            elseif r ~= nil and ret[1] == i[1] then
-                ret[2] = ret[2] + i[2]
+            elseif r ~= nil and ret.name == r.name then
+                ret.count = ret.count + r.count
             end
         end
     end
@@ -475,13 +462,13 @@ function pipes.balanceLoadResources(threshold, resources, atoms)
             local avail = distMap[dist][3]
 
             if avail > amount then
-                r[2] = math.min(amount, r[2])
+                r.count = math.min(amount, r.count)
             else
-                r[2] = math.min(avail, r[2])
+                r.count = math.min(avail, r.count)
             end
 
             ret[i] = r
-            amount = amount - r[2]
+            amount = amount - r.count
         end
     end
 

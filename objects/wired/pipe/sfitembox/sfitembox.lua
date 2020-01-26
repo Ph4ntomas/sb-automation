@@ -99,9 +99,9 @@ end
 
 function onItemPut(item, nodeId)
     if item and not object.getInputNodeLevel(nodeId - 1) then
-        local ret = storageApi.storeItemFit(item[1], item[2], item.data)
+        local ret = storageApi.storeItemFit(item.name, item.count, item.data)
 
-        item[2] = item[2] - ret
+        item.count = item.count - ret
 
         return item
     end
@@ -110,9 +110,9 @@ end
 
 function beforeItemPut(item, nodeId)
     if item and not object.getInputNodeLevel(nodeId - 1) then
-        local ret = storageApi.storeItemFit(item[1], item[2], item.data, true)
+        local ret = storageApi.storeItemFit(item.name, item.count, item.data, true)
 
-        item[2] = item[2] - ret
+        item.count = item.count - ret
         return item
     end
     return nil

@@ -29,7 +29,7 @@ end
 
 function die()
   local position = entity.position()
-  if storage.liquid[1] ~= nil then
+  if storage.liquid.name ~= nil then
     world.spawnItem("sfsubmersiontank", {position[1] + 1.5, position[2] + 1}, 1, {initialInventory = storage.liquid})
   else
     world.spawnItem("sfsubmersiontank", {position[1] + 1.5, position[2] + 1}, 1)
@@ -37,26 +37,26 @@ function die()
 end
 
 -- legacy function, soon to be removed
-function onInteraction(args)
-  local liquid = self.liquidMap[storage.liquid[1]]
-  local count = storage.liquid[2]
-  local capacity = self.capacity
-  local itemList = ""
+--function onInteraction(args)
+  --local liquid = self.liquidMap[storage.liquid.name]
+  --local count = storage.liquid.count
+  --local capacity = self.capacity
+  --local itemList = ""
   
-  if liquid == nil then liquid = "other" end
-  if count ~= nil then 
-    return { "ShowPopup", { message = "^white;You manage to suppress the desire to climb into the tank... for now.\n\n^white;Holding ^green;" .. count ..
-      "^white; / ^green;" .. capacity ..
-      "^white; units of liquid ^green;" .. liquid
-    }}
-  else
-      return { "ShowPopup", { message = "Tank is empty."}}
-  end
-end
+  --if liquid == nil then liquid = "other" end
+  --if count ~= nil then 
+    --return { "ShowPopup", { message = "^white;You manage to suppress the desire to climb into the tank... for now.\n\n^white;Holding ^green;" .. count ..
+      --"^white; / ^green;" .. capacity ..
+      --"^white; units of liquid ^green;" .. liquid
+    --}}
+  --else
+      --return { "ShowPopup", { message = "Tank is empty."}}
+  --end
+--end
 
 function onInteraction(args)
-    local liquid = self.liquidMap[storage.liquid[1]]
-    local count = storage.liquid[2]
+    local liquid = self.liquidMap[storage.liquid.name]
+    local count = storage.liquid.count
     local capacity = self.capacity
     local itemList = ""
 
@@ -104,15 +104,15 @@ function update(dt)
   pipes.update(dt)
   
   --TODO: use root functions, and get a hue on color (see capsule)
-  local liquidState = self.liquidMap[storage.liquid[1]]
+  local liquidState = self.liquidMap[storage.liquid.name]
   if liquidState then
     animator.setAnimationState("liquid", liquidState)
   else
     animator.setAnimationState("liquid", "other")
   end
   
-  if storage.liquid[2] then
-    local liquidScale = storage.liquid[2] / self.capacity
+  if storage.liquid.count then
+    local liquidScale = storage.liquid.count / self.capacity
     animator.resetTransformationGroup("liquid")
     animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -2.2 * (1 - liquidScale))
   else
@@ -140,7 +140,7 @@ function update(dt)
 end
 
 function clearLiquid()
-  if storage.liquid[2] ~= nil and storage.liquid[2] == 0 then
+  if storage.liquid.count ~= nil and storage.liquid.count == 0 then
     storage.liquid = {}
   end
 end
@@ -148,29 +148,34 @@ end
 function onLiquidPut(liquid, nodeId)
     local res = nil
 
+    sb.logInfo("onPut %s", liquid)
+    sb.logInfo("liquids = %s", storage.liquid)
+
     if liquid then
-        if storage.liquid and liquid[1] == storage.liquid[1] then
-            if storage.liquid[2] >= self.capacity then
+        if storage.liquid and liquid.name == storage.liquid.name then
+            if storage.liquid.count >= self.capacity then
                 res = nil
             else
-                if liquid[2] > (self.capacity - storage.liquid[2]) then
-                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                if liquid.count > (self.capacity - storage.liquid.count) then
+                    res = {name = liquid.name, count = self.capacity - storage.liquid.count}
                 else
                     res = liquid
                 end
 
-                storage.liquid[2] = min(storage.liquid[2] + liquid[2], self.capacity)
+                storage.liquid.count = math.min(storage.liquid.count + liquid.count, self.capacity)
             end
-        elseif not storage.liquid then
-            if liquid[2] > self.capacity then
-                res = {liquid[1], self.capacity}
+        elseif not storage.liquid or not storage.liquid.name then
+            if liquid.count > self.capacity then
+                res = {name = liquid.name, count = self.capacity}
             else
                 res = liquid
             end
 
-            storage.liquid[2] = res
+            storage.liquid = res
         end
     end
+
+    sb.logInfo("Tool %s", res)
 
     return res
 end
@@ -178,52 +183,57 @@ end
 function beforeLiquidPut(liquid, nodeId)
     local res = nil
 
+    sb.logInfo("beforePut %s", liquid)
+
     if liquid then
-        if storage.liquid and liquid[1] == storage.liquid[1] then
-            if storage.liquid[2] >= self.capacity then
+        if storage.liquid and liquid.name == storage.liquid.name then
+            if storage.liquid.count >= self.capacity then
                 res = nil
             else
-                if liquid[2] > (self.capacity - storage.liquid[2]) then
-                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                if liquid.count > (self.capacity - storage.liquid.count) then
+                    res = {name = liquid.name, count = self.capacity - storage.liquid.count}
                 else
                     res = liquid
                 end
             end
-        elseif not storage.liquid or not storage.liquid[1] then
-            if liquid[2] > self.capacity then
-                res = {liquid[1], self.capacity}
+        elseif not storage.liquid or not storage.liquid.name then
+            if liquid.count > self.capacity then
+                res = {name = liquid.name, count = self.capacity}
             else
                 res = liquid
             end
         end
     end
 
+    sb.logInfo("canTake %s", res)
+
     return res
 end
 
 function onLiquidGet(filter, nodeId)
-  if storage.liquid[1] ~= nil then
-    local liquids = {{storage.liquid[1], math.min(storage.liquid[2], self.pushAmount)}}
+  if storage.liquid.name ~= nil then
+    local liquids = {{name = storage.liquid.name, count = math.min(storage.liquid.count, self.pushAmount)}}
 
     local returnLiquid, _ = filterLiquids(filter, liquids)
     if returnLiquid then
-      storage.liquid[2] = storage.liquid[2] - returnLiquid[2]
-      if storage.liquid[2] <= 0 then
+      storage.liquid.count = storage.liquid.count - returnLiquid.count
+      if storage.liquid.count <= 0 then
         storage.liquid = {}
       end
       return returnLiquid
     end
   end
-  return false
+  return nil
 end
 
 function beforeLiquidGet(filter, nodeId)
-  if storage.liquid[1] ~= nil then
-    local liquids = {{storage.liquid[1], math.min(storage.liquid[2], self.pushAmount)}}
+  if storage.liquid.name ~= nil then
+    local liquids = {{name = storage.liquid.name, count = math.min(storage.liquid.count, self.pushAmount)}}
 
     local returnLiquid, _ = filterLiquids(filter, liquids)
 
     return returnLiquid
   end
-  return false
+
+  return nil
 end

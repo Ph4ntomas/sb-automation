@@ -42,12 +42,16 @@ end
 function tryPull(nodeId)
     local liquid = storage.liquid
     local inStore = 0
-    local canGetLiquid = false
+    local canGetLiquid = nil
 
     if liquid then
-        filter = {liquid[1], {0, self.pumpAmount - liquid[2]}}
+        if liquid.count >= self.pumpAmount then
+            return false
+        end
+
+        filter = {liquid.name, {0, self.pumpAmount - liquid.count}}
         canGetLiquid = peekPullLiquid(nodeId, filter)
-        inStore = liquid[2]
+        inStore = liquid.count
     else
         filter = {nil, {0, self.pumpAmount}}
         canGetLiquid = peekPullLiquid(nodeId, filter)
@@ -55,8 +59,9 @@ function tryPull(nodeId)
 
     if canGetLiquid then
         local pulledLiquid = pullLiquid(nodeId, canGetLiquid[1])
+
         if pulledLiquid then
-            pulledLiquid[2][2] = pulledLiquid[2][2] + inStore
+            pulledLiquid[2].count = pulledLiquid[2].count + inStore
             storage.liquid = pulledLiquid[2]
 
             return true
@@ -71,19 +76,19 @@ function tryPush(nodeId)
 
     if liquid then
         local canPutLiquid = peekPushLiquid(nodeId, liquid)
+            sb.logInfo("can = %s", canPutLiquid)
 
         if canPutLiquid then
             local pushedLiquid = pushLiquid(nodeId, canPutLiquid[1])
 
             if pushedLiquid then
-                local amount = pushedLiquid[2][2]
+                local amount = pushedLiquid[2].count
 
-                if amount >= storage.liquid[2] then
+                if amount >= storage.liquid.count then
                     storage.liquid = nil
                 else
-                    storage.liquid[2] = storage.liquid[2] - amount
+                    storage.liquid.count = storage.liquid.count - amount
                 end
-
 
                 return true
             end
@@ -97,13 +102,11 @@ function pump(dt)
     local srcNode, tarNode = orderNode(object.direction())
     local filter = {}
 
-    sb.logInfo("pumping from %s, to %s", srcNode, tarNode)
-
     if energy.consumeEnergy(dt, nil, true) then
         local resPull = tryPull(srcNode)
         local resPush = tryPush(tarNode)
 
-        if (resPull or resPush) and energy.consumeEnergy(dt) then
+        if (resPull and resPush) and energy.consumeEnergy(dt) then
             animator.setAnimationState("pumping", "pump")
             object.setAllOutputNodes(true)
         else
@@ -146,19 +149,19 @@ function beforeLiquidPut(liquid, nodeId)
     local res = nil
 
     if nodeId == srcNode and storage.state and liquid then
-        if storage.liquid and liquid[1] == storage.liquid[1] then
-            if storage.liquid[2] == self.capacity then
+        if storage.liquid and liquid.name == storage.liquid.name then
+            if storage.liquid.count == self.capacity then
                 res = nil
-            elseif storage.liquid[1] == liquid[1] then
-                if liquid[2] >= (self.capacity - storage.liquid[2]) then
-                    res = {liquid[1], self.capacity - storage.liquid[2]}
+            elseif storage.liquid.name == liquid.name then
+                if liquid.count >= (self.capacity - storage.liquid.count) then
+                    res = {name = liquid.name, count = self.capacity - storage.liquid.count}
                 else
                     res = liquid
                 end
             end
-        elseif not storage.liquid or not storage.liquid[1] then
-            if liquid[2] > self.capacity then
-                res = {liquid[1], self.capacity}
+        elseif not storage.liquid or not storage.liquid.name then
+            if liquid.count > self.capacity then
+                res = {name = liquid.name, count = self.capacity}
             else
                 res = liquid
             end
@@ -173,21 +176,21 @@ function onLiquidPut(liquid, nodeId)
     local res = nil
 
     if nodeId == srcNode and storage.state and liquid then
-        if storage.liquid and storage.liquid[1] == liquid[1] then
-            if storage.liquid[2] >= self.capacity then
+        if storage.liquid and storage.liquid.name == liquid.name then
+            if storage.liquid.count >= self.capacity then
                 res = nil
             else
-                if liquid[2] > (self.capacity - storage.liquid[2]) then
-                    res = {liquid[1], self.capacity - storage.liquid[2]}
+                if liquid.count > (self.capacity - storage.liquid.count) then
+                    res = {name = liquid.name, count = self.capacity - storage.liquid.count}
                 else
                     res = liquid
                 end
 
-                storage.liquid[2] = min(storage.liquid[2] + liquid[2], self.capacity)
+                storage.liquid.count = min(storage.liquid.count + liquid.count, self.capacity)
             end
-        elseif not storage.liquid or not storage.liquid[1] then
-            if liquid[2] > self.capacity then
-                res = {liquid[1], self.capacity}
+        elseif not storage.liquid or not storage.liquid.name then
+            if liquid.count > self.capacity then
+                res = {name = liquid.name, count = self.capacity}
             else
                 res = liquid
             end

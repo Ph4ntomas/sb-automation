@@ -49,7 +49,11 @@ end
 function pushLiquid(nodeId, liquids)
     local res = pipes.push("liquid", nodeId, liquids)
 
-    return {res, pipes.sumUpResources(res)}
+    if res and #res ~= 0 then
+        return {res, pipes.sumUpResources(res)}
+    end
+
+    return nil
 end
 
 --- Pulls liquid
@@ -59,7 +63,11 @@ end
 function pullLiquid(nodeId, filters)
     local res = pipes.pull("liquid", nodeId, filters)
 
-    return {res, pipes.sumUpResources(res)}
+    if res and #res ~= 0 then
+        return {res, pipes.sumUpResources(res)}
+    end
+
+    return nil
 end
 
 --- Peeks a liquid push, does not go through with the transfer
@@ -67,9 +75,9 @@ end
 -- @param liquid the liquid to push, specified as array {liquidId, amount}
 -- @returns An array filled with liquids accepted by each entities.
 function peekPushLiquid(nodeId, liquid)
-    local res = pipes.balanceLoadResources(liquid[2], pipes.peekPush("liquid", nodeId, liquid))
+    local res = pipes.balanceLoadResources(liquid.count, pipes.peekPush("liquid", nodeId, liquid))
 
-    if res then
+    if res and #res ~= 0 then
         return {res, pipes.sumUpResources(res, liquid)}
     end
 
@@ -84,9 +92,8 @@ function peekPullLiquid(nodeId, filter)
     local liquid = nil
     local res = pipes.peekPull("liquid", nodeId, filter)
 
-    if res then
+    if res and #res ~= 0 then
         local balanced = pipes.balanceLoadResources(filter[2][2], res)
-
         return {balanced, pipes.sumUpResources(balanced)}
     end
     return nil
@@ -104,12 +111,12 @@ end
 function filterLiquids(filter, liquids)
     if filter and filter[1] ~= nil then
         for i,liquid in ipairs(liquids) do
-            local liquidId = tostring(liquid[1])
-            if liquidId and filter[1] == liquidId and liquid[2] > filter[1]then
-                if liquid[2] <= filter[2] then
+            local liquidId = tostring(liquid.name)
+            if liquidId and filter[1] == liquidId and liquid.count > filter[1] then
+                if liquid.count <= filter[2] then
                     return liquid, i
                 else
-                    return {liquid[1], filter[2]}, i
+                    return {name = liquid.name, count = filter[2]}, i
                 end
             end
         end
@@ -118,10 +125,10 @@ function filterLiquids(filter, liquids)
     elseif filter[1] == nil then
         local amount = filter[2]
 
-        if amount == nil or liquids[1] <= amount then
+        if amount == nil or liquids[1].count <= amount then
             return liquids[1], 1
         else
-            return {liquids[1][1], amount}, 1
+            return {name = liquids[1].name, count = amount}, 1
         end
     else
         return liquids[1], 1

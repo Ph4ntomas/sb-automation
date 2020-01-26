@@ -61,8 +61,8 @@ function deactivate()
 end
 
 function output(liquid)
-  if liquid[2] then
-    datawire.sendData(liquid[2], "number", "all")
+  if liquid.count then
+    datawire.sendData(liquid.count, "number", "all")
   end
 end
 

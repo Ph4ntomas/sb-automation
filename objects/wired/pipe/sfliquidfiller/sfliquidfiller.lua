@@ -1,5 +1,6 @@
 function init(args)
     energy.init()
+    pipes.init({liquidPipe, itemPipe})
 
     if object.direction() < 0 then
         pipes.nodes["liquid"] = config.getParameter("flippedLiquidNodes")
@@ -40,45 +41,12 @@ function onInteraction(args)
     end
 end
 
--- DAFUQ
-function beforeItemPut(item, nodeId)
-    if storage.block.name == nil or storage.block.count <= 0 then
-        local acceptItem = false
-        local pullFilter = {}
-        for matitem,_ in pairs(self.conversions) do
-            if item.name == matitem then return true end
-        end
-    end
-    return false
-end
-
-function onItemPut(item, nodeId)
-    if storage.block.name == nil or storage.block.count <= 0 then
-        local acceptItem = false
-        local pullFilter = {}
-        for matitem,conversion in pairs(self.conversions) do
-            if item.name == matitem then
-                if item.count <= conversion.input then
-                    storage.block = item
-                    return true --used whole stack
-                else
-                    item.count = conversion.input
-                    storage.block = item
-                    return conversion.input --return amount used
-                end
-            end
-        end
-    end
-    return false
-end
--- !DAFUQ
-
 function createCapsule(dt, liquidId, amount, pushExcess)
     if amount >= self.liquidAmount then
-        local capsule = fillCapsule({liquidId, self.liquidAmount})
+        local capsule, peek = fillCapsule({name = liquidId, count = self.liquidAmount})
 
         if capsule and energy.consumeEnergy(dt, 10) then
-            pushItem(1, capsule)
+            pushItem(1, peek[1])
             storage.liquids[liquidId] = amount - self.liquidAmount
 
             if storage.liquids[liquidId] > self.liquidAmount then 
@@ -98,33 +66,6 @@ function createCapsule(dt, liquidId, amount, pushExcess)
     return false
 end
 
-function tryPullingLiquid(dt)
-    local pulledLiquid = peekPullLiquid(1)
-
-    if pulledLiquid then
-        local amount = pulledLiquid[2]
-        local toPull = amount
-
-        if storage.liquids[liquid[1]] then
-            amount = liquid[2] + storage.liquids[liquid[1]] -- checking total amount available
-            toPull = liquid[2] - storage.liquids[liquid[1]] -- if we have enough, we'll only pull the necessary amount
-        end
-
-        if amount >= self.liquidAmount then
-            if createCapsule(dt, pulledLiquid[1], self.liquidAmount, true) then
-                local pullFilter = {}
-                pullFilter[tostring(liquid[1])] = {toPull, toPull}
-                pullLiquid(1, pullFilter)
-            end
-        else
-            pullLiquid(1) -- pulling everything available
-            storage.liquids[pulledLiquid[1]] = amount
-        end
-    end
-
-    animator.setAnimationState("fillstate", "on")
-end
-
 function update(dt)
     pipes.update(dt)
     energy.update(dt)
@@ -133,6 +74,7 @@ function update(dt)
         if self.fillTimer > self.fillInterval then
             local done = false
 
+            sb.logInfo("filler storage = %s", storage.liquids)
             for i, v in pairs(storage.liquids) do
                 done = createCapsule(dt, i, v, false)
 
@@ -244,11 +186,12 @@ local function buildData(name, amount, hsvShift)
 end
 
 function fillCapsule(liquid)
-    local liquidName = root.liquidName(liquid[1])
+    sb.logInfo("filling capsule %s", liquid)
+    local liquidName = root.liquidName(liquid.name)
 
     if liquidName then
-        if self.conversions[tostring(liquid[1])] ~= nil then
-            liquid[1] = self.conversions[tostring(liquid[1])]
+        if self.conversions[tostring(liquid.name)] ~= nil then
+            liquid.name = self.conversions[tostring(liquid.name)]
         end
 
         --get  directive here
@@ -256,55 +199,54 @@ function fillCapsule(liquid)
         local data = buildData(liquidName, self.liquidAmount, hsvShift)
 
         local capsule = {name = "sfcapsule", count = 1, data = data}
+        local peek = peekPushItem(1, capsule) 
 
-        if peekPushItem(1, capsule) then 
-            return capsule 
+        if peek then
+            return capsule, peek
         end
     end
 
-    return nil
+    return nil, nil
 end
 
 function beforeLiquidPut(liquid, nodeId)
+    local ret = nil
+
     if storage.state and liquid then
-        local amount = liquid[2]
+        local amount = liquid.count
         local inStore = 0
 
-        if storage.liquids[liquid[1]] then
+        if storage.liquids[liquid.name] then
             --amount = amount + storage.liquids[liquid[1]]
-            inStore = storage.liquids[liquid[1]]
+            inStore = storage.liquids[liquid.name]
         end
 
-        if amount <= (self.liquidAmount - inStore) then
-            return liquid
-        else
-            return liquid[1], self.liquidAmount - inStore
+        if amount > (self.liquidAmount - inStore) then
+            liquid.count = liquid.count - (self.liquidAmount - inStore)
         end
+
+        ret = liquid
     end
-    return nil
+
+    return liquid
 end
 
 function onLiquidPut(liquid, nodeId)
     if storage.state and liquid then
-        local amount = liquid[2]
+        local amount = liquid.count
         local inStore = 0
 
-        if storage.liquids[liquid[1]] then
-            --amount = amount + storage.liquids[liquid[1]]
-            inStore = storage.liquids[liquid[1]]
+        if storage.liquids[liquid.name] then
+            inStore = storage.liquids[liquid.name]
         end
         
         if amount <= (self.liquidAmount - inStore) then
-            storage.liquids[liquid[1]] = amount + inStore
+            storage.liquids[liquid.name] = amount + inStore
         else
             local excess = (amount + inStore) - self.liquidAmount
 
-            storage.liquids[liquid[1]] = self.liquidAmount
-            liquid[2] = liquid[2] - excess
-
-            --if liquid[2] <= 0 then -- should not happen, but just in case
-            --    liquid[2] = 0
-            --end
+            storage.liquids[liquid.name] = self.liquidAmount
+            liquid.count = liquid.count - excess
         end
         return liquid
     end

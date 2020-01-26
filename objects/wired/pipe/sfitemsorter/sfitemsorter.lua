@@ -44,7 +44,7 @@ end
 function beforeItemPut(item, nodeId)
     for _,node in ipairs(self.connectionMap[nodeId]) do
         if self.filterCount[node] > 0 then
-            if self.filter[node][item[1]] then
+            if self.filter[node][item.name] then
                 local ret = peekPushItem(self.connectionMap[nodeId], item)
 
                 if ret then return ret[2] end

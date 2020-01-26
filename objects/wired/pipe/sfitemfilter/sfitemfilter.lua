@@ -1,4 +1,4 @@
-function init(virtual)
+function init()
     pipes.init({itemPipe})
 
     self.connectionMap = {}
@@ -26,7 +26,7 @@ end
 
 function beforeItemPut(item, nodeId)
     if self.filterCount > 0 then
-        if self.filter[item[1]] then
+        if self.filter[item.name] then
             return peekPushItem(self.connectionMap[nodeId], item)
         end
     end
@@ -38,7 +38,7 @@ function onItemPut(item, nodeId)
     local pushResult = nil
 
     if self.filterCount > 0 then
-        if self.filter[item[1]] then
+        if self.filter[item.name] then
             local peek = peekPushItem(self.connectionMap[nodeId], item)
 
             if peek then

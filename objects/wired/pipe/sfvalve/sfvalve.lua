@@ -59,6 +59,8 @@ function beforeLiquidGet(filter, nodeId)
     if storage.state then
         local ret = peekPullLiquid(self.connectionMap[nodeId], filter)
 
+        sb.logInfo("beforeLiquidGet %s", ret)
+
         if ret then return ret[2] end
     end
 
@@ -70,7 +72,7 @@ function onLiquidGet(filter, nodeId)
         local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
 
         if peek then
-            local ret = pullLiquid(self.connectionMap[nodeId], peek[1])[2]
+            local ret = pullLiquid(self.connectionMap[nodeId], peek[1])
 
             if ret then return ret[2] end
         end
@@ -81,7 +83,10 @@ end
 
 function beforeLiquidPut(liquid, nodeId)
     if storage.state then
-        local ret = peekPushLiquid(self.connectionMap[nodeId], liquid)[2]
+        sb.logInfo("beforeLiquidPut liquid = %s", liquid)
+
+        local ret = peekPushLiquid(self.connectionMap[nodeId], liquid)
+
 
         if ret then return ret[2] end
     end
@@ -93,8 +98,11 @@ function onLiquidPut(liquid, nodeId)
     if storage.state then
         local peek = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
+        sb.logInfo("onLiquidPut peek = %s", peek)
+
         if peek then
-            local ret = pushLiquid(self.connectionMap[nodeId], liquid)
+            local ret = pushLiquid(self.connectionMap[nodeId], peek[1])
+            sb.logInfo("onLiquidPut peek = %s", ret)
 
             if ret then return ret[2] end
         end
@@ -130,7 +138,7 @@ end
 
 function beforeItemGet(filter, nodeId)
     if storage.state then
-        local ret = peekPullItem(self.connectionMap[nodeId], filter)[2]
+        local ret = peekPullItem(self.connectionMap[nodeId], filter)
 
         if ret then return ret[2] end
     end
@@ -143,7 +151,7 @@ function onItemGet(filter, nodeId)
         local peek = peekPullItem(self.connectionMap[nodeId], filter)
 
         if peek then
-            local ret = pullItem(self.connectionMap[nodeId], peek[1])[2]
+            local ret = pullItem(self.connectionMap[nodeId], peek[1])
 
             if ret then return ret[2] end
         end

@@ -57,11 +57,10 @@ end
 
 function beforeItemPut(item, nodeId)
     if item and self.chest then
-        local wItem = {name = item[1], count = item[2], data = item.data}
-        local canFit = world.containerItemsFitWhere(self.chest, wItem)
+        local canFit = world.containerItemsFitWhere(self.chest, item)
         if canFit then
             if canFit.leftover ~= 0 then
-                item[2] = item[2] - canFit.leftover
+                item.count = item.count - canFit.leftover
             end
 
             return item
@@ -73,11 +72,10 @@ end
 
 function onItemPut(item, nodeId)
     if item and self.chest then
-        local wItem = {name = item[1], count = item[2], data = item.data}
-        local returnedItem = world.containerAddItems(self.chest, wItem)
+        local returnedItem = world.containerAddItems(self.chest, item)
 
         if returnedItem then
-            item[2] = item[2] - returnedItem.count
+            item.count = item.count - returnedItem.count
         end
 
         return item
@@ -93,11 +91,11 @@ function beforeItemGet(filter, nodeId)
             if filter then
                 if filter[item.name] and item.count > filter[item.name][1] then
                     item.count = math.min(item.count, filter[item.name][2])
-                    res = {item.name, item.count, data = item.data}
+                    res = item
                     break
                 end
             else
-                res = {item.name, item.count, data = item.data}
+                res = item
                 break
             end
         end
@@ -114,12 +112,12 @@ function onItemGet(filter, nodeId)
             if filter then
                 if filter[item.name] and item.count > filter[item.name][1] then
                     item.count = math.min(item.count, filter[item.name][2])
-                    res = {item.name, item.count, data = item.data }
+                    res = item
                     world.containerConsume(self.chest, item)
                     break
                 end
             else
-                res = {item.name, item.count, data = item.data}
+                res = item
                 world.containerConsume(self.chest, item)
                 break
             end

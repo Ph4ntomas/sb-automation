@@ -68,8 +68,8 @@ function beforeItemPut(item, nodeId)
         local acceptItem = false
         local pullFilter = {}
 
-        if self.conversions[item[1]] then
-            item[2] = math.min(item[2], self.conversions[item[1]].input)
+        if self.conversions[item.name] then
+            item.count = math.min(item.count, self.conversions[item.name].input)
             return item
         end
     end
@@ -82,8 +82,8 @@ function onItemPut(item, nodeId)
         local acceptItem = false
         local pullFilter = {}
 
-        if self.conversions[item[1]] then
-            item[2] = math.min(item[2], self.conversions[item[1]].input)
+        if self.conversions[item.name] then
+            item.count = math.min(item.count self.conversions[item.name].input)
         end
 
         storage.block = item
@@ -132,10 +132,10 @@ function update(dt)
                 end
             else
                 local blockConversion = self.conversions[storage.placedBlock[1]]
-                local liquidOut = {blockConversion.liquid, storage.placedBlock[3]}
+                local liquidOut = {name = blockConversion.liquid, count = storage.placedBlock[3]}
                 local peek = peekPushLiquid(1, liquidOut)
 
-                if peek and peek[2][2] > 0 and energy.consumeEnergy(self.energyRate * self.damageRate) then
+                if peek and peek[2].count > 0 and energy.consumeEnergy(self.energyRate * self.damageRate) then
                     animator.setAnimationState("extractState", "work")
                     if checkBlock() then
                         local placePosition = blockPosition()

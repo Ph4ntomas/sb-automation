@@ -62,7 +62,7 @@ end
 
 function output(item)
     if item.count then
-        datawire.sendData(item[2], "number", "all")
+        datawire.sendData(item.count, "number", "all")
     end
 end
 

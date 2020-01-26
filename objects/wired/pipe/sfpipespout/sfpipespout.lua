@@ -42,8 +42,8 @@ end
 function convertEndlessLiquid(liquid)
     local endless = false
 
-    if self.convertLiquid[liquid[1]] ~= nil then
-        liquid[1] = self.convertLiquid[liquid[1]]
+    if self.convertLiquid[liquid.name] ~= nil then
+        liquid.name = self.convertLiquid[liquid.name]
         endless = true
     end
 
@@ -56,9 +56,10 @@ function canGetLiquid(filter, nodeId)
     local availableLiquid = world.liquidAt(liquidPos)
 
     if availableLiquid then
-        local liquid = convertEndlessLiquid(availableLiquid)
+        local liquid = {name = availableLiquid[1], count = availableLiquid[2]}
+        local convertedLiquid = convertEndlessLiquid(liquid)
 
-        return liquid
+        return convertedLiquid
     end
 
     return nil, nil
@@ -78,8 +79,8 @@ function onLiquidGet(filter, nodeId)
         if not endless then
             local destroyed = world.destroyLiquid(liquidPos)
 
-            if destroyed[2] > getLiquid[2] then
-                world.spawnLiquid(liquidPos, destroyed[1], destroyed[2] - getLiquid[2])
+            if destroyed[2] > getLiquid.count then
+                world.spawnLiquid(liquidPos, destroyed[1], destroyed[2] - getLiquid.count)
             end
         end
 
@@ -105,10 +106,10 @@ function onLiquidPut(liquid, nodeId)
         local curLiquid = world.liquidAt(liquidPos)
 
         if curLiquid then 
-            liquid[2] = liquid[2] + curLiquid[2]
+            liquid.count = liquid.count + curLiquid[2]
         end
 
-        world.spawnLiquid(liquidPos, liquid[1], liquid[2])
+        world.spawnLiquid(liquidPos, liquid.name, liquid.count)
         return liquid
     else
         return nil
