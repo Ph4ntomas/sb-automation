@@ -76,7 +76,6 @@ function tryPush(nodeId)
 
     if liquid then
         local canPutLiquid = peekPushLiquid(nodeId, liquid)
-            sb.logInfo("can = %s", canPutLiquid)
 
         if canPutLiquid then
             local pushedLiquid = pushLiquid(nodeId, canPutLiquid[1])
@@ -106,7 +105,7 @@ function pump(dt)
         local resPull = tryPull(srcNode)
         local resPush = tryPush(tarNode)
 
-        if (resPull and resPush) and energy.consumeEnergy(dt) then
+        if (resPull or resPush) and energy.consumeEnergy(dt) then
             animator.setAnimationState("pumping", "pump")
             object.setAllOutputNodes(true)
         else
@@ -186,7 +185,7 @@ function onLiquidPut(liquid, nodeId)
                     res = liquid
                 end
 
-                storage.liquid.count = min(storage.liquid.count + liquid.count, self.capacity)
+                storage.liquid.count = math.min(storage.liquid.count + liquid.count, self.capacity)
             end
         elseif not storage.liquid or not storage.liquid.name then
             if liquid.count > self.capacity then
@@ -199,5 +198,5 @@ function onLiquidPut(liquid, nodeId)
         end
     end
 
-    return nil
+    return res
 end
