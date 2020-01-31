@@ -25,6 +25,7 @@
     "/objects/wired/pipe/sfliquidfiller/sfliquidfiller.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/sfitempipes.lua",
+    "/scripts/sfliquidutil.lua",
     "/scripts/sfenergy.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",

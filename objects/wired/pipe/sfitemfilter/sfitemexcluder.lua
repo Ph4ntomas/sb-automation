@@ -26,22 +26,22 @@ function showFail()
   animator.setAnimationState("filterState", "fail")
 end
 
-function beforeLiquidGet(filter, nodeId)
+function beforeLiquidPull(filter, nodeId)
   --world.logInfo("passing liquid peek get from %s to %s", nodeId, self.connectionMap[nodeId])
   return peekPullLiquid(self.connectionMap[nodeId], filter)
 end
 
-function onLiquidGet(filter, nodeId)
+function onLiquidPull(filter, nodeId)
   --world.logInfo("passing liquid get from %s to %s", nodeId, self.connectionMap[nodeId])
   return pullLiquid(self.connectionMap[nodeId], filter)
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
   --world.logInfo("passing liquid peek from %s to %s", nodeId, self.connectionMap[nodeId])
   return peekPushLiquid(self.connectionMap[nodeId], liquid)
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
   --world.logInfo("passing liquid from %s to %s", nodeId, self.connectionMap[nodeId])
   return pushLiquid(self.connectionMap[nodeId], liquid)
 end

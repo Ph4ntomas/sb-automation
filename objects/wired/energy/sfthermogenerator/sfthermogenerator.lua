@@ -39,12 +39,12 @@ function updateAnimationState()
   end
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
   local unusedCapacity = self.lavaCapacity - storage.lavaLevel
   return unusedCapacity > 0 and liquid and liquid[1] == 2
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
   local unusedCapacity = self.lavaCapacity - storage.lavaLevel
   if unusedCapacity > 0 and liquid and liquid[1] == 2 then
     storage.lavaLevel = math.min(storage.lavaLevel + liquid[2], self.lavaCapacity)

@@ -96,18 +96,18 @@ function pipes.init(pipeTypes)
     end
 end
 
---- Push, calls the put hook on the closest connected object that returns true
+--- Push, calls the push hook on all connected object that returns true
 -- @param pipeName string - name of the pipe type to push through
 -- @param nodeId number - ID of the node to push through
--- @param args - The arguments to send to the put hook
--- @returns Hook return if successful, false if unsuccessful
+-- @param args - The arguments to send to the push hook
+-- @returns Hooks return if successful, false if unsuccessful
 function pipes.push(pipeName, nodeId, args)
     if #pipes.nodeEntities[pipeName][nodeId] > 0 and not pipes.rejectNode[nodeId] then
         local ret = {}
 
         pipes.rejectNode[nodeId] = true
         for i,entity in ipairs(pipes.nodeEntities[pipeName][nodeId]) do
-            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.put, args[i], entity.nodeId))
+            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.push, args[i], entity.nodeId))
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
@@ -126,7 +126,7 @@ function pipes.push(pipeName, nodeId, args)
     return {}
 end
 
---- Pull, calls the get hook on the closest connected object that returns true
+--- Pull, calls the pull hook on connected objects that returns true
 -- @param pipeName string - name of the pipe type to pull through
 -- @param nodeId number - ID of the node to pull through
 -- @param args - An array of arguments to send to the hooks
@@ -137,7 +137,7 @@ function pipes.pull(pipeName, nodeId, args)
 
         pipes.rejectNode[nodeId] = true
         for i,entity in pairs(pipes.nodeEntities[pipeName][nodeId]) do
-            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.get, args[i], entity.nodeId))
+            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.pull, args[i], entity.nodeId))
 
             if pEntityReturn:succeeded() and pEntityReturn:result() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
@@ -156,7 +156,7 @@ function pipes.pull(pipeName, nodeId, args)
     return {}
 end
 
---- Peek push, calls the peekPut hook on the closest connected object that returns true
+--- Peek push, calls the peekPush hook on connected objects that returns true
 -- @param pipeName string - name of the pipe type to peek through
 -- @param nodeId number - ID of the node to peek through
 -- @param args - The arguments to send to the hook
@@ -167,7 +167,7 @@ function pipes.peekPush(pipeName, nodeId, args)
 
         pipes.rejectNode[nodeId] = true
         for i,entity in pairs(pipes.nodeEntities[pipeName][nodeId]) do
-            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPut, args, entity.nodeId))
+            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPush, args, entity.nodeId))
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
@@ -197,7 +197,7 @@ function pipes.peekPull(pipeName, nodeId, args)
 
         for i,entity in pairs(pipes.nodeEntities[pipeName][nodeId]) do
             pipes.rejectNode[nodeId] = true
-            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekGet, args, entity.nodeId))
+            local pEntityReturn = sfutil.safe_await(world.sendEntityMessage(entity.id, pipes.types[pipeName].hooks.peekPull, args, entity.nodeId))
             pipes.rejectNode[nodeId] = false
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end

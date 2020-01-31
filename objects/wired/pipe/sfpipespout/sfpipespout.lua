@@ -65,12 +65,12 @@ function canGetLiquid(filter, nodeId)
     return nil, nil
 end
 
-function beforeLiquidGet(filter, nodeId)
+function beforeLiquidPull(filter, nodeId)
     local liquid, _ = canGetLiquid(filter, nodeId)
     return liquid
 end
 
-function onLiquidGet(filter, nodeId)
+function onLiquidPull(filter, nodeId)
     local position = entity.position()
     local liquidPos = {position[1] + 0.5, position[2] + 0.5}
     local getLiquid, endless = canGetLiquid(filter, nodeId)
@@ -94,11 +94,11 @@ function canPutLiquid(liquid, nodeId)
     return liquid
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
     return canPutLiquid(liquid, nodeId)
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
     local position = entity.position()
     local liquidPos = {position[1] + 0.5, position[2] + 0.5}
 

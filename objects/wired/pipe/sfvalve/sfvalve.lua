@@ -55,11 +55,11 @@ function updateAnimationState()
     end
 end
 
-function beforeLiquidGet(filter, nodeId)
+function beforeLiquidPull(filter, nodeId)
     if storage.state then
         local ret = peekPullLiquid(self.connectionMap[nodeId], filter)
 
-        sb.logInfo("beforeLiquidGet %s", ret)
+        sb.logInfo("beforeLiquidPull %s", ret)
 
         if ret then return ret[2] end
     end
@@ -67,7 +67,7 @@ function beforeLiquidGet(filter, nodeId)
     return nil
 end
 
-function onLiquidGet(filter, nodeId)
+function onLiquidPull(filter, nodeId)
     if storage.state then
         local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
 
@@ -81,9 +81,9 @@ function onLiquidGet(filter, nodeId)
     return nil
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
     if storage.state then
-        sb.logInfo("beforeLiquidPut liquid = %s", liquid)
+        sb.logInfo("beforeLiquidPush liquid = %s", liquid)
 
         local ret = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
@@ -94,15 +94,15 @@ function beforeLiquidPut(liquid, nodeId)
     return nil
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
     if storage.state then
         local peek = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
-        sb.logInfo("onLiquidPut peek = %s", peek)
+        sb.logInfo("onLiquidPush peek = %s", peek)
 
         if peek then
             local ret = pushLiquid(self.connectionMap[nodeId], peek[1])
-            sb.logInfo("onLiquidPut peek = %s", ret)
+            sb.logInfo("onLiquidPush peek = %s", ret)
 
             if ret then return ret[2] end
         end

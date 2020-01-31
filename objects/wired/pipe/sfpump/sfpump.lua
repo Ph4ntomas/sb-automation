@@ -143,7 +143,7 @@ function update(dt)
     end
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
     local srcNode, tarNode = orderNode(object.direction())
     local res = nil
 
@@ -170,7 +170,7 @@ function beforeLiquidPut(liquid, nodeId)
     return res
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
     local srcNode, tarNode = orderNode(object.direction())
     local res = nil
 

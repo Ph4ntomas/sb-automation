@@ -66,7 +66,7 @@ function output(liquid)
   end
 end
 
-function beforeLiquidGet(filter, nodeId)
+function beforeLiquidPull(filter, nodeId)
     local ret = peekPullLiquid(self.connectionMap[nodeId], filter)
 
     if ret then return ret[2] end
@@ -74,7 +74,7 @@ function beforeLiquidGet(filter, nodeId)
     return nil
 end
 
-function onLiquidGet(filter, nodeId)
+function onLiquidPull(filter, nodeId)
   local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
 
   if peek then
@@ -91,7 +91,7 @@ function onLiquidGet(filter, nodeId)
   return nil
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
     local ret = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
     if ret then return ret[2] end
@@ -99,7 +99,7 @@ function beforeLiquidPut(liquid, nodeId)
     return nil
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
   local peek = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
   if peek then

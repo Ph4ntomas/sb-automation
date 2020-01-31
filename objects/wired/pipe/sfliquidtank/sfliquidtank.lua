@@ -96,7 +96,7 @@ function clearLiquid()
     end
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
     local res = nil
 
     if liquid then
@@ -126,7 +126,7 @@ function onLiquidPut(liquid, nodeId)
     return res
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
     local res = nil
 
     if liquid then
@@ -152,7 +152,7 @@ function beforeLiquidPut(liquid, nodeId)
     return res
 end
 
-function onLiquidGet(filter, nodeId)
+function onLiquidPull(filter, nodeId)
     if storage.liquid.name ~= nil then
         local liquids = {{name = storage.liquid.name, count =  math.min(storage.liquid.count, pushAmount)}}
         local returnLiquid, _ = filterLiquids(filter, liquids)
@@ -170,7 +170,7 @@ function onLiquidGet(filter, nodeId)
     return nil
 end
 
-function beforeLiquidGet(filter, nodeId)
+function beforeLiquidPull(filter, nodeId)
     if storage.liquid.name ~= nil then
         local liquids = {{name = storage.liquid.name, count =  math.min(storage.liquid.count, self.pushAmount)}}
 

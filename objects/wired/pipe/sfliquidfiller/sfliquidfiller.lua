@@ -132,40 +132,22 @@ local function getColorShiftForLiquid(name)
     return nil
 end
 
-function getLiquidName(name)
-    local liquidConfig = root.liquidConfig(name)
-    if liquidConfig then
-        local liquidConfig = liquidConfig["config"]
-
-        if liquidConfig["itemDrop"] then
-            local config = root.itemConfig({name = liquidConfig["itemDrop"], count = 1})
-
-            if config then
-                local config = config["config"]
-                return config["shortdescription"]
-            end
-        end
-    end
-
-    return nil
-end
-
-local function buildData(name, amount, hsvShift)
-    local config = root.itemConfig({name = "sfcapsule", count = 1})["config"]
+local function buildData(liquidName, amount, hsvShift)
+    local capsuleConfig = root.itemConfig({name = "sfcapsule", count = 1})["config"]
     local data = {
-        image = config["image"],
-        inventoryIcon = config["inventoryIcon"],
-        projectileConfig = { actionOnReap = config["projectileConfig"]["actionOnReap"] }
+        image = capsuleConfig["image"],
+        inventoryIcon = capsuleConfig["inventoryIcon"],
+        projectileConfig = { actionOnReap = capsuleConfig["projectileConfig"]["actionOnReap"] }
     }
 
-    local liquidName = getLiquidName(name)
-    if liquidName ~= nil then
-        data["shortdescription"] = liquidName .. " " .. config["shortdescription"]
-        data["description"] = config["description"]:gsub("liquid", liquidName:lower())
+    local liqItConfig = sfliquidutil.getLiquidItemConfig()
+    if liqItemConfig ~= nil then
+        data["shortdescription"] = liqItConfig["shortdescription"] .. " " .. capsuleConfig["shortdescription"]
+        data["description"] = capsuleConfig["description"]:gsub("liquid", liqItConfig["shortdescription"]:lower())
     end
 
 
-    data["projectileConfig"]["actionOnReap"][1]["liquid"] = name
+    data["projectileConfig"]["actionOnReap"][1]["liquid"] = liquidName
     if amount then
         data["projectileConfig"]["actionOnReap"][1]["quantity"] = amount
     end
@@ -208,7 +190,7 @@ function fillCapsule(liquid)
     return nil, nil
 end
 
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
     local ret = nil
 
     if storage.state and liquid then
@@ -230,7 +212,7 @@ function beforeLiquidPut(liquid, nodeId)
     return liquid
 end
 
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
     if storage.state and liquid then
         local amount = liquid.count
         local inStore = 0

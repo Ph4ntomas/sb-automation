@@ -47,18 +47,18 @@ end
 --LIQUIDS
 
 --Should return true if the object can receive the liquid, false if it can't, but do nothing with the liquid value
-function beforeLiquidPut(liquid, nodeId)
+function beforeLiquidPush(liquid, nodeId)
   return true
 end
 
 --Should return true if the object received the liquid, false if it didn't, and perform the receive action
-function onLiquidPut(liquid, nodeId)
+function onLiquidPush(liquid, nodeId)
   self.liquid = liquid
   return true
 end
 
 --Should return the liquid it would send, or false if no liquid, but not remove any liquid
-function beforeLiquidGet(filter, nodeId)
+function beforeLiquidPull(filter, nodeId)
   if filter == nil then
     return world.liquidAt(entity.position()) or false
   else
@@ -69,7 +69,7 @@ function beforeLiquidGet(filter, nodeId)
 end
 
 --Should return the liquid, or false if there is none, and perform the send action
-function onLiquidGet(filter, nodeId)
+function onLiquidPull(filter, nodeId)
   if filter == nil then
     return world.liquidAt(entity.position()) or false
   else

@@ -5,39 +5,63 @@ liquidPipe = {
     nodesConfigParameter = "liquidNodes",
     tiles = {"metalpipe", "sewerpipe", "sfcleanpipe"},
     hooks = {
-        put = "onLiquidPut",  --Should take whatever argument get returns
-        get = "onLiquidGet", --Should return whatever argument you want to plug into the put hook, can take whatever argument you want like a filter or something
-        peekPut = "beforeLiquidPut", --Should return true if object will put the item
-        peekGet = "beforeLiquidGet" --Should return true if object will get the item
+        push = "onLiquidPush",
+        pull = "onLiquidPull",
+        peekPush = "beforeLiquidPush",
+        peekPull = "beforeLiquidPull"
     },
     msgHooks = {
     }
 }
 
-function liquidPipe.msgHooks.put(_, _, liquid, nodeId)
-    if onLiquidPut then
-        return onLiquidPut(liquid, nodeId)
+--- Hook called when an entity is trying to push some liquids
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param liquid The liquid that the remote entity is trying to push
+-- @param nodeId The node id of the entity.
+function liquidPipe.msgHooks.push(_, _, liquid, nodeId)
+    if onLiquidPush and liquid then
+        return onLiquidPush(liquid, nodeId)
     end
     return nil
 end
 
-function liquidPipe.msgHooks.peekPut(_, _, liquid, nodeId)
-    if beforeLiquidPut then
-        return beforeLiquidPut(liquid, nodeId)
+--- Hook called when an entity is trying to push some liquids, without proceeding to the actual transfer
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param liquid The liquid that the remote entity is trying to push
+-- @param nodeId The node id of the entity.
+function liquidPipe.msgHooks.peekPush(_, _, liquid, nodeId)
+    if beforeLiquidPush and liquid then
+        return beforeLiquidPush(liquid, nodeId)
     end
     return nil
 end
 
-function liquidPipe.msgHooks.get(_, _, filter, nodeId)
-    if onLiquidGet then
-        return onLiquidGet(filter, nodeId)
+--- Hook called when an entity is trying to pull some liquids
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param filter Some parameter to filter out unacceptable liquid. Nil will accept everything.
+-- @param nodeId The node id of the entity.
+function liquidPipe.msgHooks.pull(_, _, filter, nodeId)
+    if onLiquidPull then
+        return onLiquidPull(filter, nodeId)
     end
     return nil
 end
 
-function liquidPipe.msgHooks.peekGet(_, _, filter, nodeId)
-    if beforeLiquidGet then
-        return beforeLiquidGet(filter, nodeId)
+--- Hook called when an entity is trying to pull some liquids, without proceeding to the actual transfer
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param filter Some parameter to filter out unacceptable liquid. Nil will accept everything.
+-- @param nodeId The node id of the entity.
+function liquidPipe.msgHooks.peekPull(_, _, filter, nodeId)
+    if beforeLiquidPull then
+        return beforeLiquidPull(filter, nodeId)
     end
     return nil
 end

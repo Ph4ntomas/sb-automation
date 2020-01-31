@@ -3,37 +3,61 @@ itemPipe = {
     nodesConfigParameter = "itemNodes",
     tiles = {"metalpipe", "sewerpipe", "sfcleanpipe"},
     hooks = {
-        put = "onItemPut", --Should take whatever argument get returns
-        get = "onItemGet", --Should return whatever argument you want to plug into the put hook, can take whatever argument you want like a filter or something
-        peekPut = "beforeItemPut", --Should return true if object will put the item
-        peekGet = "beforeItemGet" --Should return true if object will get the item
+        push = "onItemPush", --Should take whatever argument pull returns
+        pull = "onItemPull", --Should return whatever argument you want to plug into the push hook, can take whatever argument you want like a filter or something
+        peekPush = "beforeItemPush", --Should return true if object will push the item
+        peekPull = "beforeItemPull" --Should return true if object will pull the item
     },
     msgHooks = {
     }
 }
 
-function itemPipe.msgHooks.put(_, _, item, nodeId)
-    if onItemPut then
-        return onItemPut(item, nodeId)
+--- Hook called when an entity is trying to push some items
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param item The item that the remote entity is trying to push
+-- @param nodeId The node id of the entity.
+function itemPipe.msgHooks.push(_, _, item, nodeId)
+    if onItemPush then
+        return onItemPush(item, nodeId)
     end
 end
 
-function itemPipe.msgHooks.peekPut(_, _, item, nodeId)
-    if beforeItemPut then
-        return beforeItemPut(item, nodeId)
+--- Hook called when an entity is trying to push some items, without proceeding to the actual transfer
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param item The item that the remote entity is trying to push
+-- @param nodeId The node id of the entity.
+function itemPipe.msgHooks.peekPush(_, _, item, nodeId)
+    if beforeItemPush then
+        return beforeItemPush(item, nodeId)
     end
     return false
 end
 
-function itemPipe.msgHooks.get(_, _, filter, nodeId)
-    if onItemGet then
-        return onItemGet(filter, nodeId)
+--- Hook called when an entity is trying to pull some items
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param filter Some parameter to filter out unacceptable item. Nil will accept everything.
+-- @param nodeId The node id of the entity.
+function itemPipe.msgHooks.pull(_, _, filter, nodeId)
+    if onItemPull then
+        return onItemPull(filter, nodeId)
     end
 end
 
-function itemPipe.msgHooks.peekGet(_, _, filter, nodeId)
-    if beforeItemGet then
-        return beforeItemGet(filter, nodeId)
+--- Hook called when an entity is trying to pull some items, without proceeding to the actual transfer
+-- As entities are always connected by pipe, the first two argument of the message handler are ignored.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param _ [Ignored] Message handler params. Irrelevent here.
+-- @param filter Some parameter to filter out unacceptable item. Nil will accept everything.
+-- @param nodeId The node id of the entity.
+function itemPipe.msgHooks.peekPull(_, _, filter, nodeId)
+    if beforeItemPull then
+        return beforeItemPull(filter, nodeId)
     end
     return false
 end
