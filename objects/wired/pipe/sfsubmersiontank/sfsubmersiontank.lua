@@ -6,8 +6,10 @@ function init()
       storage.liquid = initInv
     end
     
-    animator.resetTransformationGroup("liquid")
-    animator.scaleTransformationGroup("liquid", {1, 0})
+    --animator.setGlobalTag("liquidDirectives", getDirective(storage.liquid.name))
+    --animator.setAnimationState("liquid", "base")
+    --animator.resetTransformationGroup("liquid")
+    --animator.scaleTransformationGroup("liquid", {1, 0})
 
     --TODO use root function to get this
     self.liquidMap = {}
@@ -53,25 +55,52 @@ end
       --return { "ShowPopup", { message = "Tank is empty."}}
   --end
 --end
+--
+
+function getLiquidReadableName(liquid)
+    local ret = "unknown liquid"
+    if liquid then
+        local config = root.liquidConfig(liquid)
+        sb.logInfo("liquidConfig : %s", config)
+
+        if config then
+            local item = config["config"]["itemDrop"]
+            local iconf = root.itemConfig({name = item, 1})
+
+            if iconf then
+                ret = iconf["config"]["shortdescription"]
+            end
+        end
+    end
+
+    return ret
+end
 
 function onInteraction(args)
-    local liquid = self.liquidMap[storage.liquid.name]
+    sb.logInfo("players = %s",world.players())
+
+    local liquid = nil
+    local liquidName = "unknown liquid"
+
+    if storage.liquid.name ~= nil then
+        liquid = root.liquidName(storage.liquid.name)
+        liquidName = getLiquidReadableName(liquid)
+    end
+
     local count = storage.liquid.count
     local capacity = self.capacity
     local itemList = ""
-
-    if liquid == nil then liquid = "other" end
 
     if not world.loungeableOccupied(entity.id()) then
         if count ~= nil and count < capacity then 
             return { "ShowPopup", { message = "^white;You manage to suppress the desire to climb into the tank... for now.\n\n^white;Holding ^green;" .. count ..
                 "^white; / ^green;" .. capacity ..
-                "^white; units of liquid ^green;" .. liquid
+                "^white; units of ^green;" .. liquidName
             }}
         elseif count ~= nil then
-            return { "SitDown", 0} --,{config={
+            return { "SitDown", 0} --, {
             --["sitFlipDirection"] = false,
-            --["sitPosition"] = {20,20},
+                    -- sitPosition = {20,200}}}
             --["sitOrientation"] = "lay",
             --["sitAngle"] = 0,
             --["sitCoverImage"] = "/objects/wired/pipe/sfsubmersiontank.png:foreground",
@@ -95,30 +124,128 @@ function cycleForeground(occupied)
     if occupied then
         animator.setAnimationState("foreground", "hidden")
     else
+        if self.player then
+            --world.loadUniqueEntity("TankPlayer"..self.player)
+            --world.setUniqueId(self.player)
+            self.player = nil
+        end
         animator.setAnimationState("foreground", "active")
     end
 end
 
+local function getColorShiftForLiquid(name)
+    local waterconfig = root.liquidConfig("water")
+    local config = root.liquidConfig(name)
+
+    if config and waterconfig then
+        local waterRgb = waterconfig["config"]["color"]
+        local rgb = config["config"]["color"]
+        local lrgb = config["config"]["radiantLight"]
+        local brgb = config["config"]["bottomLightMix"]
+
+        if waterRgb and rgb then
+            local waterHsv = sfutil.rgb2hsv(waterRgb)
+            local liquidHsv = sfutil.rgb2hsv(rgb)
+
+            if lrgb then
+                local lHsv = sfutil.rgb2hsv(lrgb)
+
+                if brgb then
+                    local bHsv = sfutil.rgb2hsv(lrgb)
+
+                    liquidHsv.hue = (liquidHsv.hue + lHsv.hue + bHsv.hue) / 3
+                    liquidHsv.sat = (liquidHsv.sat + lHsv.sat + bHsv.sat) / 3
+                    liquidHsv.val = (liquidHsv.val + lHsv.val + bHsv.val) / 3
+                else
+                    liquidHsv.hue = (liquidHsv.hue + lHsv.hue) / 2
+                    liquidHsv.sat = (liquidHsv.sat + lHsv.sat) / 2
+                    liquidHsv.val = (liquidHsv.val + lHsv.val) / 2
+                end
+            end
+
+            return {
+                hue = liquidHsv.hue - waterHsv.hue,
+                sat = liquidHsv.sat - waterHsv.sat,
+                val = liquidHsv.val - waterHsv.val,
+                rgb[4]
+            }
+        end
+    end
+    return nil
+end
+
+function getDirective(liquid)
+    local ret = ""
+    local liquidName = root.liquidName(liquid)
+
+    if liquidName then
+        local hsvShift = getColorShiftForLiquid(liquidName)
+
+        if hsvShift then
+            local hueshift = "?hueshift=" .. tostring(hsvShift.hue)
+            local saturation = "?saturation=" .. tostring(hsvShift.sat * 100)
+            local brightness = "?brightness=" .. tostring(hsvShift.val * 100)
+
+            ret = ret .. hueshift .. saturation .. brightness
+        end
+    end
+
+
+    return ret
+end
+
+function applyEffect(liquid)
+    local liquidName = root.liquidName(liquid)
+    local config = root.liquidConfig(liquidName)
+
+    if world.loungeableOccupied(entity.id()) then
+        world.spawnLiquid(object.toAbsolutePosition({100, 10}), liquidName, 1)
+    end
+
+end
+
+function test()
+    return "test"
+end
 
 function update(dt)
   pipes.update(dt)
-  
+
   --TODO: use root functions, and get a hue on color (see capsule)
-  local liquidState = self.liquidMap[storage.liquid.name]
-  if liquidState then
-    animator.setAnimationState("liquid", liquidState)
-  else
-    animator.setAnimationState("liquid", "other")
-  end
+  --local liquidState = self.liquidMap[storage.liquid.name]
+  --if liquidState then
+    --animator.setAnimationState("liquid", liquidState)
+  --else
+    --animator.setAnimationState("liquid", "other")
+  --end
   
   if storage.liquid.count then
     local liquidScale = storage.liquid.count / self.capacity
     animator.resetTransformationGroup("liquid")
+    animator.setPartTag("liquid", "directives", getDirective(storage.liquid.name))
+    animator.setAnimationState("liquid", "base", true)
     animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -2.2 * (1 - liquidScale))
+
+    if world.loungeableOccupied(entity.id()) then
+        players = world.playerQuery(object.toAbsolutePosition({-1, 0}), object.toAbsolutePosition({2, 5}))
+
+        for _, v in pairs(players) do
+            world.sendEntityMessage(v, "applyStatusEffect", "melting", 1, entity.id())
+        end
+    end
+    --sb.logInfo("res = %s", 
+        --world.playerQuery(
+            --object.toAbsolutePosition({-1,0}), 
+            --object.toAbsolutePosition({1, 5}), 
+            --{callScript= test}
+        --)
+    --)
+    --if storage.liquid.name then
+        --applyEffect(storage.liquid.name)
+    --end
   else
     animator.scaleTransformationGroup("liquid", {1, 0})
   end
-
 
   cycleForeground(world.loungeableOccupied(entity.id()))
 
@@ -148,9 +275,6 @@ end
 function onLiquidPut(liquid, nodeId)
     local res = nil
 
-    sb.logInfo("onPut %s", liquid)
-    sb.logInfo("liquids = %s", storage.liquid)
-
     if liquid then
         if storage.liquid and liquid.name == storage.liquid.name then
             if storage.liquid.count >= self.capacity then
@@ -175,15 +299,11 @@ function onLiquidPut(liquid, nodeId)
         end
     end
 
-    sb.logInfo("Tool %s", res)
-
     return res
 end
 
 function beforeLiquidPut(liquid, nodeId)
     local res = nil
-
-    sb.logInfo("beforePut %s", liquid)
 
     if liquid then
         if storage.liquid and liquid.name == storage.liquid.name then
@@ -204,8 +324,6 @@ function beforeLiquidPut(liquid, nodeId)
             end
         end
     end
-
-    sb.logInfo("canTake %s", res)
 
     return res
 end

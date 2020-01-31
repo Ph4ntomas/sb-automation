@@ -10,11 +10,10 @@
   "objectType" : "loungeable",
   "sitAngle" : 0,
   "sitCoverImage" : "/objects/wired/pipe/sfsubmersiontank/sfsubmersiontank.png:foreground",
-  "sitPosition" : [-15, 35],
   "sitOrientation" : "lay",
   "sitEmote" : "sleep",
   "sitStatusEffects" :  [
-      "nude"
+      "nude", "bed1"
   ],
 
   "breakDropOptions": [],
@@ -24,12 +23,14 @@
     {
       "dualImage" : "sfsubmersiontank.png",
       "imageLayers" : [ { "image" : "sfsubmersiontank.png:foreground" }, {"image" : "sfsubmersiontank.png:background"}],
-      "imagePosition" : [0, 0],
+      "imagePosition" : [-16, 0],
       "frames" : 1,
       "animationCycle" : 1.0,
 
       "spaceScan" : 0.1,
-      "anchors" : [ "bottom" ]
+      "anchors" : [ "bottom" ],
+
+      "sitPosition" : [0, 35]
     }
   ],
   
@@ -39,7 +40,7 @@
     "back" : "sfsubmersiontank.png",
     "liquid" : "sfsubmersiontank_bar.png"
   },
-  "animationPosition" : [16,31],
+  "animationPosition" : [0,31],
   
   "scripts" : [
     "sfsubmersiontank.lua",
@@ -52,7 +53,7 @@
   
   "inputNodes" : [[0,1],[3,1]],
   
-  "liquidNodes" : [ {"offset": [0, 0], "dir": [-1, 0]}, {"offset": [3, 0], "dir": [1, 0]} ],
+  "liquidNodes" : [ {"offset": [-2, 0], "dir": [-1, 0]}, {"offset": [1, 0], "dir": [1, 0]} ],
   
   "liquidCapacity" : 150000,
   "liquidPushAmount" : 1400,

@@ -1,111 +1,74 @@
 {
-  "animatedParts" : {
-    "stateTypes" : {
-      "liquid" : {
-        "priority" : 1,
-        "default" : "water",
-
-        "states" : {
-          "water" : {
-            "frames" : 1
-          },
-          "tar" : {
-            "frames" : 1
-          },
-          "poison" : {
-            "frames" : 1
-          },
-          "juice" : {
-            "frames" : 1
-          },
-          "lava" : {
-            "frames" : 1
-          },
-          "other" : {
-            "frames" : 1
-          }
+    "partTagDefaults" : {
+        "liquid" : {
+            "directives" : ""
         }
-      },
-          "foreground" : {
-            "default" : "active",
-            "states" : {
-                "hidden" : {},
-                "active" : {}
-            }
-          }
     },
-    "parts" : {
-      "fore" : {
-        "properties" : {
-          "offset" : [0, 0],
-          "centered" : true,
-          "zLevel" : 3
-        },
-        "partStates" : {
+    "animatedParts" : {
+        "stateTypes" : {
+            "liquid" : {
+                "priority" : 1,
+                "default" : "base",
+
+                "states" : {
+                    "base" : {}
+                }
+            },
             "foreground" : {
-                "active" : {
-                    "properties" : {
-                        "image" :"<partImage>:foreground" 
+                "default" : "active",
+                "states" : {
+                    "hidden" : {},
+                    "active" : {}
+                }
+            }
+        },
+        "parts" : {
+            "fore" : {
+                "properties" : {
+                    "offset" : [0, 0],
+                    "centered" : true,
+                    "zLevel" : 3
+                },
+                "partStates" : {
+                    "foreground" : {
+                        "active" : {
+                            "properties" : {
+                                "image" :"<partImage>:foreground" 
+                            }
+                        }
+                    }
+                }
+            },
+            "back" : {
+                "properties" : {
+                    "image" : "<partImage>:background",
+                    "offset" : [0, 0],
+                    "centered" : true,
+                    "zLevel" : 2
+                }
+            },
+            "liquid" : {
+                "properties" : {
+                    "offset" : [-1.375, -2.25],
+                    "centered" : false,
+                    "transformationGroups" : [ "liquid" ]
+                },
+                "partStates" : {
+                    "liquid" : {
+                        "base" : {
+                            "properties" : {
+                                "image" : "<partImage>:default<directives>",
+                                "zLevel" : 1
+                            }
+                        }
                     }
                 }
             }
         }
-      },
-      "back" : {
-        "properties" : {
-          "image" : "<partImage>:background",
-          "offset" : [0, 0],
-          "centered" : true,
-          "zLevel" : 1
+    },
+    "transformationGroups" : {
+        "liquid" : {
+            "interpolated" : false
         }
-      },
-      "liquid" : {
-        "properties" : {
-          "offset" : [-1.375, -2.25],
-          "centered" : false,
-          "zLevel" : 2,
-          "transformationGroups" : [ "liquid" ]
-        },
-        "partStates" : {
-          "liquid" : {
-            "water" : {
-              "properties" : {
-                "image" : "<partImage>:water"
-              }
-            },
-            "tar" : {
-              "properties" : {
-                "image" : "<partImage>:tar"
-              }
-            },
-            "poison" : {
-              "properties" : {
-                "image" : "<partImage>:poison"
-              }
-            },
-            "juice" : {
-              "properties" : {
-                "image" : "<partImage>:juice"
-              }
-            },
-            "lava" : {
-              "properties" : {
-                "image" : "<partImage>:lava"
-              }
-            },
-            "other" : {
-              "properties" : {
-                "image" : "<partImage>:other"
-              }
-            }
-          }
-        }
-      }
     }
-  },
-  "transformationGroups" : {
-    "liquid" : {
-        "interpolated" : false
-    }
-  }
 }

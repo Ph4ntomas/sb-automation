@@ -186,7 +186,6 @@ local function buildData(name, amount, hsvShift)
 end
 
 function fillCapsule(liquid)
-    sb.logInfo("filling capsule %s", liquid)
     local liquidName = root.liquidName(liquid.name)
 
     if liquidName then
