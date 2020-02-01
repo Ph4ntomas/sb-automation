@@ -55,7 +55,7 @@ function pushItems()
     end
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     if item and self.chest then
         local canFit = world.containerItemsFitWhere(self.chest, item)
         if canFit then
@@ -70,7 +70,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     if item and self.chest then
         local returnedItem = world.containerAddItems(self.chest, item)
 
@@ -83,7 +83,7 @@ function onItemPut(item, nodeId)
     return nil
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
     local res = nil
 
     if self.chest then
@@ -104,7 +104,7 @@ function beforeItemGet(filter, nodeId)
     return res
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
     local res = nil
 
     if self.chest then

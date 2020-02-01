@@ -90,7 +90,7 @@ function pullOre()
   end
 end
 
-function onItemPut(item, nodeId) 
+function onItemPush(item, nodeId) 
   if item and nodeId == 1 and storage.ore.name == nil then
     if self.conversions[item.name] then
       local conversion = self.conversions[item.name]
@@ -109,7 +109,7 @@ function onItemPut(item, nodeId)
   return false
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
   if item and nodeId == 1 and storage.ore.name == nil then
     local pullFilter = {}
     for ore,_ in pairs(self.conversions) do

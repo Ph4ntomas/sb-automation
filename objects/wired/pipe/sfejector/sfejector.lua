@@ -38,13 +38,13 @@ function update(dt)
     end
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     if nodeId == self.usedNode then
         return item
     end
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     if item and nodeId == self.usedNode then
         local position = entity.position()
 

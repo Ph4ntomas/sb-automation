@@ -46,7 +46,7 @@ function onLiquidPush(liquid, nodeId)
   return pushLiquid(self.connectionMap[nodeId], liquid)
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
   if self.filterCount > 0 then
     if self.filter[item.name] then
       return false
@@ -56,7 +56,7 @@ function beforeItemPut(item, nodeId)
   return peekPushItem(self.connectionMap[nodeId], item)
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
   if self.filterCount > 0 then
     if self.filter[item.name] then
       showFail()
@@ -75,7 +75,7 @@ function onItemPut(item, nodeId)
   return pushResult
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
   local filterMatch = false
 
   if self.filterCount > 0 then
@@ -93,7 +93,7 @@ function beforeItemGet(filter, nodeId)
   end
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
   local filterMatch = false
 
   if self.filterCount > 0 then

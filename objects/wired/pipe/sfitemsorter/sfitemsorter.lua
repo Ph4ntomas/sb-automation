@@ -41,7 +41,7 @@ function showFail()
     animator.setAnimationState("filterState", "fail")
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     for _,node in ipairs(self.connectionMap[nodeId]) do
         if self.filterCount[node] > 0 then
             if self.filter[node][item.name] then
@@ -55,7 +55,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     local pushResult = nil
     local resultNode = 1
 
@@ -83,7 +83,7 @@ function onItemPut(item, nodeId)
     return pushResult
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
     for _,node in ipairs(self.connectionMap[nodeId]) do
         if self.filterCount[node] > 0 then
             local pullFilter = {}
@@ -106,7 +106,7 @@ function beforeItemGet(filter, nodeId)
     return nil
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
     local pullResult = false
     local resultNode = 1
 

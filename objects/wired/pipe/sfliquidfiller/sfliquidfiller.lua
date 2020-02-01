@@ -24,20 +24,27 @@ function die()
     energy.die()
 end
 
-function onInputNodeChange(args)
-    storage.state = args.level
-    if storage.state then animator.setAnimationState("fillstate", "on") end
-end
+function update(dt)
+    pipes.update(dt)
+    energy.update(dt)
 
-function onNodeConnectionChange()
-    storage.state = object.getInputNodeLevel(0)
-    if storage.state then animator.setAnimationState("fillstate", "on") end
-end
+    if storage.state then
+        if self.fillTimer > self.fillInterval then
+            local done = false
 
-function onInteraction(args)
-    if object.isInputNodeConnected(0) == false then
-        storage.state = not storage.state
-        if storage.state then animator.setAnimationState("fillstate", "on") end
+            for i, v in pairs(storage.liquids) do
+                done = createCapsule(dt, i, v, false)
+
+                if done then
+                    break
+                end
+            end
+
+            self.fillTimer = 0
+        end
+        self.fillTimer = self.fillTimer + dt
+    else
+        animator.setAnimationState("fillstate", "off")
     end
 end
 
@@ -66,73 +73,29 @@ function createCapsule(dt, liquidId, amount, pushExcess)
     return false
 end
 
-function update(dt)
-    pipes.update(dt)
-    energy.update(dt)
+function fillCapsule(liquid)
+    local liquidName = root.liquidName(liquid.name)
 
-    if storage.state then
-        if self.fillTimer > self.fillInterval then
-            local done = false
-
-            sb.logInfo("filler storage = %s", storage.liquids)
-            for i, v in pairs(storage.liquids) do
-                done = createCapsule(dt, i, v, false)
-
-                if done then
-                    break
-                end
-            end
-
-            self.fillTimer = 0
+    if liquidName then
+        if self.conversions[tostring(liquid.name)] ~= nil then
+            liquid.name = self.conversions[tostring(liquid.name)]
         end
-        self.fillTimer = self.fillTimer + dt
-    else
-        animator.setAnimationState("fillstate", "off")
-    end
-end
 
-local function getColorShiftForLiquid(name)
-    local waterconfig = root.liquidConfig("water")
-    local config = root.liquidConfig(name)
+        local hsvShift = sfliquidutil.getColorShift(liquidName)
+        local data = buildData(liquidName, self.liquidAmount, hsvShift)
 
-    if config and waterconfig then
-        local waterRgb = waterconfig["config"]["color"]
-        local rgb = config["config"]["color"]
-        local lrgb = config["config"]["radiantLight"]
-        local brgb = config["config"]["bottomLightMix"]
+        local capsule = {name = "sfcapsule", count = 1, data = data}
+        local peek = peekPushItem(1, capsule)
 
-        if waterRgb and rgb then
-            local waterHsv = sfutil.rgb2hsv(waterRgb)
-            local liquidHsv = sfutil.rgb2hsv(rgb)
-
-            if lrgb then
-                local lHsv = sfutil.rgb2hsv(lrgb)
-
-                if brgb then
-                    local bHsv = sfutil.rgb2hsv(lrgb)
-
-                    liquidHsv.hue = (liquidHsv.hue + lHsv.hue + bHsv.hue) / 3
-                    liquidHsv.sat = (liquidHsv.sat + lHsv.sat + bHsv.sat) / 3
-                    liquidHsv.val = (liquidHsv.val + lHsv.val + bHsv.val) / 3
-                else
-                    liquidHsv.hue = (liquidHsv.hue + lHsv.hue) / 2
-                    liquidHsv.sat = (liquidHsv.sat + lHsv.sat) / 2
-                    liquidHsv.val = (liquidHsv.val + lHsv.val) / 2
-                end
-            end
-
-            return {
-                hue = liquidHsv.hue - waterHsv.hue,
-                sat = liquidHsv.sat - waterHsv.sat,
-                val = liquidHsv.val - waterHsv.val,
-                rgb[4]
-            }
+        if peek then
+            return capsule, peek
         end
     end
-    return nil
+
+    return nil, nil
 end
 
-local function buildData(liquidName, amount, hsvShift)
+function buildData(liquidName, amount, hsvShift)
     local capsuleConfig = root.itemConfig({name = "sfcapsule", count = 1})["config"]
     local data = {
         image = capsuleConfig["image"],
@@ -145,7 +108,6 @@ local function buildData(liquidName, amount, hsvShift)
         data["shortdescription"] = liqItConfig["shortdescription"] .. " " .. capsuleConfig["shortdescription"]
         data["description"] = capsuleConfig["description"]:gsub("liquid", liqItConfig["shortdescription"]:lower())
     end
-
 
     data["projectileConfig"]["actionOnReap"][1]["liquid"] = liquidName
     if amount then
@@ -165,29 +127,6 @@ local function buildData(liquidName, amount, hsvShift)
     end
 
     return data
-end
-
-function fillCapsule(liquid)
-    local liquidName = root.liquidName(liquid.name)
-
-    if liquidName then
-        if self.conversions[tostring(liquid.name)] ~= nil then
-            liquid.name = self.conversions[tostring(liquid.name)]
-        end
-
-        --get  directive here
-        local hsvShift = getColorShiftForLiquid(liquidName)
-        local data = buildData(liquidName, self.liquidAmount, hsvShift)
-
-        local capsule = {name = "sfcapsule", count = 1, data = data}
-        local peek = peekPushItem(1, capsule) 
-
-        if peek then
-            return capsule, peek
-        end
-    end
-
-    return nil, nil
 end
 
 function beforeLiquidPush(liquid, nodeId)

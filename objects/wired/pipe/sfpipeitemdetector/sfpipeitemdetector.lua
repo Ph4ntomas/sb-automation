@@ -66,7 +66,7 @@ function output(item)
     end
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     local ret = peekPushItem(self.connectionMap[nodeId], item)
 
     if ret then return ret[2] end
@@ -74,7 +74,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     local peek = peekPushItem(self.connectionMap[nodeId], item)
 
     if peek then
@@ -91,7 +91,7 @@ function onItemPut(item, nodeId)
     return nil
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
     local ret = peekPullItem(self.connectionMap[nodeId], filter)
 
     if ret then return ret[2] end
@@ -99,7 +99,7 @@ function beforeItemGet(filter, nodeId)
     return nil
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
     local res = nil
     local peek = peekPullItem(self.connectionMap[nodeId], filter)
 

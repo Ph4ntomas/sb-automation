@@ -97,7 +97,7 @@ function pushItems()
     end
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     if item and not object.getInputNodeLevel(nodeId - 1) then
         local ret = storageApi.storeItemFit(item.name, item.count, item.data)
 
@@ -108,7 +108,7 @@ function onItemPut(item, nodeId)
     return nil
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     if item and not object.getInputNodeLevel(nodeId - 1) then
         local ret = storageApi.storeItemFit(item.name, item.count, item.data, true)
 
@@ -118,7 +118,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
     if filter then
         for i,item in storageApi.getIterator() do
             if filter[item.name] then
@@ -141,7 +141,7 @@ function onItemGet(filter, nodeId)
     return nil
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
     if filter then
         for i,item in storageApi.getIterator() do
             if filter[item.name] then

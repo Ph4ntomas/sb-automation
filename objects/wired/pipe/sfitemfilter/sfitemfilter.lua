@@ -24,7 +24,7 @@ function showFail()
     animator.setAnimationState("filterState", "fail")
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     if self.filterCount > 0 then
         if self.filter[item.name] then
             return peekPushItem(self.connectionMap[nodeId], item)
@@ -34,7 +34,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     local pushResult = nil
 
     if self.filterCount > 0 then
@@ -58,7 +58,7 @@ function onItemPut(item, nodeId)
     return pushResult
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
     if self.filterCount > 0 then
         local pullFilter = {}
         local filterMatch = false
@@ -77,7 +77,7 @@ function beforeItemGet(filter, nodeId)
     return false
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
     local pullResult = nil
 
     if self.filterCount > 0 then

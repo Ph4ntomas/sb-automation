@@ -63,7 +63,7 @@ function onInteraction(args)
     end
 end
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     if storage.block.name == nil or storage.block.count <= 0 then
         local acceptItem = false
         local pullFilter = {}
@@ -77,7 +77,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     if storage.block.name == nil or storage.block.count <= 0 then
         local acceptItem = false
         local pullFilter = {}

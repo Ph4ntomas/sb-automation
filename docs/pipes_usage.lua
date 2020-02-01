@@ -82,18 +82,18 @@ end
 --ITEMS
 
 --Return true if item can be used, amount used if only part can be used, or false if it cannot be used
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
   return true
 end
 
---Return same as beforeItemPut, and perform the receive action
-function onItemPut(item, nodeId)
+--Return same as beforeItemPush, and perform the receive action
+function onItemPush(item, nodeId)
   storage.item = item
   return true
 end
 
 --Return item if item can be sent, false if cannot
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
   if filter == nil then
     return storage.item
   else
@@ -103,7 +103,7 @@ function beforeItemGet(filter, nodeId)
 end
 
 --Return item if item can be sent, false if cannot, and perform the send action
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
   if filter == nil then
     return storage.item
   else

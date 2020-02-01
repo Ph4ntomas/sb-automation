@@ -112,7 +112,7 @@ function onLiquidPush(liquid, nodeId)
 end
 
 
-function beforeItemPut(item, nodeId)
+function beforeItemPush(item, nodeId)
     if storage.state then
         local ret = peekPushItem(self.connectionMap[nodeId], item)
 
@@ -122,7 +122,7 @@ function beforeItemPut(item, nodeId)
     return nil
 end
 
-function onItemPut(item, nodeId)
+function onItemPush(item, nodeId)
     if storage.state then
         local peek = peekPushItem(self.connectionMap[nodeId], item)
 
@@ -136,7 +136,7 @@ function onItemPut(item, nodeId)
     end
 end
 
-function beforeItemGet(filter, nodeId)
+function beforeItemPull(filter, nodeId)
     if storage.state then
         local ret = peekPullItem(self.connectionMap[nodeId], filter)
 
@@ -146,7 +146,7 @@ function beforeItemGet(filter, nodeId)
     return nil
 end
 
-function onItemGet(filter, nodeId)
+function onItemPull(filter, nodeId)
     if storage.state then
         local peek = peekPullItem(self.connectionMap[nodeId], filter)
 
