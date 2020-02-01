@@ -13,7 +13,7 @@
   "sitOrientation" : "lay",
   "sitEmote" : "sleep",
   "sitStatusEffects" :  [
-      "nude", "bed1"
+      "nude"
   ],
 
   "breakDropOptions": [],
@@ -45,6 +45,7 @@
   "scripts" : [
     "sfsubmersiontank.lua",
     "/scripts/pipes/sfliquidpipes.lua",
+    "/scripts/sfliquidutil.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"

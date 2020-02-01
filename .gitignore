@@ -13,3 +13,5 @@
 # OS generated files #
 ######################
 thumbs.db
+
+*.old

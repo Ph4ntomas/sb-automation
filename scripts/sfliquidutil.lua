@@ -6,15 +6,25 @@ function sfliquidutil.init(liquidName)
     sfliquidutil.setLiquid(liquidName)
 end
 
+--- Set current stored liquid. This is useful to prevent reloading the liquid configuration everytime.
+-- @param liquidName - Name of the liquid to load.
+-- @return True if state was preoperly updated, or if liquid was already loaded. False on error (state is guaranteed not to be modified).
 function sfliquidutil.setLiquid(liquidName)
-    if liquidName and liquidName ~= self.liquidName then
+    local ret = false
+
+    if liquidName and liquidName == self.liquidName and self.liquidConfig then
+        ret = true
+    elseif liquidName then
         local config = root.liquidConfig(liquidName)
 
         if config then
             self.liquidName = liquidName
             self.liquidConfig = config["config"]
+            ret = true
         end
     end
+
+    return ret
 end
 
 function sfliquidutil.getLiquidConfig(liquidName)
