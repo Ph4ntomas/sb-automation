@@ -111,7 +111,7 @@ function sfliquidutil.getLiquidItemConfig(name)
 
     if config then
         local itemName = config["itemDrop"]
-        local itemConfig = root.itemConfig({name=item, count=1})
+        local itemConfig = root.itemConfig({name=itemName, count=1})
 
         if itemConfig then
             ret = itemConfig["config"]
