@@ -1,96 +1,61 @@
 {
-  "animatedParts" : {
-    "stateTypes" : {
-      "liquid" : {
-        "priority" : 1,
-        "default" : "water",
-
-        "states" : {
-          "water" : {
-            "frames" : 1
-          },
-          "tar" : {
-            "frames" : 1
-          },
-          "poison" : {
-            "frames" : 1
-          },
-          "tentacle juice" : {
-            "frames" : 1
-          },
-          "lava" : {
-            "frames" : 1
-          },
-          "other" : {
-            "frames" : 1
-          }
+    "partTagDefaults" : {
+        "liquid" : {
+            "directives" : ""
         }
-      }
     },
-    "parts" : {
-      "fore" : {
-        "properties" : {
-          "image" : "<partImage>:foreground",
-          "offset" : [0, 0],
-          "centered" : true,
-          "zLevel" : 3
-        }
-      },
-      "back" : {
-        "properties" : {
-          "image" : "<partImage>:background",
-          "offset" : [0, 0],
-          "centered" : true,
-          "zLevel" : 1
-        }
-      },
-      "liquid" : {
-        "properties" : {
-          "offset" : [-0.125, 0],
-          "centered" : false,
-          "zLevel" : 152,
-          "transformationGroups" : ["liquid"]
-        },
-        "partStates" : {
-          "liquid" : {
-            "water" : {
-              "properties" : {
-                "image" : "<partImage>:water"
-              }
-            },
-            "tar" : {
-              "properties" : {
-                "image" : "<partImage>:tar"
-              }
-            },
-            "poison" : {
-              "properties" : {
-                "image" : "<partImage>:poison"
-              }
-            },
-            "tentacle juice" : {
-              "properties" : {
-                "image" : "<partImage>:juice"
-              }
-            },
-            "lava" : {
-              "properties" : {
-                "image" : "<partImage>:lava"
-              }
-            },
-            "other" : {
-              "properties" : {
-                "image" : "<partImage>:other"
-              }
+    "animatedParts" : {
+        "stateTypes" : {
+            "liquid" : {
+                "priority" : 1,
+                "default" : "base",
+
+                "states" : {
+                    "base" : {
+                        "frames" : 1
+                    }
+                }
             }
-          }
+        },
+        "parts" : {
+            "fore" : {
+                "properties" : {
+                    "image" : "<partImage>:foreground",
+                    "offset" : [0, 0],
+                    "centered" : true,
+                    "zLevel" : 3
+                }
+            },
+            "back" : {
+                "properties" : {
+                    "image" : "<partImage>:background",
+                    "offset" : [0, 0],
+                    "centered" : true,
+                    "zLevel" : 1
+                }
+            },
+            "liquid" : {
+                "properties" : {
+                    "offset" : [-0.125, 0],
+                    "centered" : false,
+                    "transformationGroups" : ["liquid"]
+                },
+                "partStates" : {
+                    "liquid" : {
+                        "base" : {
+                            "properties" : {
+                                "image" : "<partImage>:default<directives>",
+                                "zLevel" : 152
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
+    },
+    "transformationGroups" : {
+        "liquid" : {
+            "interpolated" : false 
+        }
     }
-  },
-  "transformationGroups" : {
-    "liquid" : {
-      "interpolated" : false 
-    }
-  }
 }

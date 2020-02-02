@@ -6,20 +6,11 @@ function init()
         storage.liquid = initInv
     end
 
-    animator.resetTransformationGroup("liquid")
-    animator.scaleTransformationGroup("liquid", {1, 0})
-
-    -- TODO: We can do the same thing by using root.getLiquidName(id) when needed
-    self.liquidMap = {}
-    self.liquidMap[1] = "water"
-    self.liquidMap[2] = "lava"
-    self.liquidMap[4] = "poison"
-    self.liquidMap[6] = "tentacle juice"
-    self.liquidMap[7] = "tar"
-
     self.capacity = config.getParameter("liquidCapacity")
     self.pushAmount = config.getParameter("liquidPushAmount")
     self.pushRate = config.getParameter("liquidPushRate")
+
+    --TODO: set directives on Init
 
     if storage.liquid == nil then storage.liquid = {} end
 
@@ -37,38 +28,61 @@ function die()
 end
 
 function onInteraction(args)
-    --TODO: Get liquid name from root functions.
-    local liquid = self.liquidMap[storage.liquid.name]
-    local count = storage.liquid.count
-    local capacity = self.capacity
-    local itemList = ""
+    local liquidName
+    local count
 
-    if liquid == nil then liquid = "other" end
-
-    local popupMessage
-    if count ~= nil then
-        popupMessage = string.format("^white;Holding ^green;%f^white; / ^green;%d^white; units of liquid ^green;%s", count, capacity, liquid)
-    else
-        popupMessage = "Tank is empty."
+    if storage.liquid and storage.liquid.name and storage.liquid.count then
+        liquidName = sfliquidutil.getLiquidReadableName(root.liquidName(storage.liquid.name))
+        count = storage.liquid.count
     end
+
+    local popupMessage = "Tank is empty."
+    if count and count >= 0 then
+        popupMessage = string.format(
+        "^white;Holding \
+        ^green;%f\
+        ^white; / \
+        ^green;%d\
+        ^white; units of ^green;%s", count, self.capacity, liquidName)
+    end
+
     return { "ShowPopup", { message = popupMessage }}
+end
+
+function getDirective(liquid)
+    local ret = ""
+    local liquidName = root.liquidName(liquid)
+
+    if liquidName then
+        local hsvShift = sfliquidutil.getColorShift(liquidName)
+
+        if hsvShift then
+            local hueshift = "?hueshift=" .. tostring(hsvShift.hue)
+            local saturation = "?saturation=" .. tostring(hsvShift.sat * 100)
+            local brightness = "?brightness=" .. tostring(hsvShift.val * 100)
+
+            ret = ret .. hueshift .. saturation .. brightness
+        end
+    end
+
+    return ret
+end
+
+local function updateLiquidLevel()
+    local liquidScale = storage.liquid.count / self.capacity
+
+    animator.resetTransformationGroup("liquid")
+    animator.setPartTag("liquid", "directives", getDirective(storage.liquid.name))
+    animator.setAnimationState("liquid", "base", true)
+    animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -1)
+    --animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -2.2 * (1 - liquidScale))
 end
 
 function update(dt)
     pipes.update(dt)
 
-    --TODO: change the liquid state by hue shifting a base color (CF capsules)
-    local liquidState = self.liquidMap[storage.liquid.name]
-    if liquidState then
-        animator.setAnimationState("liquid", liquidState)
-    else
-        animator.setAnimationState("liquid", "other")
-    end
-
     if storage.liquid.count then
-        local liquidScale = storage.liquid.count / self.capacity
-        animator.resetTransformationGroup("liquid")
-        animator.transformTransformationGroup("liquid", 1, 0, 0, liquidScale, 0, -1)
+        updateLiquidLevel()
     else
         animator.scaleTransformationGroup("liquid", {1, 0})
     end
@@ -120,6 +134,10 @@ function onLiquidPush(liquid, nodeId)
             end
 
             storage.liquid = res
+            sfliquidutil.setLiquid(root.liquidName(storage.liquid.name))
+
+            --TODO: setup directives early
+
         end
     end
 
@@ -129,23 +147,21 @@ end
 function beforeLiquidPush(liquid, nodeId)
     local res = nil
 
-    if liquid then
-        if storage.liquid and liquid.name == storage.liquid.name then
-            if storage.liquid.count >= self.capacity then
-                res = nil
-            else
-                if liquid.count > (self.capacity - storage.liquid.count) then
-                    res = {name = liquid.count, count = self.capacity - storage.liquid.count}
-                else
-                    res = liquid
-                end
-            end
-        elseif not storage.liquid or not storage.liquid.name then
-            if liquid.count > self.capacity then
-                res = {name = liquid.name, count = self.capacity}
+    if storage.liquid and liquid.name == storage.liquid.name then
+        if storage.liquid.count >= self.capacity then
+            res = nil
+        else
+            if liquid.count > (self.capacity - storage.liquid.count) then
+                res = {name = liquid.name, count = self.capacity - storage.liquid.count}
             else
                 res = liquid
             end
+        end
+    elseif not storage.liquid or not storage.liquid.name then
+        if liquid.count > self.capacity then
+            res = {name = liquid.name, count = self.capacity}
+        else
+            res = liquid
         end
     end
 

@@ -35,6 +35,7 @@
     "sfliquidtank.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/sfliquidutil.lua",
+    "/scripts/sfliquidutil.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
