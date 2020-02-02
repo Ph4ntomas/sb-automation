@@ -24,6 +24,12 @@ function die()
     energy.die()
 end
 
+function onInteraction(args)
+    if object.isInputNodeConnected(0) == false then
+        storage.state = not storage.state
+    end
+end
+
 function update(dt)
     pipes.update(dt)
     energy.update(dt)
@@ -168,6 +174,7 @@ function onLiquidPush(liquid, nodeId)
             storage.liquids[liquid.name] = self.liquidAmount
             liquid.count = liquid.count - excess
         end
+
         return liquid
     end
     return nil
