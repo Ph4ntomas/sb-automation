@@ -12,11 +12,6 @@ function init()
     else
         sfliquidutil.init(nil)
     end
-        
-    --animator.setGlobalTag("liquidDirectives", getDirective(storage.liquid.name))
-    --animator.setAnimationState("liquid", "base")
-    --animator.resetTransformationGroup("liquid")
-    --animator.scaleTransformationGroup("liquid", {1, 0})
 
     self.capacity = config.getParameter("liquidCapacity")
     self.pushAmount = config.getParameter("liquidPushAmount")
@@ -71,13 +66,17 @@ function onInteraction(args)
 
     if not world.loungeableOccupied(entity.id()) then
         if count ~= nil and count < capacity then 
-            return { "ShowPopup", { message = "^white;You manage to suppress the desire to climb into the tank... for now.\n\n^white;Holding ^green;" .. count ..
-                "^white; / ^green;" .. capacity ..
-                "^white; units of ^green;" .. liquidName
-            }}
+            local popupMessage = string.format("^white;You manage to suppress the desire to climb into the tank... \
+                for now.\n\n\
+                ^white;Holding \
+                ^green; %f\
+                ^white; / ^green;%d \
+                ^white; units of %s^green;", count, capacity, liquidName)
+
+            return { "ShowPopup", { message = popupMessage }}
         elseif count ~= nil then
             storage.playerId = args.sourceId
-            return { "SitDown", 0}
+            return { "SitDown", 0 }
         else
             return { "ShowPopup", { message = "Tank is empty."}}
         end
