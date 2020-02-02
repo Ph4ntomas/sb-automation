@@ -1,10 +1,13 @@
 {
   "input" : [
-    { "item" : "copperbar", "count" : 2 }
+    { "item" : "sfcleanpipe", "count" : 5 }
   ],
   "output" : {
     "item" : "sfcleanpipe",
-    "count" : 5
+    "count" : 5,
+    "data" : {
+        "materialHueShift" : 90
+    }
   },
   "groups" : [ "foundry", "all", "pipes" ]
 }

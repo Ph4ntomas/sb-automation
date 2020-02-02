@@ -4,8 +4,8 @@
   "rarity" : "Common",
   "inventoryIcon" : "sfcleanpipe.png",
   "dropCollision" : [-2.5, -2.0, 2.5, 2.0],
-  "description" : "clean Pipe",
-  "shortdescription" : "Pipe",
+  "description" : "A clean copper pipe used in the transport of resources.",
+  "shortdescription" : "Clean copper pipe",
 
   "materialId" : 5738
 }

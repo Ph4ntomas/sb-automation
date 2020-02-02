@@ -202,7 +202,6 @@ function pipes.peekPull(pipeName, nodeId, args)
 
             if pEntityReturn:succeeded() then --return pEntityReturn:result() end
                 local res = pEntityReturn:result()
-                --sb.logInfo("Can Pull %s", res)
 
                 if res then
                     res.dist = #entity.path
@@ -218,6 +217,7 @@ function pipes.peekPull(pipeName, nodeId, args)
     return {}
 end
 
+--- DEPRECATED ---
 --- Checks if two pipes connect up, direction-wise
 -- @param firstDirection vec2 - vector2 of direction to match
 -- @param secondDirections array of vec2s - List of directions to match against
@@ -235,44 +235,55 @@ end
 -- @param pipeName string - name of the pipe type to use
 -- @param position vec2 - world position to check
 -- @param layer - layer to check ("foreground" or "background")
+-- #param hueShift - Hue to check against
 -- @returns Hook return if successful, false if unsuccessful
-function pipes.tileDirections(pipeName, position, layer)
+function pipes.tileDirections(pipeName, position, layer, tileDesc)
     local checkedTile = world.material(position, layer)
+    local hueShift = world.materialHueShift(position, layer)
+    local direction = {
+        {1, 0}, 
+        {-1, 0},
+        {0, 1},
+        {0, -1}
+    }
 
-    for _,tileType in ipairs(pipes.types[pipeName].tiles) do
-        if checkedTile == tileType then
-            return {
-                {1, 0}, 
-                {-1, 0},
-                {0, 1},
-                {0, -1}
-            }
+    if tileDesc then
+        if checkedTile == tileDesc.name and hueShift == tileDesc.hueShift then
+            return direction, tileDesc
+        end
+    else
+        for _,tileType in ipairs(pipes.types[pipeName].tiles) do
+            if checkedTile == tileType then
+                return direction, {name = checkedTile, hueShift = hueShift}
+            end
         end
     end
-    return false
+
+    return nil, nil
 end
 
 --- Gets the directions + layer for a connecting pipe, prioritises the layer specified in layerMode
 -- @param pipeName string - name of the pipe type to use
 -- @param position vec2 - world position to check
 -- @param layerMode - layer to prioritise
--- @param direction (optional) - direction to compare to, if specified it will return false if the pipe does not connect
+-- @param tileDesc [optional] - The tile description to help separate the pipes.
 -- @returns Hook return if successful, false if unsuccessful
-function pipes.getPipeTileData(pipeName, position, layerMode, direction)
+function pipes.getPipeTileData(pipeName, position, layerMode, tileDesc)
     local layerSwitch = {foreground = "background", background = "foreground"}
 
     layerMode = layerMode or "foreground"
 
-    local firstCheck = pipes.tileDirections(pipeName, position, layerMode)
-    local secondCheck = pipes.tileDirections(pipeName, position, layerSwitch[layerMode])
+    local firstCheck, newTileDesc = pipes.tileDirections(pipeName, position, layerMode, tileDesc)
+    local secondCheck, tileDesc2 = pipes.tileDirections(pipeName, position, layerSwitch[layerMode], tileDesc)
 
     --Return relevant values
-    if firstCheck and (direction == nil or pipes.pipesConnect(direction, firstCheck)) then
-        return firstCheck, layerMode
-    elseif secondCheck and (direction == nil or pipes.pipesConnect(direction, secondCheck)) then
-        return secondCheck, layerSwitch[layerMode]
+    if firstCheck then
+        return firstCheck, layerMode, newTileDesc
+    elseif secondCheck then
+        return secondCheck, layerSwitch[layerMode], tileDesc2
     end
-    return false
+
+    return nil, nil, nil
 end
 
 --- Gets all the connected entities for a pipe type
@@ -336,13 +347,16 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
     local validEntities = {}
     local visitedTiles = {}
     local tilesToVisit = {{pos = {startOffset[1] + startDir[1], startOffset[2] + startDir[2]}, layer = "foreground", dir = startDir, path = {}}}
-    local layerMode = nil
+    local pipeDirections, layerMode, tileDesc
 
     while #tilesToVisit > 0 do
         local tile = tilesToVisit[1]
-        local pipeDirections, layerMode = pipes.getPipeTileData(pipeName, object.toAbsolutePosition(tile.pos), tile.layer)
+        pipeDirections, layerMode, newTileDesc = pipes.getPipeTileData(pipeName, object.toAbsolutePosition(tile.pos), tile.layer, tileDesc)
 
-        --sb.logInfo("walking pipedir %s", sb.print(pipeDirections))
+        if newTileDesc then
+            tileDesc = newTileDesc
+        end
+
         --If a tile, add connected spaces to the visit list
         if pipeDirections then
             tile.path[#tile.path+1] = tile.pos --Add tile to the path
@@ -391,7 +405,7 @@ function pipes.buildDistMap(resources)
                 local dist = r.dist
                 local percent = 0.5
 
-                if i == #resources then
+                if dist == max then
                     percent = 1
                 end
 
