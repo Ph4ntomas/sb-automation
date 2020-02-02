@@ -121,6 +121,15 @@ function sfliquidutil.getLiquidItemConfig(name)
     return ret
 end
 
+function sfliquidutil.getLiquidReadableName(name)
+    local ret = "unknown liquid"
+    local config = sfliquidutil.getLiquidItemConfig(name)
 
+    if config then
+        ret = config["shortdescription"]
+    end
+
+    return ret
+end
 
 
