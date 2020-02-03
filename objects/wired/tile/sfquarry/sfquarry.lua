@@ -541,17 +541,25 @@ function cameHome()
 end
 
 function sendItem()
+    local tarNode = 1
+    if object.direction() == -1 then
+        tarNode = 2
+    end
+
     if next(pipes.nodeEntities) ~= nil and storageApi.getCount() > 0 then
         for i,item in storageApi.getIterator() do
-            local tarNode = 1
-            if object.direction() == -1 then
-                tarNode = 2
-            end
-            local result = pushItem(tarNode, item)
-            if result == true then storageApi.returnItem(i) end --Whole stack was accepted
-            if result and result ~= true then item.count = item.count - result end --Only part of the stack was accepted
-            if result then
-                if storageApi.getCount() == 0 then
+            local canPush = peekPushItem(1, item)
+            
+            if canPush then
+                local pushed = pushItem(tarNode, item)
+
+                if pushed and pushed[2][2] >= item.count then
+                    storageApi.returnItem(i)
+                elseif pushed then
+                    item.count = item.count - pushed[2][2]
+                end
+
+                if pushed and storageApi.getCount() then
                     updateAnimationState()
                 end
             end
