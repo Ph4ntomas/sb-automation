@@ -14,7 +14,7 @@ function sfutil.safe_await(promise)
   return promise
 end
 --------------------------------------------------------------------------------
-function fmax(val)
+local function fmax(val)
     if val ~= nil then
         max = val[1]
         for _,v in ipairs(val) do
@@ -28,7 +28,7 @@ function fmax(val)
     return nil
 end
 
-function fmin(val)
+local function fmin(val)
     if val ~= nil then
         min = val[1]
         for _, v in ipairs(val) do
@@ -68,4 +68,32 @@ function sfutil.rgb2hsv(rgb)
     local val = (maxColor + minColor) / 2
 
     return {hue = hue, sat = sat, val = val}
+end
+
+function sfutil.compare(ref, oth, ign)
+    local tableType = type({})
+
+    if type(ref) ~= tableType or type(oth) ~= tableType then
+        return ref == oth
+    end
+
+    local seen = {}
+    ign = ign or {}
+
+    for k, v in pairs(ref) do
+        seen[k] = true
+        if ign[k] ~= true then
+            if not sfutil.compare(v, oth[k], ign[k]) then 
+                return false 
+            end
+        end
+    end
+
+    for k, v in pairs(oth) do
+        if not seen[k] then
+            return false
+        end
+    end
+
+    return true
 end

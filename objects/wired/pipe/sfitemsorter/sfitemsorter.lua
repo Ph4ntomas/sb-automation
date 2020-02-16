@@ -14,13 +14,7 @@ function init()
         1, 4, 4, 3
     }
 
-    filter = {}
-    filter[1] = {}
-    filter[2] = {}
-    filter[3] = {}
-    filter[4] = {}
-
-    self.stateMap = {"right", "up", "left", "down"}
+    self.stateMap = {"left", "up", "right", "down"}
 
     self.filterCount = {}
 
@@ -43,11 +37,14 @@ end
 
 function beforeItemPush(item, nodeId)
     for _,node in ipairs(self.connectionMap[nodeId]) do
-        if self.filterCount[node] > 0 then
-            if self.filter[node][item.name] then
-                local ret = peekPushItem(self.connectionMap[nodeId], item)
 
-                if ret then return ret[2] end
+        if self.filterCount[node] > 0 then
+            for _,filtItem in pairs(self.filter[node][item.name]) do
+                if sfutil.compare(item, filtItem, self.ignoreFields) then
+                    local ret = peekPushItem(node, item)
+
+                    if ret then return ret[2] end
+                end
             end
         end
     end
@@ -61,25 +58,25 @@ function onItemPush(item, nodeId)
 
     for _,node in ipairs(self.connectionMap[nodeId]) do
         if self.filterCount[node] > 0 then
-            if self.filter[node][item.name] then
-                local peek = peekPushItem(node, item)
+            for _, filtItem in pairs(self.filter[node][item.name]) do
+                if sfutil.compare(item, filtItem, self.ignoreFields) then
+                    local peek = peekPushItem(node, item)
 
-                if peek then
-                    pushResult = pushItem(node, peek[1])
-                    if pushResult then resultNode = node end
+                    if peek then
+                        pushResult = pushItem(node, peek[1])
+
+                        if pushResult then 
+                            showPass(self.stateMap[node])
+
+                            return pushResult[2]
+                        end
+                    end
                 end
             end
         end
     end
 
-    if pushResult then
-        showPass(self.stateMap[resultNode])
-
-        return pushResult[2]
-    else
-        showFail()
-    end
-
+    showFail()
     return pushResult
 end
 
@@ -146,18 +143,20 @@ end
 function buildFilter()
     self.filter = {{}, {}, {}, {}}
     self.filterCount = {0, 0, 0, 0}
+    self.ignoreFields = { count = true, sfdist = true }
     local totalCount = 0
 
     local contents = world.containerItems(entity.id())
     if contents then
         for key, item in pairs(contents) do
-            if self.filter[self.filtermap[key]][item.name] then
-                self.filter[self.filtermap[key]][item.name] = math.min(self.filter[self.filtermap[key]][item.name], item.count)
-            else
-                self.filter[self.filtermap[key]][item.name] = item.count
-                self.filterCount[self.filtermap[key]] = self.filterCount[self.filtermap[key]] + 1
-                totalCount = totalCount + 1
+            if not self.filter[self.filtermap[key]][item.name] then
+                self.filter[self.filtermap[key]][item.name] = {}
             end
+
+            local size = #self.filter[self.filtermap[key]][item.name]
+            self.filter[self.filtermap[key]][item.name][size + 1] = item
+            self.filterCount[self.filtermap[key]] = self.filterCount[self.filtermap[key]] + 1
+            totalCount = totalCount + 1
         end
     end
 
