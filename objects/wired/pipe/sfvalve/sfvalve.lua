@@ -59,8 +59,6 @@ function beforeLiquidPull(filter, nodeId)
     if storage.state then
         local ret = peekPullLiquid(self.connectionMap[nodeId], filter)
 
-        sb.logInfo("beforeLiquidPull %s", ret)
-
         if ret then return ret[2] end
     end
 
@@ -83,10 +81,7 @@ end
 
 function beforeLiquidPush(liquid, nodeId)
     if storage.state then
-        sb.logInfo("beforeLiquidPush liquid = %s", liquid)
-
         local ret = peekPushLiquid(self.connectionMap[nodeId], liquid)
-
 
         if ret then return ret[2] end
     end
@@ -98,11 +93,8 @@ function onLiquidPush(liquid, nodeId)
     if storage.state then
         local peek = peekPushLiquid(self.connectionMap[nodeId], liquid)
 
-        sb.logInfo("onLiquidPush peek = %s", peek)
-
         if peek then
             local ret = pushLiquid(self.connectionMap[nodeId], peek[1])
-            sb.logInfo("onLiquidPush peek = %s", ret)
 
             if ret then return ret[2] end
         end
@@ -110,7 +102,6 @@ function onLiquidPush(liquid, nodeId)
 
     return nil
 end
-
 
 function beforeItemPush(item, nodeId)
     if storage.state then
