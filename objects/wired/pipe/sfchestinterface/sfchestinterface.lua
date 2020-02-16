@@ -1,10 +1,5 @@
 function init(virtual)
-    pipes.init({itemPipe})
-
-    if object.direction() < 0 then
-        pipes.nodes["liquid"] = config.getParameter("flippedLiquidNodes")
-        pipes.nodes["item"] = config.getParameter("flippedItemNodes")
-    end
+    pipes.init({itemPipe}, object.direction() == -1)
 
     connectChest()
 end
@@ -22,14 +17,13 @@ end
 
 function connectChest()
     self.chest = false
-    local pos = object.toAbsolutePosition({object.direction(), 1})
-    local searchPos = {pos[1] + 0.5, pos[2] + 0.1}
+    local pos = object.toAbsolutePosition({object.direction(), 0})
+    local searchPos = {pos[1] + 0.5, pos[2] + 0.5}
     local entityIds = world.objectLineQuery(searchPos, searchPos, { withoutEntityId = entity.id(), order = "nearest" })
-    --world.logInfo("searched for chests, found entities %s", entityIds)
+
     for i, entityId in ipairs(entityIds) do
         if world.containerSize(entityId) then
             self.chest = entityId
-            --world.logInfo("connected successfully to %s %d", world.entityName(entityId), entityId)
             break
         end
     end
@@ -38,16 +32,15 @@ end
 function pushItems()
     local items = world.containerItems(self.chest)
 
-    for key, wItem in pairs(items) do
-        local item = {wItem.name, wItem.count, data = wItem.data}
+    for key, item in pairs(items) do
         local canPut = peekPushItem(1, item)
 
         if canPut then
             local pushed = pushItem(1, canPut[1])
 
             if pushed then
-                wItem.count = pushed[2][2]
-                world.containerConsume(self.chest, wItem)
+                item.count = pushed[2].count
+                world.containerConsumeAt(self.chest, key - 1, item.count)
             end
 
             break
@@ -58,6 +51,7 @@ end
 function beforeItemPush(item, nodeId)
     if item and self.chest then
         local canFit = world.containerItemsFitWhere(self.chest, item)
+
         if canFit then
             if canFit.leftover ~= 0 then
                 item.count = item.count - canFit.leftover
@@ -72,6 +66,7 @@ end
 
 function onItemPush(item, nodeId)
     if item and self.chest then
+
         local returnedItem = world.containerAddItems(self.chest, item)
 
         if returnedItem then
