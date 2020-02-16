@@ -83,9 +83,9 @@ function onLiquidPull(filter, nodeId)
       if result then
           activate()
           output(result)
-      end
 
-      return result[2]
+          return result[2]
+      end
   end
 
   return nil
@@ -107,8 +107,9 @@ function onLiquidPush(liquid, nodeId)
       if result then
           activate()
           output(liquid)
+
+          return result[2]
       end
-      return result[2]
   end
   return nil
 end

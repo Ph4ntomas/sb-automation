@@ -50,14 +50,14 @@ end
 function activate()
     storage.timer = self.detectCooldown
     storage.state = true
-    object.setAlloutputNodes(true)
+    object.setAllOutputNodes(true)
     updateAnimationState()
 end
 
 function deactivate()
     storage.state = false
     updateAnimationState()
-    object.setAlloutputNodes(false)
+    object.setAllOutputNodes(false)
 end
 
 function output(item)
@@ -83,9 +83,9 @@ function onItemPush(item, nodeId)
         if result then
             activate()
             output(item)
-        end
 
-        return result[2]
+            return result[2]
+        end
     end
 
     return nil
