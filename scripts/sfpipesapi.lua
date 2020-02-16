@@ -57,7 +57,7 @@ pipes = {}
 --- Initialize, always run this in init (when init args == false)
 -- @param pipeTypes an array of pipe types (defined in sfitempipes.lua and sfliquidpipes.lua)
 -- @returns nil
-function pipes.init(pipeTypes)
+function pipes.init(pipeTypes, flipNodes)
     message.setHandler("entityConnectsAt", entityConnectsAt)
 
     pipes.updateTimer = 1 --Should be set to the same as updateInterval so it gets entities on the first update
@@ -73,8 +73,12 @@ function pipes.init(pipeTypes)
 
     -- Setup Nodes
     for pipeName,pipeType in pairs(pipes.types) do
-        pipes.nodes[pipeName] = config.getParameter(pipeType.nodesConfigParameter)
-        pipes.nodeEntities[pipeName] = {}
+        if flipNodes then
+            pipes.nodes[pipeName] = config.getParameter(pipeType.flippedNodesConfigParameter)
+        else
+            pipes.nodes[pipeName] = config.getParameter(pipeType.nodesConfigParameter)
+        end
+        pipes.nodeEntities[pipeName] = pipes.getNodeEntities(pipeName)
 
         if pipes.nodes[pipeName] ~= nil then
             local nodeList = {}
@@ -113,7 +117,7 @@ function pipes.push(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res.dist = #entity.path
+                    res.sfdist = #entity.path
                 end
 
                 ret[i] = res
@@ -143,7 +147,7 @@ function pipes.pull(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res.dist = #entity.path
+                    res.sfdist = #entity.path
                 end
 
                 ret[i] = res
@@ -173,7 +177,7 @@ function pipes.peekPush(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res.dist = #entity.path
+                    res.sfdist = #entity.path
                 end
 
                 ret[i] = res
@@ -204,7 +208,7 @@ function pipes.peekPull(pipeName, nodeId, args)
                 local res = pEntityReturn:result()
 
                 if res then
-                    res.dist = #entity.path
+                    res.sfdist = #entity.path
                 end
 
                 ret[i] = res
@@ -393,8 +397,8 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
 end
 
 function pipes.buildDistMap(resources)
-    local min = resources[1].dist
-    local max = resources[#resources].dist
+    local min = resources[1].sfdist
+    local max = resources[#resources].sfdist
     local delta = max - min
     local map = {}
     local percent = 1
@@ -402,17 +406,17 @@ function pipes.buildDistMap(resources)
     if delta ~= 0 then
         for i, r in pairs(resources) do
             if r.count > 0 then
-                local dist = r.dist
+                local sfdist = r.sfdist
                 local percent = 0.5
 
-                if dist == max then
+                if sfdist == max then
                     percent = 1
                 end
 
-                if not map[dist] then
-                    map[dist] = { percent, 1 }
+                if not map[sfdist] then
+                    map[sfdist] = { percent, 1 }
                 else
-                    map[dist][2] = map[dist][2] + 1
+                    map[sfdist][2] = map[sfdist][2] + 1
                 end
             end
         end
@@ -427,7 +431,8 @@ function pipes.sumUpResources(resources, resource)
     local ret = nil
 
     if resource then
-        ret = {name = resource.name, count = 0}
+        ret = resource
+        ret.count = 0
     end
 
     if resources ~= nil then
@@ -458,14 +463,14 @@ function pipes.balanceLoadResources(threshold, resources, atoms)
 
         for i, r in pairs(resources) do
             local percent = 0
-            local dist = r.dist
+            local sfdist = r.sfdist
 
-            if not distMap[dist][3] then
-                percent = (distMap[dist][1] / distMap[dist][2])
-                distMap[dist][3] = amount * percent
+            if not distMap[sfdist][3] then
+                percent = (distMap[sfdist][1] / distMap[sfdist][2])
+                distMap[sfdist][3] = amount * percent
 
                 if atoms then
-                    distMap[dist][3] = math.ceil(amount * percent)
+                    distMap[sfdist][3] = math.ceil(amount * percent)
                 end
 
                 count = 1
@@ -473,7 +478,7 @@ function pipes.balanceLoadResources(threshold, resources, atoms)
                 count = count + 1
             end
 
-            local avail = distMap[dist][3]
+            local avail = distMap[sfdist][3]
 
             if avail > amount then
                 r.count = math.min(amount, r.count)
@@ -481,6 +486,7 @@ function pipes.balanceLoadResources(threshold, resources, atoms)
                 r.count = math.min(avail, r.count)
             end
 
+            r.sfdist = nil
             ret[i] = r
             amount = amount - r.count
         end

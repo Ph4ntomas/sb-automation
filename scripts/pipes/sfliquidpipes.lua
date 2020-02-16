@@ -3,6 +3,7 @@ require '/scripts/sfutil.lua'
 liquidPipe = {
     pipeName = "liquid",
     nodesConfigParameter = "liquidNodes",
+    flippedNodesConfigParameter = "flippedLiquidNodes",
     tiles = {"metalpipe", "sewerpipe", "sfcleanpipe"},
     hooks = {
         push = "onLiquidPush",

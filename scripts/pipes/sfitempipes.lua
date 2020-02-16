@@ -1,6 +1,7 @@
 itemPipe = {
     pipeName = "item",
     nodesConfigParameter = "itemNodes",
+    flippedNodesConfigParameter = "flippedItemNodes",
     tiles = {"metalpipe", "sewerpipe", "sfcleanpipe"},
     hooks = {
         push = "onItemPush", --Should take whatever argument pull returns
@@ -64,7 +65,7 @@ end
 
 --- Pushes item to another object
 -- @param nodeId the node to push from
--- @param item the item to push, specified as map {name = "itemname", count = 1, data = {}}
+-- @param item the item to push, specified as map {name = "itemname", count = 1, parameters = {}}
 -- @returns true if whole stack was pushed, number amount of items taken if stack was partly taken, false/nil if fail
 function pushItem(nodeId, item)
     local res = pipes.push("item", nodeId, item)
@@ -92,7 +93,7 @@ end
 
 --- Peeks an item push, does not perform the push
 -- @param nodeId the node to push from to
--- @param item the item to push, specified as map {name = "itemname", count = 1, data = {}}
+-- @param item the item to push, specified as map {name = "itemname", count = 1, parameters = {}}
 -- @returns true if the item can be pushed, false if item cannot be pushed
 function peekPushItem(nodeId, item)
     local res = pipes.peekPush("item", nodeId, item)
@@ -134,7 +135,7 @@ function filterItems(filter, items)
                 if item.count <= filter[item.name][2] then
                     return item, i
                 else
-                    return {name = item.name, count = filter[item.name][2], data = item.data}, i
+                    return {name = item.name, count = filter[item.name][2], parameters = item.parameters}, i
                 end
             end
         end
