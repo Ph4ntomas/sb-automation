@@ -48,10 +48,10 @@ function onItemPush(item, nodeId)
     if item and nodeId == self.usedNode then
         local position = entity.position()
 
-        if next(item.data) == nil then 
+        if not item.parameters or next(item.parameters) == nil then 
             world.spawnItem(item.name, self.dropPoint, item.count)
         else
-            world.spawnItem(item.name, self.dropPoint, item.count, item.data)
+            world.spawnItem(item.name, self.dropPoint, item.count, item.parameters)
         end
 
         return item

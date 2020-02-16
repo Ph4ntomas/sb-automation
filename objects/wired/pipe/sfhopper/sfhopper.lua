@@ -48,7 +48,7 @@ function update(dt)
         local items = world.containerItems(entity.id())
 
         for key, wItem in pairs(items) do
-            result = tryPushItem({wItem.name, wItem.count, data = wItem.data})
+            result = tryPushItem({wItem.name, wItem.count, parameters = wItem.parameters})
             if result then
                 item.count = result[2][2] --amount accepted
                 world.containerConsume(entity.id(), item)

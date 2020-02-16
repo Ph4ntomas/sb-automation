@@ -11,9 +11,9 @@ function stationState.update(dt, sd)
   if world.magnitude(pos, sd.pos) < 0.1 then
     for i,v in storageApi.getIterator() do
       local item = storageApi.returnItem(i)
-      local res = world.callScriptedEntity(self.stationId, "storageApi.storeItemFit", item.name, item.count, item.data)
+      local res = world.callScriptedEntity(self.stationId, "storageApi.storeItemFit", item.name, item.count, item.parameters)
       if res > 0 then
-        storageApi.storeItem(item.name, res, item.data) 
+        storageApi.storeItem(item.name, res, item.parameters) 
       end
     end
     world.callScriptedEntity(self.stationId, "droneLand", entity.id())

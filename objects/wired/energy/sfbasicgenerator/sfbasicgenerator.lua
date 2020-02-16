@@ -87,9 +87,9 @@ function updateAnimationState()
 end
 
 function checkNodes()
-  local isWired = entity.isInputNodeConnected(0)
+  local isWired = object.isInputNodeConnected(0)
   if isWired then
-    storage.state = entity.getInputNodeLevel(0)
+    storage.state = object.getInputNodeLevel(0)
     updateAnimationState()
   end
   object.setInteractive(not isWired)
@@ -139,10 +139,10 @@ end
 
 function ejectItem(item)
   local itemDropId
-  if item.data == nil or next(item.data) == nil then
+  if item.parameters == nil or next(item.parameters) == nil then
     itemDropId = world.spawnItem(item.name, self.dropPoint, item.count)
   else
-    itemDropId = world.spawnItem(item.name, self.dropPoint, item.count, item.data)
+    itemDropId = world.spawnItem(item.name, self.dropPoint, item.count, item.parameters)
   end
   self.ignoreDropIds[itemDropId] = true
 end

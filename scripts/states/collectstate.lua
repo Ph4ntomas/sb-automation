@@ -27,7 +27,7 @@ function collectState.update(dt, stateData)
     if storageApi.isFull() then break end
     local item = world.takeItemDrop(id, entity.id())
     if item ~= nil then
-      storageApi.storeItem(item.name, item.count, item.data)
+      storageApi.storeItem(item.name, item.count, item.parameters)
     end
   end
   return storageApi.isFull() or (#stateData.drops < 1)

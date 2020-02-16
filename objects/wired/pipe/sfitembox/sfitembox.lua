@@ -99,7 +99,7 @@ end
 
 function onItemPush(item, nodeId)
     if item and not object.getInputNodeLevel(nodeId - 1) then
-        local ret = storageApi.storeItemFit(item.name, item.count, item.data)
+        local ret = storageApi.storeItemFit(item.name, item.count, item.parameters)
 
         item.count = item.count - ret
 
@@ -110,7 +110,7 @@ end
 
 function beforeItemPush(item, nodeId)
     if item and not object.getInputNodeLevel(nodeId - 1) then
-        local ret = storageApi.storeItemFit(item.name, item.count, item.data, true)
+        local ret = storageApi.storeItemFit(item.name, item.count, item.parameters, true)
 
         item.count = item.count - ret
         return item
@@ -127,7 +127,7 @@ function onItemPull(filter, nodeId)
                 if amount[1] < item.count then
                     local it = storageApi.returnItem(i, amount[2])
 
-                    return {it.name, it.count, data = it.data}
+                    return {it.name, it.count, parameters = it.parameters}
                 end
             end
         end
@@ -135,7 +135,7 @@ function onItemPull(filter, nodeId)
         for i,item in storageApi.getIterator() do
             local it = storageApi.returnItem(i)
 
-            return {it.name, it.count, data = it.data}
+            return {it.name, it.count, parameters = it.parameters}
         end
     end
     return nil
@@ -148,13 +148,13 @@ function beforeItemPull(filter, nodeId)
                 local amount = filter[item.name]
 
                 if amount[1] < item.count then
-                    return {item.name, math.min(amount[2], item.count), data = item.data}
+                    return {item.name, math.min(amount[2], item.count), parameters = item.parameters}
                 end 
             end
         end
     else
         for i,item in storageApi.getIterator() do
-            return {item.name, item.count, data = item.data}
+            return {item.name, item.count, parameters = item.parameters}
         end
     end
 

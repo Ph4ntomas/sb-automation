@@ -1,6 +1,7 @@
 function init(args)
     energy.init()
     pipes.init({liquidPipe, itemPipe})
+    sfliquidutil.init()
 
     if object.direction() < 0 then
         pipes.nodes["liquid"] = config.getParameter("flippedLiquidNodes")
@@ -88,9 +89,10 @@ function fillCapsule(liquid)
         end
 
         local hsvShift = sfliquidutil.getColorShift(liquidName)
-        local data = buildData(liquidName, self.liquidAmount, hsvShift)
 
-        local capsule = {name = "sfcapsule", count = 1, data = data}
+        local parameters = buildParameters(liquidName, self.liquidAmount, hsvShift)
+
+        local capsule = {name = "sfcapsule", count = 1, parameters = parameters}
         local peek = peekPushItem(1, capsule)
 
         if peek then
@@ -101,23 +103,23 @@ function fillCapsule(liquid)
     return nil, nil
 end
 
-function buildData(liquidName, amount, hsvShift)
+function buildParameters(liquidName, amount, hsvShift)
     local capsuleConfig = root.itemConfig({name = "sfcapsule", count = 1})["config"]
-    local data = {
+    local parameters = {
         image = capsuleConfig["image"],
         inventoryIcon = capsuleConfig["inventoryIcon"],
         projectileConfig = { actionOnReap = capsuleConfig["projectileConfig"]["actionOnReap"] }
     }
 
-    local liqItConfig = sfliquidutil.getLiquidItemConfig()
-    if liqItemConfig ~= nil then
-        data["shortdescription"] = liqItConfig["shortdescription"] .. " " .. capsuleConfig["shortdescription"]
-        data["description"] = capsuleConfig["description"]:gsub("liquid", liqItConfig["shortdescription"]:lower())
+    local liqItConfig = sfliquidutil.getLiquidItemConfig(liquidName)
+    if liqItConfig ~= nil then
+        parameters["shortdescription"] = liqItConfig["shortdescription"] .. " " .. capsuleConfig["shortdescription"]
+        parameters["description"] = capsuleConfig["description"]:gsub("liquid", liqItConfig["shortdescription"]:lower())
     end
 
-    data["projectileConfig"]["actionOnReap"][1]["liquid"] = liquidName
+    parameters["projectileConfig"]["actionOnReap"][1]["liquid"] = liquidName
     if amount then
-        data["projectileConfig"]["actionOnReap"][1]["quantity"] = amount
+        parameters["projectileConfig"]["actionOnReap"][1]["quantity"] = amount
     end
 
     if hsvShift then
@@ -127,12 +129,12 @@ function buildData(liquidName, amount, hsvShift)
 
         local directives = hueshift .. saturation .. brightness
 
-        data["image"] = data["image"] .. directives
-        data["inventoryIcon"] = data["image"]
-        data["projectileConfig"]["processing"] = directives
+        parameters["image"] = parameters["image"] .. directives
+        parameters["inventoryIcon"] = parameters["image"]
+        parameters["projectileConfig"]["processing"] = directives
     end
 
-    return data
+    return parameters
 end
 
 function beforeLiquidPush(liquid, nodeId)

@@ -53,7 +53,7 @@ function update(dt)
   
   if storage.ore.name and storage.state and energy.consumeEnergy(dt) then
     local oreConversion = self.conversions[storage.ore.name]
-    local bar = {name = oreConversion[3], count = oreConversion[2], data = {}}
+    local bar = {name = oreConversion[3], count = oreConversion[2], parameters = {}}
     
     if peekPushItem(2, bar) then 
       animator.setAnimationState("smelting", "smelt") 
