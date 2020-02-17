@@ -59,7 +59,9 @@ function canGetLiquid(filter, nodeId)
         local liquid = {name = availableLiquid[1], count = availableLiquid[2]}
         local convertedLiquid = convertEndlessLiquid(liquid)
 
-        return convertedLiquid
+        liquid, _ = filterLiquids(filter, {convertedLiquid})
+
+        return liquid
     end
 
     return nil, nil
@@ -67,13 +69,18 @@ end
 
 function beforeLiquidPull(filter, nodeId)
     local liquid, _ = canGetLiquid(filter, nodeId)
+
     return liquid
 end
 
-function onLiquidPull(filter, nodeId)
+function onLiquidPull(liquid, nodeId)
     local position = entity.position()
     local liquidPos = {position[1] + 0.5, position[2] + 0.5}
-    local getLiquid, endless = canGetLiquid(filter, nodeId)
+
+    local getLiquid, endless = canGetLiquid({{
+        liquid = liquid, 
+        amount = {liquid.count, liquid.count}
+    }}, nodeId)
 
     if getLiquid then
         if not endless then

@@ -247,11 +247,14 @@ function beforeLiquidPush(liquid, nodeId)
     return res
 end
 
-function onLiquidPull(filter, nodeId)
+function onLiquidPull(liquid, nodeId)
     if storage.liquid.name ~= nil then
         local liquids = {{name = storage.liquid.name, count = math.min(storage.liquid.count, self.pushAmount)}}
+        local returnLiquid, _ = filterLiquids({{
+            liquid = liquid,
+            amount = {liquid.count, liquid.count}
+        }}, liquids)
 
-        local returnLiquid, _ = filterLiquids(filter, liquids)
         if returnLiquid then
             storage.liquid.count = storage.liquid.count - returnLiquid.count
             if storage.liquid.count <= 0 then

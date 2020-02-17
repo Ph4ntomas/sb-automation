@@ -49,11 +49,21 @@ function tryPull(nodeId)
             return false
         end
 
-        filter = {liquid.name, {0, self.pumpAmount - liquid.count}}
+        filter = {
+            {
+                liquid = liquid, 
+                amount = { 0, self.pumpAmount - liquid.count }
+            }
+        }
+
         canGetLiquid = peekPullLiquid(nodeId, filter)
         inStore = liquid.count
     else
-        filter = {nil, {0, self.pumpAmount}}
+        filter = {
+            {
+                { amount = {0, self.pumpAmount} } -- liquid = nil here
+            }
+        }
         canGetLiquid = peekPullLiquid(nodeId, filter)
     end
 

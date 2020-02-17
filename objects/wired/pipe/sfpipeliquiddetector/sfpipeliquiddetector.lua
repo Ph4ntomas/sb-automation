@@ -74,8 +74,11 @@ function beforeLiquidPull(filter, nodeId)
     return nil
 end
 
-function onLiquidPull(filter, nodeId)
-  local peek = peekPullLiquid(self.connectionMap[nodeId], filter)
+function onLiquidPull(liquid, nodeId)
+    local peek = peekPullLiquid(self.connectionMap[nodeId], {{
+        liquid = liquid,
+        amount = {liquid.count, liquid.count}
+    }})
 
   if peek then
       local result = pullLiquid(self.connectionMap[nodeId], peek[1])
