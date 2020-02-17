@@ -47,9 +47,9 @@ end
 -- @param _ [Ignored] Message handler params. Irrelevent here.
 -- @param filter Some parameter to filter out unacceptable liquid. Nil will accept everything.
 -- @param nodeId The node id of the entity.
-function liquidPipe.msgHooks.pull(_, _, filter, nodeId)
+function liquidPipe.msgHooks.pull(_, _, liquid, nodeId)
     if onLiquidPull then
-        return onLiquidPull(filter, nodeId)
+        return onLiquidPull(liquid, nodeId)
     end
     return nil
 end
@@ -60,9 +60,9 @@ end
 -- @param _ [Ignored] Message handler params. Irrelevent here.
 -- @param filter Some parameter to filter out unacceptable liquid. Nil will accept everything.
 -- @param nodeId The node id of the entity.
-function liquidPipe.msgHooks.peekPull(_, _, filter, nodeId)
+function liquidPipe.msgHooks.peekPull(_, _, filters, nodeId)
     if beforeLiquidPull then
-        return beforeLiquidPull(filter, nodeId)
+        return beforeLiquidPull(filters, nodeId)
     end
     return nil
 end
@@ -85,10 +85,10 @@ end
 -- @param nodeId the node to push from
 -- @param filter array of filters of liquids {liquidId = {minAmount,maxAmount}, otherLiquidId = {minAmount,maxAmount}}
 -- @returns An array of liquids, if successful, an empty array otherwise
-function pullLiquid(nodeId, filters)
-    local res = pipes.pull("liquid", nodeId, filters)
+function pullLiquid(nodeId, liquids)
+    local res = pipes.pull("liquid", nodeId, liquids)
 
-    if res and #res ~= 0 then
+    if res and next(res) then
         return {res, pipes.sumUpResources(res)}
     end
 
@@ -111,15 +111,15 @@ end
 
 --- Peeks a liquid pull, does not go through with the transfer
 -- @param nodeId the node to push from
--- @param filter array of filters of liquids {liquidId = {minAmount,maxAmount}, otherLiquidId = {minAmount,maxAmount}}
+-- @param filter array of filters of liquids in the form {{ liquid = liquid, amount = {minAmount,maxAmount} }, {liquid = liquid, amount = { minAmount,maxAmount }}}
 -- @returns An array liquid available for each entities if successful
 function peekPullLiquid(nodeId, filter)
-    local liquid = nil
     local res = pipes.peekPull("liquid", nodeId, filter)
 
-    if res and #res ~= 0 then
-        local balanced = pipes.balanceLoadResources(filter[2][2], res)
-        return {balanced, pipes.sumUpResources(balanced)}
+    if res and next(res) then
+        local sum = pipes.sumUpResources(res)
+        local balanced = pipes.balanceLoadResources(sum.count, res, false, sum)
+        return {balanced, pipes.sumUpResources(balanced, sum)} -- because summing the balancing can lead to some liquids not being used
     end
     return nil
 end
@@ -133,29 +133,37 @@ function isLiquidNodeConnected(nodeId)
     end
 end
 
-function filterLiquids(filter, liquids)
-    if filter and filter[1] ~= nil then
-        for i,liquid in ipairs(liquids) do
-            local liquidId = tostring(liquid.name)
-            if liquidId and filter[1] == liquidId and liquid.count > filter[1] then
-                if liquid.count <= filter[2] then
-                    return liquid, i
-                else
-                    return {name = liquid.name, count = filter[2]}, i
+--- Filter a list of liquids, and return the first matching.
+-- @param filters -- a list of filters in which each element is { liquid = liquid, amount = {min, max} }
+-- @param liquids -- a list of liquids to be filtered.
+-- @returns The first matching liquid.
+function filterLiquids(filters, liquids)
+    local ret = nil
+
+    if filters then
+        for _, filter in ipairs(filters) do
+            local filtLiquid = filter.liquid
+            local amount = filter.amount
+
+            if not filtLiquid then
+                ret = liquids[1], 1
+                break
+            else
+                for i, liquid in ipairs(liquids) do
+                    if filtLiquid.name == liquid.name and 
+                        liquid.count >= amount[1] then
+                        liquid.count = math.min(liquid.count, amount[2])
+
+                        if liquid.count > 0 then
+                            return liquid, i
+                        end
+                    end
                 end
             end
         end
-
-        return nil, 0
-    elseif filter[1] == nil then
-        local amount = filter[2]
-
-        if amount == nil or liquids[1].count <= amount then
-            return liquids[1], 1
-        else
-            return {name = liquids[1].name, count = amount}, 1
-        end
     else
-        return liquids[1], 1
+        ret = liquids[1], 1
     end
+
+    return ret
 end

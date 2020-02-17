@@ -51,6 +51,14 @@ function table.copy(table)
     return newTable
 end
 
+function table.maxn(table)
+    local ret = 0
+    for i, v in pairs(table) do
+        ret = i
+    end
+    return ret
+end
+
 --PIPES
 pipes = {}
 
@@ -396,16 +404,16 @@ function pipes.walkPipes(pipeName, startOffset, startDir)
     return validEntities
 end
 
-function pipes.buildDistMap(resources)
-    local min = resources[1].sfdist
-    local max = resources[#resources].sfdist
+function pipes.buildDistMap(resources, filter)
+    local min = resources[next(resources)].sfdist
+    local max = resources[math.floor(table.maxn(resources))].sfdist
     local delta = max - min
     local map = {}
     local percent = 1
 
-    if delta ~= 0 then
+    if delta ~= 0 or filter then
         for i, r in pairs(resources) do
-            if r.count > 0 then
+            if r.count > 0 and (not filter or not filter.name or r.name == filter.name) then
                 local sfdist = r.sfdist
                 local percent = 0.5
 
@@ -420,6 +428,11 @@ function pipes.buildDistMap(resources)
                 end
             end
         end
+
+        if #map == 1 then
+            k, v = next(map)
+            map[k][1] = 1
+        end
     else
         map[max] = { 1, #resources }
     end
@@ -429,17 +442,20 @@ end
 
 function pipes.sumUpResources(resources, resource)
     local ret = nil
+    local hardFilter = false
 
     if resource then
-        ret = resource
-        ret.count = 0
+        ret = {name = resource.name, count = 0}
+        hardFilter = true
     end
 
     if resources ~= nil then
-        for _, r in pairs(resources) do
-            if r ~= nil and ret == nil then
+        for i, r in pairs(resources) do
+            if ret == nil then
                 ret = r
-            elseif r ~= nil and ret.name == r.name then
+            elseif not hardFilter and ret.count == 0 then
+                ret = r
+            elseif ret.name == r.name then
                 ret.count = ret.count + r.count
             end
         end
@@ -450,45 +466,51 @@ end
 
 --- Load balance a given retources between all results
 -- @param threshold - The amount to be distributed.
--- @param resources - An array of max amount of the resource (in the format {resourceId, amount, distance})
+-- @param resources - An array of max amount of the resource (with at least {name, count, sfdist})
 -- @param atoms - If true, the resource is considered atomic (thus only integer amount can be passed).
+-- @param filter -  If set, this will be used to filter out some resources
 -- @return An array similar to resources, but balanced between all requests.
-function pipes.balanceLoadResources(threshold, resources, atoms)
+function pipes.balanceLoadResources(threshold, resources, atoms, filter)
     local ret = {}
 
-    if resources and #resources > 0 then
+    if resources and next(resources) then
         local amount = threshold
-        local distMap = pipes.buildDistMap(resources)
+        local distMap = pipes.buildDistMap(resources, filter)
         local count = 0
 
         for i, r in pairs(resources) do
-            local percent = 0
-            local sfdist = r.sfdist
+            if not filter or not filter.name or filter.name == r.name then
+                local percent = 0
+                local sfdist = r.sfdist
 
-            if not distMap[sfdist][3] then
-                percent = (distMap[sfdist][1] / distMap[sfdist][2])
-                distMap[sfdist][3] = amount * percent
+                if not distMap[sfdist][3] then
+                    percent = (distMap[sfdist][1] / distMap[sfdist][2])
+                    distMap[sfdist][3] = amount * percent
 
-                if atoms then
-                    distMap[sfdist][3] = math.ceil(amount * percent)
+                    if atoms then
+                        distMap[sfdist][3] = math.ceil(amount * percent)
+                    end
+
+                    count = 1
+                else
+                    count = count + 1
                 end
 
-                count = 1
+                local avail = distMap[sfdist][3]
+
+                if avail > amount then
+                    r.count = math.min(amount, r.count)
+                else
+                    r.count = math.min(avail, r.count)
+                end
+
+                r.sfdist = nil
+                ret[i] = r
+                amount = amount - r.count
             else
-                count = count + 1
+                r.count = 0
+                ret[i] = r
             end
-
-            local avail = distMap[sfdist][3]
-
-            if avail > amount then
-                r.count = math.min(amount, r.count)
-            else
-                r.count = math.min(avail, r.count)
-            end
-
-            r.sfdist = nil
-            ret[i] = r
-            amount = amount - r.count
         end
     end
 

@@ -81,10 +81,10 @@ end
 -- @param nodeId the node to pull to
 -- @param filter an array of filters to specify what items to return and how many {itemname = {minAmount,maxAmount}, otherItem = {minAmount,maxAmount}}
 -- @returns item if successful, false/nil if unsuccessful
-function pullItem(nodeId, filter)
-    local res = pipes.pull("item", nodeId, filter)
+function pullItem(nodeId, items)
+    local res = pipes.pull("item", nodeId, items)
 
-    if res and #res ~= 0 then
+    if res and next(res) then
         return {res, pipes.sumUpResources(res)}
     end
 
@@ -99,7 +99,7 @@ function peekPushItem(nodeId, item)
     local res = pipes.peekPush("item", nodeId, item)
 
     if res and #res ~= 0 then
-        return {res, pipes.sumUpResources(res, item)}
+        return {res, pipes.sumUpResources(res, item, true)}
     end
 
     return nil
@@ -112,8 +112,10 @@ end
 function peekPullItem(nodeId, filter)
     local res = pipes.peekPull("item", nodeId, filter)
 
-    if res and #res ~= 0 then
-        return {res, pipes.sumUpResources(res, item)}
+    if res and next(res) then
+        local sum = pipes.sumUpResources(res)
+        local balanced = pipes.balanceLoadResources(sum.count, res, true, sum)
+        return {balanced, pipes.sumUpResources(balanced, sum)} -- See sfliquidpipes.lua
     end
 
     return nil
@@ -128,18 +130,34 @@ function isItemNodeConnected(nodeId)
     end
 end
 
-function filterItems(filter, items)
-    if filter then
-        for i,item in ipairs(items) do
-            if filter[item.name] and item.count >= filter[item.name][1]then
-                if item.count <= filter[item.name][2] then
-                    return item, i
-                else
-                    return {name = item.name, count = filter[item.name][2], parameters = item.parameters}, i
+--- Filter a list of items, and return the first matching.
+-- @param filters -- a list of filters in which each element is { item = item, amount = {min, max} }
+-- @param items -- a list of items to be filtered.
+-- @returns The first matching item.
+function filterItems(filters, items)
+    local ret = nil
+
+    if filters then
+        for _, filter in ipairs(filters) do
+            local filtItem = filter.item
+            local amount = filter.amount
+
+            if not filtItem then
+                ret = items[1], 1
+                break
+            else
+                for i, item in ipairs(items) do
+                    if filtItem.name == item.name and
+                        item.count > amount[1] then
+                        item.count = math.min(item.count, amount[2])
+                        return item, i
+                    end
                 end
             end
         end
     else
-        return items[1], 1
+        ret = items[1], 1
     end
+
+    return ret
 end
