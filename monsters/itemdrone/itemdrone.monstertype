@@ -17,7 +17,8 @@
       "/scripts/states/stationState.lua",
       "/scripts/util.lua",
       "/scripts/vec2.lua",
-      "/scripts/storageapi.lua",
+      "/scripts/sfstorageapi.lua",
+      "/scripts/sfutil.lua",
       "/scripts/astarapi.lua",
       "/scripts/statemachine.lua"
     ],

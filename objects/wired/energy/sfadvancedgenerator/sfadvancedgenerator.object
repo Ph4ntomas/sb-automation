@@ -26,7 +26,8 @@
     "sfadvancedgenerator.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
-    "/scripts/storageapi.lua",
+    "/scripts/sfstorageapi.lua",
+    "/scripts/sfutil.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
