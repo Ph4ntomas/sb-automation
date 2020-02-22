@@ -1,11 +1,6 @@
 function init(args)
-    pipes.init({liquidPipe, itemPipe})
+    pipes.init({liquidPipe, itemPipe}, true)
     energy.init()
-
-    if object.direction() < 0 then
-        pipes.nodes["liquid"] = config.getParameter("flippedLiquidNodes")
-        pipes.nodes["item"] = config.getParameter("flippedItemNodes")
-    end
 
     local dir = root.itemConfig(object.name())["directory"]
     sb.logInfo("conversions = %s", root.assetJson(dir .. config.getParameter("conversions"))["snow"] )
