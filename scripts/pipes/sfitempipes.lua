@@ -70,7 +70,7 @@ end
 function pushItem(nodeId, item)
     local res = pipes.push("item", nodeId, item)
 
-    if res and #res ~= 0 then
+    if res and next(res) then
         return {res, pipes.sumUpResources(res)}
     end
 
@@ -96,9 +96,9 @@ end
 -- @param item the item to push, specified as map {name = "itemname", count = 1, parameters = {}}
 -- @returns true if the item can be pushed, false if item cannot be pushed
 function peekPushItem(nodeId, item)
-    local res = pipes.peekPush("item", nodeId, item)
+    local res = pipes.balanceLoadResources(item.count, pipes.peekPush("item", nodeId, item), true)
 
-    if res and #res ~= 0 then
+    if res and next(res) then
         return {res, pipes.sumUpResources(res, item, true)}
     end
 
@@ -136,9 +136,10 @@ end
 -- @returns The first matching item.
 function filterItems(filters, items)
     local ret = nil
+    local ignoreFields = { count = true, sfdist = true }
 
     if filters then
-        for _, filter in ipairs(filters) do
+        for _, filter in pairs(filters) do
             local filtItem = filter.item
             local amount = filter.amount
 
@@ -146,8 +147,8 @@ function filterItems(filters, items)
                 ret = items[1], 1
                 break
             else
-                for i, item in ipairs(items) do
-                    if filtItem.name == item.name and
+                for i, item in pairs(items) do
+                    if sfutil.compare(filtItem, item, self.ignoreFields) and
                         item.count > amount[1] then
                         item.count = math.min(item.count, amount[2])
                         return item, i

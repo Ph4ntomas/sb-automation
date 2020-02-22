@@ -74,7 +74,7 @@ end
 function pushLiquid(nodeId, liquids)
     local res = pipes.push("liquid", nodeId, liquids)
 
-    if res and #res ~= 0 then
+    if res and next(res) then
         return {res, pipes.sumUpResources(res)}
     end
 
@@ -102,7 +102,7 @@ end
 function peekPushLiquid(nodeId, liquid)
     local res = pipes.balanceLoadResources(liquid.count, pipes.peekPush("liquid", nodeId, liquid))
 
-    if res and #res ~= 0 then
+    if res and next(res) then
         return {res, pipes.sumUpResources(res, liquid)}
     end
 
@@ -141,7 +141,7 @@ function filterLiquids(filters, liquids)
     local ret = nil
 
     if filters then
-        for _, filter in ipairs(filters) do
+        for _, filter in pairs(filters) do
             local filtLiquid = filter.liquid
             local amount = filter.amount
 
@@ -149,7 +149,7 @@ function filterLiquids(filters, liquids)
                 ret = liquids[1], 1
                 break
             else
-                for i, liquid in ipairs(liquids) do
+                for i, liquid in pairs(liquids) do
                     if filtLiquid.name == liquid.name and 
                         liquid.count >= amount[1] then
                         liquid.count = math.min(liquid.count, amount[2])

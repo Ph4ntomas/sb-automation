@@ -279,7 +279,7 @@ end
 -- @param position vec2 - world position to check
 -- @param layerMode - layer to prioritise
 -- @param tileDesc [optional] - The tile description to help separate the pipes.
--- @returns Hook return if successful, false if unsuccessful
+-- @returns Hook return if successful, nil if unsuccessful
 function pipes.getPipeTileData(pipeName, position, layerMode, tileDesc)
     local layerSwitch = {foreground = "background", background = "foreground"}
 
