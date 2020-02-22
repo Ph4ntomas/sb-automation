@@ -77,12 +77,13 @@
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
+    "/scripts/sfutil.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
   "scriptDelta" : 30,
   
-  "animation" : "/objects/wired/pipe/sfitemfilter/sfitemfilter.animation",
+  "animation" : "/objects/wired/pipe/sfitemexcluder/sfitemexcluder.animation",
   "animationParts" : {
     "pipe" : "sfitemexcluder.png"
   },
