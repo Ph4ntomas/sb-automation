@@ -83,7 +83,7 @@ function beforeItemPull(filters, nodeId)
     if self.chest then
         local items = world.containerItems(self.chest)
 
-        res = filterItems(filters, item)
+        res = filterItems(filters, items)
     end
 
     return res
