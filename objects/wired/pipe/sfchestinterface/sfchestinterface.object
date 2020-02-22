@@ -36,7 +36,8 @@
   "scripts" : [
     "sfchestinterface.lua",
     "/scripts/pipes/sfitempipes.lua",
-    "/scripts/sfpipesapi.lua"
+    "/scripts/sfpipesapi.lua",
+    "/scripts/sfutil.lua"
   ],
   "scriptDelta" : 30,
   

@@ -66,7 +66,6 @@ end
 
 function onItemPush(item, nodeId)
     if item and self.chest then
-
         local returnedItem = world.containerAddItems(self.chest, item)
 
         if returnedItem then
@@ -78,44 +77,30 @@ function onItemPush(item, nodeId)
     return nil
 end
 
-function beforeItemPull(filter, nodeId)
+function beforeItemPull(filters, nodeId)
     local res = nil
 
     if self.chest then
-        for _, item in pairs(world.containerItems(self.chest)) do
-            if filter then
-                if filter[item.name] and item.count > filter[item.name][1] then
-                    item.count = math.min(item.count, filter[item.name][2])
-                    res = item
-                    break
-                end
-            else
-                res = item
-                break
-            end
-        end
+        local items = world.containerItems(self.chest)
+
+        res = filterItems(filters, item)
     end
 
     return res
 end
 
-function onItemPull(filter, nodeId)
+function onItemPull(item, nodeId)
     local res = nil
 
     if self.chest then
-        for _, item in pairs(world.containerItems(self.chest)) do
-            if filter then
-                if filter[item.name] and item.count > filter[item.name][1] then
-                    item.count = math.min(item.count, filter[item.name][2])
-                    res = item
-                    world.containerConsume(self.chest, item)
-                    break
-                end
-            else
-                res = item
-                world.containerConsume(self.chest, item)
-                break
-            end
+        local items = world.containerItems(self.chest)
+        res, idx = filterItems({{
+            item = item,
+            amount = {item.count, item.count}
+        }}, items)
+        
+        if res then
+            world.containerConsumeAt(self.chest, i - 1, ret.count)
         end
     end
 
