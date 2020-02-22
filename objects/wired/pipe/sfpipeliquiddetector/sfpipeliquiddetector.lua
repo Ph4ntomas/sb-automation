@@ -66,8 +66,8 @@ function output(liquid)
   end
 end
 
-function beforeLiquidPull(filter, nodeId)
-    local ret = peekPullLiquid(self.connectionMap[nodeId], filter)
+function beforeLiquidPull(filters, nodeId)
+    local ret = peekPullLiquid(self.connectionMap[nodeId], filters)
 
     if ret then return ret[2] end
 
@@ -85,7 +85,7 @@ function onLiquidPull(liquid, nodeId)
 
       if result then
           activate()
-          output(result)
+          output(result[2])
 
           return result[2]
       end

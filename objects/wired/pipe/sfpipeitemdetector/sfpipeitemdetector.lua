@@ -82,7 +82,7 @@ function onItemPush(item, nodeId)
 
         if result then
             activate()
-            output(item)
+            output(result[2])
 
             return result[2]
         end
@@ -91,17 +91,20 @@ function onItemPush(item, nodeId)
     return nil
 end
 
-function beforeItemPull(filter, nodeId)
-    local ret = peekPullItem(self.connectionMap[nodeId], filter)
+function beforeItemPull(filters, nodeId)
+    local ret = peekPullItem(self.connectionMap[nodeId], filters)
 
     if ret then return ret[2] end
 
     return nil
 end
 
-function onItemPull(filter, nodeId)
+function onItemPull(item, nodeId)
     local res = nil
-    local peek = peekPullItem(self.connectionMap[nodeId], filter)
+    local peek = peekPullItem(self.connectionMap[nodeId], {{
+        item = item,
+        amount = {item.count, item.count}
+    }})
 
     if peek then
         local result = pullItem(self.connectionMap[nodeId], peek[1])
