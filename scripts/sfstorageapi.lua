@@ -278,13 +278,10 @@ function storageApi.storeItemFit(itemname, count, parameters, test)
     local space = (storageApi.getCapacity() - storageApi.getCount()) * max
     local leftover = 0
 
-    if item.count > space then
-        leftover = item.count - space
-    end
-
+    leftover = math.max(item.count - space, 0)
     item.count = math.min(item.count, space)
 
-    if not test then 
+    if not test and item.count > 0 then 
         storageApi.storeItem(item.name, item.count, item.parameters)
     end
 
