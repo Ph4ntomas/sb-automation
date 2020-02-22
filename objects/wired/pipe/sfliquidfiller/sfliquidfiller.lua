@@ -1,12 +1,7 @@
 function init(args)
     energy.init()
-    pipes.init({liquidPipe, itemPipe})
+    pipes.init({liquidPipe, itemPipe}, true)
     sfliquidutil.init()
-
-    if object.direction() < 0 then
-        pipes.nodes["liquid"] = config.getParameter("flippedLiquidNodes")
-        pipes.nodes["item"] = config.getParameter("flippedItemNodes")
-    end
 
     object.setInteractive(true)
 
