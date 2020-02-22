@@ -118,45 +118,26 @@ function beforeItemPush(item, nodeId)
     return nil
 end
 
-function onItemPull(filter, nodeId)
-    if filter then
-        for i,item in storageApi.getIterator() do
-            if filter[item.name] then
-                local amount = filter[item.name]
-                
-                if amount[1] < item.count then
-                    local it = storageApi.returnItem(i, amount[2])
+function onItemPull(item, nodeId)
+    local res = nil
+    local items = storageApi.getContents()
+    local res, idx = filterItems({{
+        item = item,
+        amount = { item.count, item.count }
+    }}, items)
 
-                    return {it.name, it.count, parameters = it.parameters}
-                end
-            end
-        end
-    else
-        for i,item in storageApi.getIterator() do
-            local it = storageApi.returnItem(i)
-
-            return {it.name, it.count, parameters = it.parameters}
-        end
+    if res then
+        storageApi.returnItem(idx, res.count)
     end
-    return nil
+
+    return res
 end
 
-function beforeItemPull(filter, nodeId)
-    if filter then
-        for i,item in storageApi.getIterator() do
-            if filter[item.name] then
-                local amount = filter[item.name]
+function beforeItemPull(filters, nodeId)
+    local res = nil
+    local items = storageApi.getContents()
 
-                if amount[1] < item.count then
-                    return {item.name, math.min(amount[2], item.count), parameters = item.parameters}
-                end 
-            end
-        end
-    else
-        for i,item in storageApi.getIterator() do
-            return {item.name, item.count, parameters = item.parameters}
-        end
-    end
+    res = filterItems(filters, items)
 
-    return nil
+    return res
 end
