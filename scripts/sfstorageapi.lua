@@ -1,28 +1,4 @@
 -------------------------------------------------
--- Helper functions
--------------------------------------------------
-
-function compareTables(firstTable, secondTable)
-    if firstTable == nil or secondTable == nil then
-        return true
-    end
-    if (next(firstTable) == nil) and (next(secondTable) == nil) then
-        return true
-    end
-    for key,value in pairs(firstTable) do
-        if firstTable[key] ~= secondTable[key] then
-            return false
-        end
-    end
-    for key,value in pairs(secondTable) do
-        if firstTable[key] ~= secondTable[key] then
-            return false
-        end
-    end
-    return true
-end
-
--------------------------------------------------
 -- Definitions
 -------------------------------------------------
 
@@ -48,10 +24,19 @@ function storageApi.init(args)
     storageApi.isin = storageApi.mode % 2 == 1
     storageApi.isout = storageApi.mode % 4 >= 2
     storageApi.capacity = math.min(999, args.capacity or config.getParameter("storageapi.capacity") or 1)
-    storageApi.isjoin = args.merge or config.getParameter("storageapi.merge")
+
+    join = args.merge or config.getParameter("storageapi.merge")
+    if join ~= nil then
+        storageApi.isjoin = join
+    else
+        storageApi.isjoin = true
+    end
+
     storageApi.dropPosition = args.dropPosition or config.getParameter("storageapi.dropPosition")
     storageApi.ondeath = args.ondeath or config.getParameter("storageapi.ondeath") or 0
     storageApi.ignoreDropIds = {}
+
+    self.ignoreFields = { count = true, sfdist = true } -- We never want to take count into account. sfdist is an intermediate value of the pipe api, and we don't wan't it either.
 end
 
 --- Should the storage be initialized?
@@ -113,12 +98,17 @@ function storageApi.getIterator()
     return pairs(storage.sApi)
 end
 
+function storageApi.getContent()
+    return storage.sApi
+end
+
 --- Take an item from storage
 -- @param index (int) Index in storage
 -- @param count [optional] (int) Amount of the item to take from the stack
 -- @return (table) An item descriptor or nil
 function storageApi.returnItem(index, count)
     if beforeItemTaken and beforeItemTaken(index, count) then return nil end
+
     local ret = storage.sApi[index]
     if (count == nil) or (ret.count <= count) then
         storage.sApi[index] = nil
@@ -126,7 +116,9 @@ function storageApi.returnItem(index, count)
         storage.sApi[index].count = ret.count - count
         ret.count = count
     end
+
     if afterItemTaken then afterItemTaken(ret.name, ret.count, ret.parameters) end
+
     return ret
 end
 
@@ -149,12 +141,15 @@ function storageApi.canFitItem(itemname, count, parameters)
     local max = storageApi.getMaxStackSize(itemname)
     local spacecnt = (storageApi.getCapacity() - storageApi.getCount()) * max
 
-    if spacecnt >= count then return true
-    elseif max == 1 then return false end
+    if not storageApi.isMerging() then
+        return count <= spacecnt
+    end
+
+    local item = {name = itemname, count = count, parameters = parameters}
 
     for i,v in storageApi.getIterator() do
-        if (itemname == v.name) and compareTables(parameters, v.parameters) then
-            spacecnt = spacecnt + max - v.count
+        if sfutil.compare(item, v, self.ignoreFields) then
+            spacecnt = spacecnt + (max - v.count)
         end
         if spacecnt >= count then return true end
     end
@@ -168,7 +163,8 @@ end
 -- @return (table) Descriptor of the item taken
 function storageApi.returnItemByName(itemname, count, parameters)
     if (storageApi.beforeReturnByName ~= nil) and storageApi.beforeReturnByName(itemname, count, parameters) then return { name = itemname, count = count, parameters = parameters } end
-    if parameters == nil then
+
+    if parameters == nil then -- if no parameters was specified, we take the first item with given name.
         for i,v in storageApi.getIterator() do
             if v.name == itemname then
                 parameters = v.parameters
@@ -176,14 +172,17 @@ function storageApi.returnItemByName(itemname, count, parameters)
             end
         end
     end
-    if parameters == nil then return { name = itemname, count = 0, parameters = { } } end
+
+    local item = { name = name, count = count, parameters = parameters}
+
     local retcnt = 0
     for i,v in storageApi.getIterator() do
         if retcnt >= count then break end
-        if (v.name == itemname) and compareTables(properties, v.parameters) then
+        if sfutil.compare(v, item, self.ignoreFields) then
             retcnt = retcnt + storageApi.returnItem(i, count - retcnt).count
         end
     end
+
     return { name = itemname, count = retcnt, parameters = parameters }
 end
 
@@ -203,7 +202,28 @@ function storageApi.getFirstEmptyIndex()
     for i=1,c do
         if storage.sApi[i] == nil then return i end
     end
-    return c + 1
+
+    return nil
+end
+
+local function storeMerge(item, test)
+    for i,stack in storageApi.getIterator() do
+        if sfutil.compare(stack, item, self.ignoreFields) and stack.count < max then 
+            local amount = math.min(max - stack.count, item.count)
+            item.count = item.count - amount
+
+            if not test then
+                stack.count = stack.count + amount
+                storage.sApi[i] = stack
+            end
+
+            if item.count == 0 then
+                break
+            end
+        end
+    end
+
+    return item
 end
 
 --- Puts an item in storage
@@ -214,24 +234,21 @@ end
 function storageApi.storeItem(itemname, count, parameters)
     if not storageApi.canFitItem(itemname, count, parameters) then return false end
     if beforeItemStored and beforeItemStored(itemname, count, parameters) then return false end
+    local max = storageApi.getMaxStackSize(itemname)
+
+    local item = {name = name, count = count, parameters = parameters}
+
     if storageApi.isMerging() then
-        local max = storageApi.getMaxStackSize(itemname)
-        for i,stack in storageApi.getIterator() do
-            if (stack.name == itemname) and (stack.count < max) and compareTables(parameters, stack.parameters) then
-                if (stack.count + count > max) then
-                    local newIndex = storageApi.getFirstEmptyIndex()
-                    storage.sApi[newIndex] = { name = itemname, count = (stack.count + count) - max, parameters = parameters }
-                    if afterItemStored then afterItemStored(newIndex, false) end
-                    count = max - stack.count
-                end
-                storage.sApi[i].count = stack.count + count
-                if afterItemStored then afterItemStored(i, true) end
-                return true
-            end
-        end
+        item = storeMerge(item)
     end
-    local i = storageApi.getFirstEmptyIndex()
-    storage.sApi[i] = { name = itemname, count = count, parameters = parameters }
+
+    while item.count > 0 do
+        local i = storageApi.getFirstEmptyIndex()
+        local amount = math.min(max, item.count)
+        item.count = item.count - amount
+        storage.sApi[i] = { name = item.name, count = amount, parameters = item.parameters }
+    end
+
     if afterItemStored then afterItemStored(i, false) end
     return true
 end
@@ -243,25 +260,35 @@ end
 -- @param test [optional] (bool) If true, only check for leftover without actually storing the item.
 -- @return (int) The amount of item that was left
 function storageApi.storeItemFit(itemname, count, parameters, test)
-    local max = storageApi.getMaxStackSize(itemname)
-
-    while (count > max) and not storageApi.isFull() do
-        if not test then storageApi.storeItem(itemname, max, parameters) end
-        count = count - max
-    end
-
-    for i,v in storageApi.getIterator() do
-        if count < 1 then break end
-        if (v.name == itemname) and (v.count < max) and compareTables(parameters, v.parameters) then
-            local amo = math.min(max, v.count + count)
-            storage.sApi[i].count = amo
-            count = count + v.count - amo
+    if storageApi.canFitItem(itemname, count, parameters) then
+        if not test then
+            storageApi.storeItem(itemname, count, parameters)
         end
+
+        return 0
     end
 
-    if (count > 0) and (test or storageApi.storeItem(itemname, count, parameters)) then return 0 end
+    local item = { name = itemname, count = count, parameters = parameters }
 
-    return count
+    if storageApi.isMerging() then
+        item = storeMerge(item, test)
+    end
+
+    local max = storageApi.getMaxStackSize(itemname)
+    local space = (storageApi.getCapacity() - storageApi.getCount()) * max
+    local leftover = 0
+
+    if item.count > space then
+        leftover = item.count - space
+    end
+
+    item.count = math.min(item.count, space)
+
+    if not test then 
+        storageApi.storeItem(item.name, item.count, item.parameters)
+    end
+
+    return leftover
 end
 
 --- Drops an item from storage
@@ -271,7 +298,9 @@ end
 -- @return (int) ID of dropped item entity or nil
 function storageApi.drop(index, amount, pos)
     pos = pos or storageApi.dropPosition or entity.position()
-    local item, drop = storage.sApi[index], nil
+    local item = storage.sApi[index]
+    local drop = nil
+    
     if item then
         if not amount then amount = item.count or 0 end
         if amount > 0 then
@@ -280,6 +309,7 @@ function storageApi.drop(index, amount, pos)
             else
                 drop = world.spawnItem(item.name, pos, amount, item.parameters)
             end
+
             if drop then
                 storage.sApi[index].count = item.count - amount
                 if storage.sApi[index].count < 1 then
