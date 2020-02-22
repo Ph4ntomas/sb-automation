@@ -2,10 +2,8 @@
 
 --- TODO: documents args
 
-function init(virtual)
-  if not virtual then
+function init()
     storageApi.init(args)
-  end
 end
 
 function die()
