@@ -36,9 +36,8 @@ function showFail()
 end
 
 function beforeItemPush(item, nodeId)
-    for _,node in ipairs(self.connectionMap[nodeId]) do
-
-        if self.filterCount[node] > 0 then
+    for _,node in pairs(self.connectionMap[nodeId]) do
+        if self.filterCount[node] > 0 and self.filter[node][item.name] then
             for _,filtItem in pairs(self.filter[node][item.name]) do
                 if sfutil.compare(item, filtItem, self.ignoreFields) then
                     local ret = peekPushItem(node, item)
@@ -57,7 +56,7 @@ function onItemPush(item, nodeId)
     local resultNode = 1
 
     for _,node in ipairs(self.connectionMap[nodeId]) do
-        if self.filterCount[node] > 0 then
+        if self.filterCount[node] > 0 and self.filter[node][item.name] then
             for _, filtItem in pairs(self.filter[node][item.name]) do
                 if sfutil.compare(item, filtItem, self.ignoreFields) then
                     local peek = peekPushItem(node, item)
@@ -80,51 +79,59 @@ function onItemPush(item, nodeId)
     return pushResult
 end
 
-function beforeItemPull(filter, nodeId)
-    for _,node in ipairs(self.connectionMap[nodeId]) do
-        if self.filterCount[node] > 0 then
-            local pullFilter = {}
-            local filterMatch = false
-            for filterString, amount in pairs(filter) do
-                if self.filter[node][filterString] then
-                    pullFilter[filterString] = amount
-                    filterMatch = true
+local function mergeFilters(node, filters)
+    local match = false
+    local merged = {}
+
+    if self.filterCount[node] > 0 and filters then
+        for _, filter in pairs(filters) do
+            local filtItem = filter.item
+            if self.filter[node][filtItem.name] then
+                for _, item in pairs(self.filter[node][filtItem.name]) do
+                    if sfutil.compare(filtItem, item, self.ignoreFields) then
+                        merged[#merged + 1] = filter
+                        match = true
+                        break
+                    end
                 end
             end
+        end
+    end
 
-            if filterMatch then
-                local ret = peekPullItem(self.connectionMap[nodeId], pullFilter)
+    return match, merged
+end
 
-                if ret then return ret[2] end
-            end
+function beforeItemPull(filters, nodeId)
+    for _,node in ipairs(self.connectionMap[nodeId]) do
+        local match, pullFilters = mergeFilters(node, filters)
+
+        if match then
+            local ret = peekPullItem(self.connectionMap[nodeId], pullFilters)
+
+            if ret then return ret[2] end
         end
     end
 
     return nil
 end
 
-function onItemPull(filter, nodeId)
+function onItemPull(item, nodeId)
     local pullResult = false
-    local resultNode = 1
+    local filters = {{
+        item = item,
+        amount = {item.count, item.count}
+    }}
 
     for _,node in ipairs(self.connectionMap[nodeId]) do
-        if self.filterCount[node] > 0 then
-            local pullFilter = {}
-            local filterMatch = false
-            for filterString, amount in pairs(filter) do
-                if self.filter[filterString] then
-                    pullFilter[filterString] = amount
-                    filterMatch = true
-                end
-            end
+        local match, pullFilters = mergeFilters(node, filters)
 
-            if filterMatch then
-                local peek = peekPullItem(self.connectionMap[nodeId], pullFilter)
+        if match then
+            local peek = peekPullItem(self.connectionMap[nodeId], pullFilters)
 
-                if peek then 
-                    pullResult = pullItem(self.connectionMap[nodeId], peek[1])
-                    if pullResult then resultNode = node end
-                end
+            if peek then 
+                pullResult = pullItem(self.connectionMap[nodeId], peek[1])
+                if pullResult then resultNode = node end
+                break
             end
         end
     end
@@ -149,9 +156,7 @@ function buildFilter()
     local contents = world.containerItems(entity.id())
     if contents then
         for key, item in pairs(contents) do
-            if not self.filter[self.filtermap[key]][item.name] then
-                self.filter[self.filtermap[key]][item.name] = {}
-            end
+            self.filter[self.filtermap[key]][item.name] = self.filter[self.filtermap[key]][item.name] or {}
 
             local size = #self.filter[self.filtermap[key]][item.name]
             self.filter[self.filtermap[key]][item.name][size + 1] = item
