@@ -17,7 +17,7 @@ local function tryPushItem(item)
     local peek2 = peekPushItem(2, item)
 
     if peek1 and peek2 then
-        if peek1[2][2] >= peek[2][2] then
+        if peek1[2].count >= peek2[2].count then
             peek = peek1
             node = 1
         else
@@ -50,7 +50,7 @@ function update(dt)
         for key, wItem in pairs(items) do
             result = tryPushItem({wItem.name, wItem.count, parameters = wItem.parameters})
             if result then
-                item.count = result[2][2] --amount accepted
+                item.count = result[2].count --amount accepted
                 world.containerConsume(entity.id(), item)
 
                 break
@@ -85,7 +85,7 @@ function outputItem(item)
     local result = tryPushItem(item)
 
     if result then
-        item.count = item.count - result[2][2]
+        item.count = item.count - result[2].count
     end
 
     if item.count ~= 0 then

@@ -68,6 +68,7 @@
     "/objects/wired/pipe/sfhopper/sfhopper.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
+    "/scripts/sfutil.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],
