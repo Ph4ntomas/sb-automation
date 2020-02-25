@@ -1,5 +1,5 @@
 {
-  "objectName" : "sfquarry_fake",
+  "objectName" : "sfquarry_stand",
   "rarity" : "Common",
   "description" : "Mines out blocks for you.",
   "shortdescription" : "Quarry end node",
@@ -19,7 +19,7 @@
   "inventoryIcon" : "sfquarryicon.png",
   "orientations" : [
     {
-      "dualImage" : "sfquarry.png:fake",
+      "dualImage" : "sfquarry.png:stand",
       "imagePosition" : [-8, -8],
 
       "spaceScan" : 0.1,

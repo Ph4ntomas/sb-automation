@@ -7,7 +7,7 @@
 -- @param range - the number of tiles to check
 -- @param dir - The direction in which scanning should happens (either 1 or -1)
 local function drawBeams(from, range, dir)
-    for h = 0, 1 do
+    for h = 0, -1, -1 do
         for i = 2, range,1 do
             local pos = toAbsolutePosition(from, { dir * i, h + 0.5 })
 
@@ -25,16 +25,13 @@ end
 -- @param dir - The direction in which scanning should happens (either 1 or -1)
 -- #return Either false, or a table contaning the id of the marker as it's first value, and it's position as the second value.
 local function scanForMaker(from, range, dir)
-    sb.logInfo("scanForMarker")
     local marker = nil
     local pos = toAbsolutePosition(from, { dir * range, 0})
 
-    world.debugLine(from, pos, "blue")
     local entityIds = world.objectLineQuery(from, pos, {name = "sfquarrymarker", withoutEntityId = entity.id(), order = "nearest"})
 
     if entityIds then
         for _, id in ipairs(entityIds) do
-            world.debugText("entityType = %s", world.entityTypeName(id), world.entityPosition(id), "blue")
             if world.entityTypeName(id) == "sfquarrymarker" then
                 return {id, world.entityPosition(id)}
             end
@@ -49,7 +46,6 @@ end
 -- If a suitable position is found, quarry's stand position is set in storage, as well as it's position, and it's width.
 -- @return True if a suitable position was found.
 local function findStandPosition(quarry)
-    sb.logInfo("findingStand")
     local dir = quarry.dir
     local scanFrom = {quarry.pos[1] + quarry.dir, quarry.pos[2] - 1}
     if quarry.dir > 0 then
@@ -59,9 +55,8 @@ local function findStandPosition(quarry)
     local pos = nil
     local collisionPos = nil
 
-    sb.logInfo("marker %s", marker)
     if marker then
-        pos = marker[2]
+        pos = {marker[2][1], quarry.pos[2]}
     else
         pos = toAbsolutePosition(quarry.pos, { dir * quarry.range, 0 })
     end
@@ -79,13 +74,15 @@ local function findStandPosition(quarry)
     end
 
     if not world.rectCollision(colCheck) then
+        sb.logInfo("marker = %s", marker)
         if not marker or world.breakObject(marker[1], false) then
             quarry.standPos = pos
+            sb.logInfo("standPos = %s", pos)
             quarry.width = math.ceil(math.abs(world.distance(pos, quarry.pos)[1])) - 3 -- is this the width of the quarry ? maybe
             return true
         end
     else
-        drawBeams(quarry, math.abs(pos[1] - quarry.pos[1]), dir)
+        drawBeams(quarry.pos, math.abs(pos[1] - quarry.pos[1]), dir)
         quarry.active = false
     end
 
@@ -114,8 +111,10 @@ end
 local function placeStand(quarry)
     local dir = quarry.dir
     local standQuarryId = world.placeObject("sfquarry_stand", quarry.standPos, -dir)
+    sb.logInfo("trying to spawn stand")
 
     if standQuarryId then
+        sb.logInfo("standPlaced")
         quarry.standId = standQuarryId
         quarry.quarryHolders = setupQuarryHolders(
             quarry.standPos, quarry.width + 1, dir
@@ -199,6 +198,7 @@ function prepareState.enterWith(quarry)
 end
 
 function prepareState.update(dt, quarry)
+    sb.logInfo("quarry.active : %s", quarry.active)
     if quarry.build then -- We are building the quarry
         if quarry.standPos == nil then -- quarry stand is either not set up, or lost somehow
             findStandPosition(quarry)
@@ -220,5 +220,6 @@ function prepareState.update(dt, quarry)
 end
 
 function prepareState.leavingState(quarry)
+    sb.logInfo("Quarry %s leave prepareState. Data are as follow :\n%s", entity.id(), quarry)
     nextState(quarry)
 end

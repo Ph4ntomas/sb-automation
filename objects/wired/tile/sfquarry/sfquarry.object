@@ -25,6 +25,9 @@
     "/scripts/sfenergy.lua",
     "/scripts/stateMachine.lua",
     "sfquarry.lua",
+    "prepareState.lua",
+    "runState.lua",
+    "returnState.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/sfstorageapi.lua",
@@ -48,7 +51,8 @@
   "diggingLoadInterval" : 10,
   "returningLoadInterval" : 1,
 
-  "itemNodes" : [ {"offset": [-1, -1], "dir": [-1, 0]}, {"offset": [1, -1], "dir": [1, 0]} ],
+  "itemNodes" : [ {"offset": [-1, -1], "dir": [-1, 0]} ],
+  "flippedItemNodes" : [ {"offset": [1, -1], "dir": [1, 0]} ],
   "energyConsumptionRate" : 10,
   "energyCapacity" : 50
 

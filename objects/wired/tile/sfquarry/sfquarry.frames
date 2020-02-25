@@ -4,7 +4,7 @@
     "dimensions" : [4, 2],
     "names" : [
       [ "run.1","run.2","run.3","run.4" ],
-      [ "off","energy","items", "fake" ]
+      [ "off","energy","items", "stand" ]
     ]
   },
   "aliases" : {

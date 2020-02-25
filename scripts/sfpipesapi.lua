@@ -72,7 +72,7 @@ function pipes.init(pipeTypes, flipNodes)
     pipes.updateInterval = 1
 
     pipes.types = {}
-    pipes.nodes = {} 
+    pipes.nodes = {}
     pipes.nodeEntities = {}
 
     for _,pipeType in ipairs(pipeTypes) do
@@ -81,7 +81,7 @@ function pipes.init(pipeTypes, flipNodes)
 
     -- Setup Nodes
     for pipeName,pipeType in pairs(pipes.types) do
-        if flipNodes then
+        if flipNodes and object.direction() == -1 then
             pipes.nodes[pipeName] = config.getParameter(pipeType.flippedNodesConfigParameter)
         else
             pipes.nodes[pipeName] = config.getParameter(pipeType.nodesConfigParameter)
@@ -93,6 +93,7 @@ function pipes.init(pipeTypes, flipNodes)
 
             for offset,node in ipairs(pipes.nodes[pipeName]) do
                 nodeList[offset] = { node.offset, "sfinvisipipe" }
+                --nodeList[offset] = { node.offset, "sfcleanpipe" }
             end
 
             object.setMaterialSpaces(nodeList)
