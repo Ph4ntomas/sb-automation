@@ -128,7 +128,9 @@ end
 function storageApi.getMaxStackSize(itemname)
     if itemname == "climbingrope" then return 1000
     elseif itemname == "money" then return 25000 end
+
     local t = root.itemType(itemname)
+
     if (t == "generic") or (t == "coin") or (t == "material") or (t == "consumable") or (t == "thrownitem") or (t == "object") then return 1000
     else return 1 end
 end
@@ -151,9 +153,11 @@ function storageApi.canFitItem(itemname, count, parameters)
         if sfutil.compare(item, v, self.ignoreFields) then
             spacecnt = spacecnt + (max - v.count)
         end
+
         if spacecnt >= count then return true end
     end
-    return false
+
+    return spacecnt >= count
 end
 
 --- Take a specific type of item from storage
@@ -207,6 +211,8 @@ function storageApi.getFirstEmptyIndex()
 end
 
 local function storeMerge(item, test)
+    local max = storageApi.getMaxStackSize(item.name)
+
     for i,stack in storageApi.getIterator() do
         if sfutil.compare(stack, item, self.ignoreFields) and stack.count < max then 
             local amount = math.min(max - stack.count, item.count)
@@ -236,7 +242,7 @@ function storageApi.storeItem(itemname, count, parameters)
     if beforeItemStored and beforeItemStored(itemname, count, parameters) then return false end
     local max = storageApi.getMaxStackSize(itemname)
 
-    local item = {name = name, count = count, parameters = parameters}
+    local item = {name = itemname, count = count, parameters = parameters}
 
     if storageApi.isMerging() then
         item = storeMerge(item)
