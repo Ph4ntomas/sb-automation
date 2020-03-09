@@ -55,7 +55,6 @@ end
 
 --- Energy
 function onEnergySendCheck()
-    -- sb.logInfo("sfsolarpanel :: energySendCheck -> " .. sb.print(storage.state) .. "-> energy = " .. energy.getEnergy())
    if storage.state then
       return energy.getEnergy()
    else

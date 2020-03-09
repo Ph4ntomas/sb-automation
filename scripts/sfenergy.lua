@@ -217,7 +217,6 @@ end
 -- @returns amount of energy generated
 function energy.generateEnergy(dt)
   local amount = energy.generationRate * dt
-  --sb.logInfo("generating %f energy", amount)
   return energy.addEnergy(amount)
 end
 
@@ -306,12 +305,6 @@ function energy.makeConnectionConfig(entityId)
       config.isRelay = false
   end
 
-  -- if config.isRelay then
-  --   sb.logInfo("%s %d thinks %d is a relay", config.getParameter("objectName"), entity.id(), entityId)
-  --
-  -- else
-  --   sb.logInfo("%s %d thinks %d is NOT a relay", config.getParameter("objectName"), entity.id(), entityId)
-  -- end
   return config
 end
 
@@ -378,7 +371,6 @@ end
 
 --adds appropriate entries into energy.connections and energy.sortedConnections
 function energy.addToConnectionTable(entityId)
-    --sb.logInfo("addToConnectionTable : " .. sb.print(energy.connections))
   if energy.connections[entityId] == nil then
     local cConfig = energy.makeConnectionConfig(entityId)
     energy.connections[entityId] = cConfig
@@ -388,24 +380,16 @@ function energy.addToConnectionTable(entityId)
     for i, cId in ipairs(energy.sortedConnections) do
       local cConfig2 = energy.connections[cId]
       if cConfig.isRelay == cConfig2.isRelay then
-        -- sb.logInfo("comparing distance %f to %f", cConfig.distance, cConfig2.distance)
         if cConfig.distance < cConfig2.distance then
-          -- if cConfig.isRelay then
-          --   sb.logInfo("inserting relays in order of distance")
-          -- else
-          --   sb.logInfo("inserting non-relays in order of distance")
-          -- end
           insertIndex = i
           break
         end
       elseif cConfig2.isRelay and not cConfig.isRelay then
-        -- sb.logInfo("inserting after relay")
         insertIndex = i
         break
       end
     end
     if not insertIndex then
-      -- sb.logInfo("inserting at end")
       insertIndex = #energy.sortedConnections + 1
     end
     table.insert(energy.sortedConnections, tonumber(insertIndex), entityId)
@@ -420,11 +404,7 @@ end
 
 -- callback for energy.connect
 function energy.onConnect(entityId)
-  -- if self.energyInitialized then
     energy.addToConnectionTable(entityId)
-  -- else
-  --   sb.logInfo("%s %d wasn't initialized at connection time! hopefully we'll connect later...", config.getParameter("objectName"), entity.id())
-  -- end
 end
 
 -- removes the appropriate entries from energy.connections and energy.sortedConnections
@@ -436,8 +416,6 @@ function energy.removeFromConnectionTable(entityId)
       break
     end
   end
-  -- sb.logInfo("%s %d disconnected from %d:", config.getParameter("objectName"), entity.id(), entityId)
-  -- sb.logInfo(energy.sortedConnections)
 end
 
 -- disconnects from the specified entity id
@@ -468,21 +446,14 @@ function energy.findConnections()
       order = "nearest"
     })
 
-    --sb.logInfo("found connections : " .. sb.print(entityIds))
-
   --connect
   for i, entityId in ipairs(entityIds) do
     energy.connect(entityId)
   end
-
-  -- sb.logInfo("%s %d found %d entities within range:", config.getParameter("objectName"), entity.id(), #entityIds)
-  -- sb.logInfo(entityIds)
-  -- sb.logInfo(energy.sortedConnections)
 end
 
 -- performs periodic LoS checks on connected entities
 function energy.checkConnections()
-  --sb.logInfo("checking connections ...")
   for entityId, pConfig in pairs(energy.connections) do
     energy.connections[entityId].blocked = energy.checkLoS(pConfig.srcPos, pConfig.tarPos, entityId)
   end
@@ -526,10 +497,6 @@ function energy.energyNeedsQuery(energyNeeds)
         energyNeeds = newEnergyNeeds
       end
       
-      -- if energyNeeds[tostring(entityId)] == nil then
-      --   sb.logInfo("%s %d failed to add itself to energyNeeds table", world.callScriptedEntity(entityId, "config.getParameter", "objectName"), entityId)
-      -- end
-      
       if energyNeeds["total"] > prevTotal then
         energy.showTransferEffect(entityId)
       end
@@ -541,7 +508,6 @@ end
 
 -- callback for receiving incoming energy pulses
 function energy.receiveEnergy(amount)
-  --sb.logInfo("%s %d receiving %d energy...", config.getParameter("objectName"), entity.id(), amount)
   if onEnergyReceived then
     return onEnergyReceived(amount)
   else
@@ -551,10 +517,6 @@ end
 
 -- pushes energy to connected entities. amount is divided "fairly" between the valid receivers
 function energy.sendEnergy(amount)
-  if config.getParameter("objectName") ~= "sfrelay" then
-    --sb.logInfo("%s %s sending %s energy...", config.getParameter("objectName"), entity.id(), amount)
-  end
-
   -- get the network's energy needs
   local energyNeeds = {total=0, sourceId=entity.id()}
   energyNeeds[tostring(entity.id())] = 0

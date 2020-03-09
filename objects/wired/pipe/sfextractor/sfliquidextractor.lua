@@ -3,7 +3,6 @@ function init(args)
     energy.init()
 
     local dir = root.itemConfig(object.name())["directory"]
-    sb.logInfo("conversions = %s", root.assetJson(dir .. config.getParameter("conversions"))["snow"] )
 
     object.setInteractive(true)
 

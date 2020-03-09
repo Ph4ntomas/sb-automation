@@ -80,16 +80,11 @@ function checkBatteries()
     self.totalStoredEnergy = self.totalStoredEnergy + batteryStatus.energy
   end
 
-  --sb.logInfo("found %s batteries with %s total unused capacity", #entityIds, self.totalUnusedCapacity)
-  --sb.logInfo(sb.print(self.batteries))
-
   --order batteries left -> right
   table.sort(self.batteries, battCompare)
 
   updateAnimationState()
   self.batteryCheckTimer = self.batteryCheckFreq --reset this here so we don't perform periodic checks right after a pulse
-
-  --sb.logInfo(sb.print(self.batteries))
 end
 
 function updateAnimationState()
