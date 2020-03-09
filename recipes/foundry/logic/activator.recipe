@@ -7,5 +7,5 @@
     "item" : "activator",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "logic", "misc" ]
+  "groups" : [ "sffoundry", "all", "logic", "misc" ]
 }

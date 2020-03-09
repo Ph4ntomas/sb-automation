@@ -5,5 +5,5 @@
     { "item" : "tungstenbar", "count" : 5 }
   ],
   "output" : { "item" : "ptmagnetizer", "count" : 1 },
-  "groups" : [ "foundry", "all", "magnets" ]
+  "groups" : [ "sffoundry", "all", "magnets" ]
 }

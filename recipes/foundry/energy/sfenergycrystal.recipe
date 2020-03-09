@@ -7,5 +7,5 @@
     "item" : "sfenergycrystal",
     "count" : 5
   },
-  "groups" : [ "foundry", "all", "energy" ]
+  "groups" : [ "sffoundry", "all", "energy" ]
 }

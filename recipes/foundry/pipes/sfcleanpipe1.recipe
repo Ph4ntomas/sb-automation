@@ -9,5 +9,5 @@
         "materialHueShift" : 45
     }
   },
-  "groups" : [ "foundry", "all", "pipes" ]
+  "groups" : [ "sffoundry", "all", "pipes" ]
 }

@@ -6,5 +6,5 @@
     "item" : "sfpipespout",
     "count" : 2
   },
-  "groups" : [ "foundry", "all", "pipes" ]
+  "groups" : [ "sffoundry", "all", "pipes" ]
 }

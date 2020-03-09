@@ -1,0 +1,71 @@
+{
+  "objectName" : "sffoundry",
+  "rarity" : "Legendary",
+  "printable" : false,
+
+  "interactAction" : "OpenCraftingInterface",
+  "interactData" : {
+    "config" : "/interface/windowconfig/sffoundry.config",
+    "filter" : [ "sffoundry" ]
+  },
+
+  "filterButtons" : [ 
+    {
+    "baseImage" : "/objects/crafting/sffoundry/icons/misc.png",
+    "baseImageChecked" : "/objects/crafting/sffoundry/icons/miscpressed.png",
+    "filter" : "misc"
+	},
+    {
+    "baseImage" : "/objects/crafting/sffoundry/icons/logic.png",
+    "baseImageChecked" : "/objects/crafting/sffoundry/icons/logicpressed.png",
+    "filter" : "logic"
+	},
+    {
+    "baseImage" : "/objects/crafting/sffoundry/icons/pipes.png",
+    "baseImageChecked" : "/objects/crafting/sffoundry/icons/pipespressed.png",
+    "filter" : "pipes"
+	},
+    {
+    "baseImage" : "/objects/crafting/sffoundry/icons/energy.png",
+    "baseImageChecked" : "/objects/crafting/sffoundry/icons/energypressed.png",
+    "filter" : "energy"
+	},
+    {
+    "baseImage" : "/objects/crafting/sffoundry/icons/magnets.png",
+    "baseImageChecked" : "/objects/crafting/sffoundry/icons/magnetspressed.png",
+    "filter" : "magnets"
+	}
+  ],
+  
+  "description" : "Automation ahead!",
+  "shortdescription" : "Foundry",
+  "race" : "generic",
+  "category" : "crafting",
+
+  "apexDescription" : "For testing!",
+  "avianDescription" : "For testing!",
+  "floranDescription" : "For testing!",
+  "glitchDescription" : "For testing!",
+  "humanDescription" : "For testing!",
+  "hylotlDescription" : "For testing!",
+
+  "inventoryIcon" : "sffoundry.png",
+  "orientations" : [
+    {
+      "image" : "sffoundry.png",
+      "imagePosition" : [0, 0],
+      "frames" : 5,
+      "animationCycle" : 3.5,
+      
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ],
+      "direction" : "right"
+    }
+  ],
+  
+  "animation" : "/objects/crafting/sffoundry/sffoundry.animation",
+  "animationParts" : {
+    "tabula" : "sffoundry.png"
+  },
+  "animationPosition" : [0, 0]
+}

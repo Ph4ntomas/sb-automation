@@ -7,5 +7,5 @@
     { "item" : "money", "count" : 1000 }
   ],
   "output" : { "item" : "oremagnet", "count" : 1 },
-  "groups" : [ "foundry", "all", "magnets", "misc" ]
+  "groups" : [ "sffoundry", "all", "magnets", "misc" ]
 }

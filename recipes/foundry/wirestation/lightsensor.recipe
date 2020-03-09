@@ -4,5 +4,5 @@
     { "item" : "siliconboard", "count" : 1 }
   ],
   "output" : { "item" : "lightsensor", "count" : 1 },
-  "groups" : [ "foundry", "all", "logic" ]
+  "groups" : [ "sffoundry", "all", "logic" ]
 }

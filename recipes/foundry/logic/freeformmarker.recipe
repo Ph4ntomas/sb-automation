@@ -9,5 +9,5 @@
     "item" : "freeformmarker",
     "count" : 10
   },
-  "groups" : [ "foundry", "all", "logic" ]
+  "groups" : [ "sffoundry", "all", "logic" ]
 }

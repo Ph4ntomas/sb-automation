@@ -6,5 +6,5 @@
     "item" : "sfcleanpipe",
     "count" : 5
   },
-  "groups" : [ "foundry", "all", "pipes" ]
+  "groups" : [ "sffoundry", "all", "pipes" ]
 }

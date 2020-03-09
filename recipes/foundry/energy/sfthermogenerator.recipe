@@ -8,5 +8,5 @@
     "item" : "sfthermogenerator",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "energy" ]
+  "groups" : [ "sffoundry", "all", "energy" ]
 }

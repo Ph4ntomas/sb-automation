@@ -10,5 +10,5 @@
     "item" : "sfpowersmelter",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "energy", "pipes" ]
+  "groups" : [ "sffoundry", "all", "energy", "pipes" ]
 }

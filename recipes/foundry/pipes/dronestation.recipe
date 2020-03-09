@@ -9,5 +9,5 @@
     "item" : "dronestation",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "pipes", "misc" ]
+  "groups" : [ "sffoundry", "all", "pipes", "misc" ]
 }

@@ -5,5 +5,5 @@
     { "item" : "sfenergycrystal", "count" : 1 }
   ],
   "output" : { "item" : "ptmagnetblocknegstrong", "count" : 1 },
-  "groups" : [ "foundry", "all", "magnets" ]
+  "groups" : [ "sffoundry", "all", "magnets" ]
 }

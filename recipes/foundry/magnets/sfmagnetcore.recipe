@@ -6,5 +6,5 @@
     "item" : "sfmagnetcore",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "magnets" ]
+  "groups" : [ "sffoundry", "all", "magnets" ]
 }

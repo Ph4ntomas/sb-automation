@@ -7,5 +7,5 @@
     "item" : "randomizer",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "logic" ]
+  "groups" : [ "sffoundry", "all", "logic" ]
 }

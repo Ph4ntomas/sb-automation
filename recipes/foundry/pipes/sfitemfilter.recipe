@@ -7,5 +7,5 @@
     "item" : "sfitemfilter",
     "count" : 1
   },
-  "groups" : [ "foundry", "all", "pipes" ]
+  "groups" : [ "sffoundry", "all", "pipes" ]
 }

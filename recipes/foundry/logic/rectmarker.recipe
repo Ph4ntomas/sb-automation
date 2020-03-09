@@ -8,5 +8,5 @@
     "item" : "rectmarker",
     "count" : 2
   },
-  "groups" : [ "foundry", "all", "logic" ]
+  "groups" : [ "sffoundry", "all", "logic" ]
 }
