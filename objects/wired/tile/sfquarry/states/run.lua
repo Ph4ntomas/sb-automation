@@ -1,7 +1,6 @@
 --- Handle the quarry being stuck somewhere
 -- If the quarry has been stuck for too long, try to find a new suitable position above.
 local function handleStuck(quarry, actualPos)
-    sb.logInfo("quarry.stuck = %s", quarry.stuck)
     if quarry.headPos then
         local dist = world.distance(quarry.headPos, actualPos)
         if inPosition(dist, 0.01) then
@@ -16,7 +15,6 @@ local function handleStuck(quarry, actualPos)
     end
 
     quarry.headPos = actualPos
-    sb.logInfo("quarry.headPos = %s", quarry.headPos)
 
     return false
 end
@@ -33,7 +31,7 @@ local function digBackground(quarry, digPos)
             if mconfig and mconfig["config"]["itemDrop"] ~= nil then
                 world.placeMod(pos, "background", "grass", nil, false)
                 world.damageTiles({pos}, "background", quarry.targetPos, "blockish", 0, 0)
-                world.spawnItem({name = mconfig["config"]["itemDrop"], amount = 1}, v.pos)
+                world.spawnItem({name = mconfig["config"]["itemDrop"], amount = 1}, pos)
 
                 done = true
             end
@@ -211,15 +209,15 @@ local function moveToNextSpot(quarry)
     return true
 end
 
+--- Query for drops in the vicinity of the quarry head. If some drop are found, try to take the item, and add it to the storageApi.
+-- If the item does not fit in storage, the quarry head will drop it again.
 local function takeDrops(quarry)
     local drops = world.itemDropQuery({ quarry.headPos[1], quarry.headPos[2] - (quarry.digRange)}, quarry.digRange / 2)
 
     if drops then
-        sb.logInfo("drops = %s", drops)
         for _, drop in pairs(drops) do
-            sb.logInfo("drop = %s", drop)
             local item = world.takeItemDrop(drop, quarry.id)
-            sb.logInfo("item = %s", item)
+
             if item then
                 local ret = storageApi.storeItemFit(item.name, item.count, item.parameters)
 
@@ -251,14 +249,11 @@ end
 runState = {}
 
 function runState.enter()
-    sb.logWarning("StateMachine trying to enter Run State without data")
     return nil
 end
 
 function runState.enterWith(quarry)
-    sb.logInfo("quarry entering runState")
     if not quarry.run or not quarry.id or quarry.returnPosition then return nil end --or energy.getEnergy() < 1 then return nil end
-    sb.logInfo("quarry entered runState")
 
     quarry.home = false
     quarry.stuck = 0
@@ -269,24 +264,18 @@ end
 
 function runState.update(dt, quarry)
     local actualPos = world.entityPosition(quarry.id)
-    sb.logInfo("quarry.active = %s", quarry.active)
-    sb.logInfo("quarry full = %s", storageApi.isFull())
-    sb.logInfo("actual Pos = %s", actualPos)
 
-    if quarry.active and not storageApi.isFull() then -- and energy.consumeEnergy(dt)
+    if quarry.active and not storageApi.isFull() and energy.consumeEnergy(dt) then -- and energy.consumeEnergy(dt)
         if not actualPos then -- If we can't find a postion, reset the quarry to start from prepare state.
             quarry.id = false
             quarry.returnPosition = nil
             return true
         else
             loadQuarryRegions(dt, quarry)
-            sb.logInfo("wtf")
 
             if handleStuck(quarry, actualPos) then return true end -- handleStuck should find a proper returnPosition. If the position is unreachable, it will be respawned by returnState.
-            sb.logInfo("quarry.headPos = %s", quarry.headPos)
 
             if quarry.targetPos then
-                sb.setLogMap("quarry", "target_pos = %s", quarry.targetPos)
                 local dist = world.distance(quarry.targetPos, actualPos)
                 if inPosition(dist, 0.04) then
                     dig(quarry)
@@ -306,6 +295,5 @@ function runState.update(dt, quarry)
 end
 
 function runState.leavingState(quarry)
-    --quarry.run = nil
     nextState(quarry)
 end

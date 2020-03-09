@@ -1,7 +1,6 @@
 function init()
     energy.init()
-    --storageApi.init({mode = 2, capacity = 16, merge = true, join = true, ondeath = 1})
-    storageApi.init({mode = 2, capacity = 1, merge = true, join = true, ondeath = 1})
+    storageApi.init({mode = 2, capacity = 16, merge = true, join = true, ondeath = 1})
     pipes.init({itemPipe}, true)
 
     object.setInteractive(true)
@@ -43,25 +42,18 @@ end
 
 function update(dt)
     local pos = object.position()
-    --sb.logInfo("Updating state")
+
     self.state.update(dt)
-    --sb.logInfo("Updating pipes")
     pipes.update(dt)
-    --sb.logInfo("Updating energy")
     energy.update(dt)
 
-    --animator.resetTransformationGroup("chain")
-    --animator.scaleTransformationGroup("chain", { 1, 10 })
+    storage.quarry.home = isHome(storage.quarry)
 
-    --sb.logInfo("sending items")
     if storage.quarry.home then
         sendItem()
     end
 
-    --sb.logInfo("update animation")
     updateAnimationState()
-
-    --sb.logInfo("update done")
 end
 
 function onInteraction(args, active)
@@ -70,6 +62,11 @@ function onInteraction(args, active)
     else
         storage.quarry.build = true
         storage.quarry.active = active or not storage.quarry.active
+
+        if storage.run or storage.run == false then
+            storage.run = not storage.run
+        end
+
         if not storage.quarry.active and storage.quarry.id then
             sfutil.safe_await(world.sendEntityMessage(storage.quarry.id, "collide"))
         end
@@ -85,7 +82,7 @@ end
 -------------------
 
 function destroyQuarryHolders(from, range, dir)
-    local pos = {0, from[2]}
+    local pos = {0, from[2] + 1}
     for i=1, range do
         pos[1] = i * -dir + from[1]
         world.damageTiles({pos}, "foreground", from, "plantish", 22000)
@@ -98,7 +95,7 @@ function bootQuarry(quarry)
     local dir = object.direction()
     local spawnPos = object.toAbsolutePosition({math.min(0, dir), 0})
 
-    animator.setAnimationState("quarryState", "idle")
+    --animator.setAnimationState("quarryState", "idle")
 
     quarry.pos = spawnPos
     quarry.homePos = spawnPos
@@ -134,7 +131,6 @@ function loadRegions(quarry)
             {minPosX, minPosY}, {minPosX, maxPosY},
             {maxPosX, maxPosY}, {maxPosX, minPosY}
         }
-        sb.logInfo("poly = %s", poly)
         world.debugPoly(poly, "blue")
 
         world.loadRegion({minPosX, minPosY, maxPosX, maxPosY})
@@ -255,14 +251,10 @@ function updateAnimationState()
     end
 
     if energy.getEnergy() > 1 then
-        if storage.quarry.run then
+        if storage.quarry.run and storage.quarry.active then
             animator.setAnimationState("quarryState", "run")
         elseif storage.quarry.returnPosition then
-            if storage.quarry.returnDirection > 0 then
-                animator.setAnimationState("quarryState", "return")
-            else
-                animator.setAnimationState("quarryState", "run")
-            end
+            animator.setAnimationState("quarryState", "return")
         elseif storageApi.getCount() > 0 then
             animator.setAnimationState("quarryState", "items")
         else
@@ -297,8 +289,17 @@ function isActive()
     return storage.quarry.active and storage.quarry.run and not storage.quarry.returnPosition
 end
 
+function isHome(quarry) 
+    if not quarry.headPos or not quarry.homePos then
+        return false
+    end
+
+    local distance = world.distance(quarry.headPos, quarry.homePos)
+
+    return inPosition(distance, 0.04)
+end
+
 function die()
-    sb.logInfo("die called")
     energy.die()
     if storage.quarry then
         killQuarry(storage.quarry)

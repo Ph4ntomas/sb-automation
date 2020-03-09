@@ -21,17 +21,17 @@
   ],
 
   "scripts" : [
+    "sfquarry.lua",
+    "states/prepare.lua",
+    "states/run.lua",
+    "states/return.lua",
     "/scripts/datawire.lua",
     "/scripts/sfenergy.lua",
-    "/scripts/stateMachine.lua",
-    "sfquarry.lua",
-    "prepareState.lua",
-    "runState.lua",
-    "returnState.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",
     "/scripts/sfstorageapi.lua",
     "/scripts/sfutil.lua",
+    "/scripts/stateMachine.lua",
     "/scripts/util.lua",
     "/scripts/vec2.lua"
   ],

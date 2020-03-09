@@ -74,10 +74,8 @@ local function findStandPosition(quarry)
     end
 
     if not world.rectCollision(colCheck) then
-        sb.logInfo("marker = %s", marker)
         if not marker or world.breakObject(marker[1], false) then
             quarry.standPos = pos
-            sb.logInfo("standPos = %s", pos)
             quarry.width = math.ceil(math.abs(world.distance(pos, quarry.pos)[1])) - 3 -- is this the width of the quarry ? maybe
             return true
         end
@@ -111,10 +109,8 @@ end
 local function placeStand(quarry)
     local dir = quarry.dir
     local standQuarryId = world.placeObject("sfquarry_stand", quarry.standPos, -dir)
-    sb.logInfo("trying to spawn stand")
 
     if standQuarryId then
-        sb.logInfo("standPlaced")
         quarry.standId = standQuarryId
         quarry.quarryHolders = setupQuarryHolders(
             quarry.standPos, quarry.width + 1, dir
@@ -193,12 +189,10 @@ prepareState = {}
 -- @param quarry - Data representing the quarry.
 function prepareState.enterWith(quarry)
     if quarry.returnPosition or quarry.run then return nil end
-    sb.logInfo("Quarry %s enter prepareState with %s", entity.id(), quarry)
     return quarry
 end
 
 function prepareState.update(dt, quarry)
-    sb.logInfo("quarry.active : %s", quarry.active)
     if quarry.build then -- We are building the quarry
         if quarry.standPos == nil then -- quarry stand is either not set up, or lost somehow
             findStandPosition(quarry)
@@ -220,6 +214,5 @@ function prepareState.update(dt, quarry)
 end
 
 function prepareState.leavingState(quarry)
-    sb.logInfo("Quarry %s leave prepareState. Data are as follow :\n%s", entity.id(), quarry)
     nextState(quarry)
 end

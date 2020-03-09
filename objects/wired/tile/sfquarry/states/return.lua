@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 
 local function handleStuck(quarry, actualPos)
-    if inPosition({quarry.pos[1] - actualPos[1], quarry.pos[2] - quarryPos[2]}, 0.01) then
+    if inPosition({quarry.pos[1] - actualPos[1], quarry.pos[2] - actualPos[2]}, 0.01) then
         quarry.stuck = quarry.stuck + 1
         if quarry.stuck > 5 then
             quarry.run = nil
@@ -34,7 +34,6 @@ end
 returnState = {}
 
 function returnState.enterWith(quarry)
-    sb.logInfo("quarry entering returnState")
     if not quarry.returnPosition then
         return nil
     elseif not quarry.id then
@@ -42,8 +41,6 @@ function returnState.enterWith(quarry)
         quarry.returnPosition = nil
         return nil
     end
-
-    sb.logInfo("quarry entered returnState")
 
     quarry.stuck = 0
     quarry.loadTimer = 0
@@ -54,15 +51,20 @@ end
 function returnState.update(dt, quarry)
     local quarryPos = world.entityPosition(quarry.id)
 
-    if quarrypos then
+    if quarryPos then
         loadQuarryRegions(dt, quarry)
         if handleStuck(quarry, quarryPos) then
             return true
         end
 
+        local distance = world.distance(quarry.returnPosition, quarry.headPos)
+        if inPosition(distance, 0.04) then
+            quarry.home = true
+            return true
+        end
+
         quarry.headPos = quarryPos
 
-        local distance = world.distance(quarry.returnPosition, quarry.headPos)
         if moveQuarry(quarry, distance) then
             return false
         end
@@ -80,15 +82,11 @@ function returnState.leavingState(quarry)
         quarry.active = false
     end
 
-    quarry.returnPosition = nil
-
     if quarry.id then
         sfutil.safe_await(world.sendEntityMessage(quarry.id, "collide"))
     end
 
-    if sfutil.compare(quarry.headPos, quarry.homePos) then
-        quarry.home = true
-    end
+    quarry.returnPosition = nil
 
     nextState(quarry)
 end
