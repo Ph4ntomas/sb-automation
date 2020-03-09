@@ -1,7 +1,19 @@
 {
   "objectName" : "sffoundry",
-  "rarity" : "Legendary",
+  "colonyTags" : ["crafting"],
+  "rarity" : "Uncommon",
+  "race" : "generic",
+  "category" : "crafting",
   "printable" : false,
+
+  "shortdescription" : "Foundry",
+  "description" : "Automation ahead!",
+  "apexDescription" : "For testing!",
+  "avianDescription" : "For testing!",
+  "floranDescription" : "For testing!",
+  "glitchDescription" : "For testing!",
+  "humanDescription" : "For testing!",
+  "hylotlDescription" : "For testing!",
 
   "interactAction" : "OpenCraftingInterface",
   "interactData" : {
@@ -36,18 +48,6 @@
     "filter" : "magnets"
 	}
   ],
-  
-  "description" : "Automation ahead!",
-  "shortdescription" : "Foundry",
-  "race" : "generic",
-  "category" : "crafting",
-
-  "apexDescription" : "For testing!",
-  "avianDescription" : "For testing!",
-  "floranDescription" : "For testing!",
-  "glitchDescription" : "For testing!",
-  "humanDescription" : "For testing!",
-  "hylotlDescription" : "For testing!",
 
   "inventoryIcon" : "sffoundry.png",
   "orientations" : [
