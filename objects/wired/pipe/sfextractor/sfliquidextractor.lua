@@ -129,7 +129,7 @@ function update(dt)
                 local liquidOut = {name = blockConversion.liquid, count = storage.placedBlock[3]}
                 local peek = peekPushLiquid(1, liquidOut)
 
-                if peek and peek[2].count > 0 and energy.consumeEnergy(self.energyRate * self.damageRate) then
+                if peek and peek[2].count > 0 and energy.consume(dt, self.energyRate * self.damageRate) then
                     animator.setAnimationState("extractState", "work")
                     if checkBlock() then
                         local placePosition = blockPosition()

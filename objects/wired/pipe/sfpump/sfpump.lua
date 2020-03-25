@@ -111,11 +111,11 @@ function pump(dt)
     local srcNode, tarNode = orderNode(object.direction())
     local filter = {}
 
-    if energy.consumeEnergy(dt, nil, true) then
+    if energy.consume(dt, nil, true) then
         local resPull = tryPull(srcNode)
         local resPush = tryPush(tarNode)
 
-        if (resPull or resPush) and energy.consumeEnergy(dt) then
+        if (resPull or resPush) and energy.consume(dt) then
             animator.setAnimationState("pumping", "pump")
             object.setAllOutputNodes(true)
         else

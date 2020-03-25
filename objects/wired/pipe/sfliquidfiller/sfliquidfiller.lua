@@ -54,7 +54,7 @@ function createCapsule(dt, liquidId, amount, pushExcess)
     if amount >= self.liquidAmount then
         local capsule, peek = fillCapsule({name = liquidId, count = self.liquidAmount})
 
-        if capsule and energy.consumeEnergy(dt, 10) then
+        if capsule and energy.consume(dt, 10) then
             pushItem(1, peek[1])
             storage.liquids[liquidId] = amount - self.liquidAmount
 
