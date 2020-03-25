@@ -37,5 +37,15 @@
 
   "energySendRate" : 20,
   "energyGenerationRate" : 20,
-  "energyCapacity" : 20
+  "energyCapacity" : 20,
+
+  "fuelValues" : {
+    "coalore": 2,
+    "uraniumore": 4,
+    "uraniumrod": 4,
+    "plutoniumore": 6,
+    "plutoniumrod": 6,
+    "solariumore": 8,
+    "solariumrod": 8
+  }
 }

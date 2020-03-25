@@ -1,7 +1,7 @@
 function init()
     energy.init()
 
-    self.fuelValues = {
+    self.fuelValues = config.getParameter("fuelValues") or {
       coalore=2,
       uraniumore=4,
       uraniumrod=4,
@@ -83,7 +83,7 @@ function updateAnimationState()
   end
 
   animator.resetTransformationGroup("fuelbar")
-  animator.transformTransformationGroup("fuelbar", math.min(1, storage.fuel / self.fuelMax), 0, 0, 1, 0, 0)
+  animator.transformTransformationGroup("fuelbar", math.min(1, storage.fuel / self.fuelMax), 0, 0, 1, -1.6, 0)
 end
 
 function checkNodes()
@@ -96,15 +96,15 @@ function checkNodes()
 end
 
 --never accept energy from elsewhere
-function onEnergyNeedsCheck(energyNeeds)
-  energyNeeds[tostring(entity.id())] = 0
-  return energyNeeds
+function onEnergyNeedsCheck(needDesc)
+    needDesc.needs[entity.id()] = 0
+    return needDesc
 end
 
 --only send energy while generating (even if it's in the pool... could try revamping this later)
 function onEnergySendCheck()
   if storage.state then
-    return energy.getEnergy()
+    return energy.get()
   else
     return 0
   end
@@ -149,12 +149,13 @@ end
 
 function generate(dt)
   local tickFuel = self.fuelUseRate * dt
+
   if storage.fuel >= tickFuel then
     storage.fuel = storage.fuel - tickFuel
-    energy.addEnergy(tickFuel * energy.fuelEnergyConversion)
+    energy.add(tickFuel * energy.fuelConversion)
     return true
   elseif storage.fuel > 0 then
-    energy.addEnergy(storage.fuel * energy.fuelEnergyConversion)
+    energy.add(storage.fuel * energy.fuelConversion)
     storage.fuel = 0
     return true
   else

@@ -44,7 +44,7 @@
           "image" : "<partImage>",
           "centered" : false,
           "transformationGroups" : [ "fuelbar" ],
-          "offset" : [-1.625, 0.375],
+          "offset" : [0, 0.375],
           "zLevel" : 2
         }
       }
