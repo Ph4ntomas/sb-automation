@@ -12,12 +12,12 @@ end
 
 function die()
   local position = entity.position()
-  if energy.getEnergy() == 0 then
+  if energy.get() == 0 then
     world.spawnItem("sfbattery", {position[1] + 0.5, position[2] + 1}, 1)
   elseif energy.getUnusedCapacity() == 0 then
-    world.spawnItem("sffullbattery", {position[1] + 0.5, position[2] + 1}, 1, {savedEnergy=energy.getEnergy()})
+    world.spawnItem("sffullbattery", {position[1] + 0.5, position[2] + 1}, 1, {savedEnergy=energy.get()})
   else
-    world.spawnItem("sfbattery", {position[1] + 0.5, position[2] + 1}, 1, {savedEnergy=energy.getEnergy()})
+    world.spawnItem("sfbattery", {position[1] + 0.5, position[2] + 1}, 1, {savedEnergy=energy.get()})
   end
 
   energy.die()
@@ -31,7 +31,7 @@ function getBatteryStatus()
   return {
     id=entity.id(),
     capacity=energy.getCapacity(),
-    energy=energy.getEnergy(),
+    energy=energy.get(),
     unusedCapacity=energy.getUnusedCapacity(),
     position=entity.position(),
     acceptCharge=self.acceptCharge
@@ -48,7 +48,7 @@ function showChargeEffect()
 end
 
 function updateAnimationState()
-  local chargeAmt = energy.getEnergy() / energy.getCapacity()
+  local chargeAmt = energy.get() / energy.getCapacity()
   animator.resetTransformationGroup("chargebar")
   animator.transformTransformationGroup("chargebar", 1, 0, 0, chargeAmt, 0, 0)
 end
