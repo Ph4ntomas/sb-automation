@@ -1,0 +1,53 @@
+{
+  "objectName" : "sfjumppad",
+  "objectType" : "physics",
+  "colonyTags" : ["wired"],
+  "printable" : false,
+  "rarity" : "Common",
+  "description" : "A pad that imparts upward kinetic energy to beings that touch it.",
+  "shortdescription" : "Jump Pad",
+  "race" : "generic",
+
+  "category" : "wire",
+  "price" : 350,
+
+  "floranDescription" : "Repelss objectss with a ssstrong elastic force",
+  "glitchDescription" : "Impressed. Repels objects with a strong elastic force",
+
+  "inventoryIcon" : "sfjumppadicon.png",
+  "orientations" : [
+    {
+      "dualImage" : "sfjumppad.png:idle",
+      "imagePosition" : [-8, 0],
+      "collision" : "platform",
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ]
+    }
+  ],
+
+  "scripts" : [ "sfjumppad.lua", "/scripts/sfenergy.lua" ],
+  "scriptDelta" : 1,
+
+  "animation" : "sfjumppad.animation",
+
+  "animationParts" : {
+    "base" : "sfjumppad.png"
+  },
+  "animationPosition" : [-8, 0],
+
+  "inputNodes" : [ [-1, 0] ],
+  "physicsForces" : {
+    "jumpForce" : {
+      "type" : "DirectionalForceRegion",
+      "rectRegion" : [-1, 0, 2, 4],
+      "yTargetVelocity" : 60,
+      "controlForce" : 1600
+    }
+  },
+
+  "boostPower" : 4000,
+  "jumpSound" : "/sfx/tech/tech_doublejump.wav",
+
+  "energyPerJump" : 5,
+  "energyCapacity" : 50
+}

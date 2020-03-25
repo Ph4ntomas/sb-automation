@@ -11,6 +11,9 @@
             "frames" : 3,
             "mode" : "loop",
             "cycle" : 0.5
+          },
+          "error" : {
+            "frames" : 1
           }
         }
       }
@@ -32,6 +35,11 @@
             "jump" : {
               "properties" : {
                 "image" : "<partImage>:jump.<frame>"
+              }
+            },
+            "error" : {
+              "properties" : {
+                "image": "<partImage>:error"
               }
             }
           }
