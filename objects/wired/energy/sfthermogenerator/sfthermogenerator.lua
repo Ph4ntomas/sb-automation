@@ -94,9 +94,9 @@ function pullLava()
 end
 
 --never accept energy from elsewhere
-function onEnergyNeedsCheck(energyNeeds)
-    energyNeeds[tostring(entity.id())] = 0
-    return energyNeeds
+function onEnergyNeedsCheck(needDesc)
+    needDesc.need[entity.id()] = 0
+    return needDesc
 end
 
 function generate(dt)
@@ -120,7 +120,7 @@ function generate(dt)
 
                 --convert lava to energy
                 storage.lavaLevel = storage.lavaLevel - consumeLava
-                energy.addEnergy(self.energyPerLava * consumeLava)
+                energy.add(self.energyPerLava * consumeLava)
 
                 animator.setParticleEmitterActive("steam"..i, true)
             else
