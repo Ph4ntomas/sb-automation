@@ -51,7 +51,7 @@ function update(dt)
     pullOre()
   end
   
-  if storage.ore.name and storage.state and energy.consumeEnergy(dt) then
+  if storage.ore.name and storage.state and energy.consume(dt) then
     local oreConversion = self.conversions[storage.ore.name]
     local bar = {name = oreConversion[3], count = oreConversion[2], parameters = {}}
     
