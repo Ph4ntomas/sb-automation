@@ -1,570 +1,503 @@
 require '/scripts/sfutil.lua'
-
-function getProjectileSourcePositionHndl(_, _)
-    return energy.getProjectileSourcePosition()
-end
-
-function isRelayHndl(_, _)
-    if not energy.isRelay then
-        return false
-    end
-    return energy.isRelay()
-end
-
-function getCollisionBlocksHndl(_, _)
-    return energy.getCollisionBlocks()
-end
-
-function onConnectHndl(_, _, id)
-    return energy.onConnect(id)
-end
-
-function onDisconnectHndl(_, _, id)
-    return energy.onDisconnect(id)
-end
-
-function getEnergyNeedsHndl(_, _, amount)
-    return energy.getEnergyNeeds(amount)
-end
-
-function receiveEnergyHndl(_, _, amount)
-    return energy.receiveEnergy(amount)
-end
-
-function removeEnergyHndl(_,_, amount)
-    return energy.removeEnergy(amount)
-end
+require '/scripts/sfenergy/messages.lua'
 
 energy = {}
 
-function getFromArgOrParameter(args, key, default)
-    arg = args[key] 
-    param = config.getParameter(key, default)
-    return arg or param or default
-end
-
--- Initializes the energy module (MUST BE CALLED IN OBJECT init() FUNCTION)
-function energy.init(args)
-  if not args then
-    args = {}
-  end
-
-  --energy per unit of fuel for automated conversions
-  energy.fuelEnergyConversion = 100
-
-  --can be used to disallow direct connection (e.g. for battery)
-  if not args["energyAllowConnection"] == nil then
-      energy.allowConnection = args["energyAllowConnection"]
-  else
-      energy.allowConnection = config.getParameter("energyAllowConnection", true)
-  end
-
-  --capacity of internal energy storage
-  energy.capacity = getFromArgOrParameter(args, "energyCapacity", 0)
-
-  --amount of energy generated per second when active
-  energy.generationRate = getFromArgOrParameter(args, "energyGenerationRate", 0)
-
-  --amount of energy consumed per second when active
-  energy.consumptionRate = getFromArgOrParameter(args, "energyConsumptionRate", 0)
-
-  --current energy storage
-  storage.curEnergy = storage.curEnergy or getFromArgOrParameter(args, "savedEnergy", 0)
-
-  --maximum amount of energy transmitted per second
-  energy.sendRate = getFromArgOrParameter(args, "energySendRate", 0)
-
-  --frequency (in seconds) to push energy (maybe make this hard coded)
-  energy.sendFreq = getFromArgOrParameter(args, "energySendFreq", 0.5)
-
-  --timer variable that tracks the cooldown until next transmission pulse
-  energy.sendTimer = energy.sendFreq
-
-  --prevent projectile spam with multiple generators
-  energy.transferInterval = 0.45
-  energy.transferCooldown = energy.transferInterval
-  energy.transferShown = {}
-
-  --define custom source position for energy projectiles and LoS checks
-  --NOTE: making this too far from the object's position will result in strange behavior (as it is not used in the initial queries for nearby objects)
-  local nodeOffset = getFromArgOrParameter(args, "energyNodeOffset", {0.5, 0.5})
-  energy.nodePosition = {entity.position()[1] + nodeOffset[1], entity.position()[2] + nodeOffset[2]}
-
-  --maximum range (in blocks) that this device will search for entities to connect to
-  --NOTE: we may not want to make this configurable, since it will result in strange behavior if asymmetrical
-  energy.linkRange = getFromArgOrParameter(args, "energyLinkRange", 10)
-
-  --frequency (in seconds) to perform LoS checks on connected entities
-  energy.connectCheckFreq = 0.5
-
-  --timer variable that tracks cooldown until next connection LoS check
-  energy.connectCheckTimer = energy.connectCheckFreq
-
-  --table to hold id's of connected entities (no point storing this since id's change on reload)
-  --  keys are entity id's, values are tables of connection parameters
-  energy.connections = {}
-
-  --helper table for energy.connections that sorts the id's in order of proximity/precedence
-  energy.sortedConnections = {}
-
-  --flag used to run more initialization the first time main() is called (in energy.update(dt))
-  self.energyInitialized = false
-
-  message.setHandler("energy.getProjectileSourcePosition", getProjectileSourcePositionHndl)
-  message.setHandler("energy.isRelay", isRelayHndl)
-  message.setHandler("energy.getCollisionBlocks", getCollisionBlocksHndl)
-  message.setHandler("energy.onConnect", onConnectHndl)
-  message.setHandler("energy.onDisconnect", onDisconnectHndl)
-  message.setHandler("energy.getEnergyNeeds", getEnergyNeedsHndl)
-  message.setHandler("energy.receiveEnergy", receiveEnergyHndl)
-  message.setHandler("energy.removeEnergy", removeEnergyHndl)
-end
-
--- Performs per-tick updates for energy module (MUST BE CALLED IN OBJECT main() FUNCTION)
-function energy.update(dt)
-  if self.energyInitialized then
-    --periodically reset projectile anti-spam list
-    if energy.transferCooldown > 0 then
-      energy.transferCooldown = energy.transferCooldown - dt
-      if energy.transferCooldown <= 0 then
-        energy.transferShown = {}
-        energy.transferCooldown = energy.transferInterval
-      end
+-- Local functions
+local function getFromArgOrParameter(args, key, default)
+    arg = args[key]
+    
+    if arg == nil then
+        arg = config.getParameter(key, default)
     end
 
-    --periodic energy transmission pulses
-    if energy.sendRate > 0 then
-      energy.sendTimer = energy.sendTimer - dt
-      while energy.sendTimer <= 0 do
-        local energyToSend = math.min(energy.getAvailableEnergy(), energy.sendRate * energy.sendFreq)
-        if energyToSend > 0 then
-          energy.sendEnergy(energyToSend)
+    return arg
+end
+
+local function blockHash(pos)
+    return sb.print("%s,%s", pos[1], pos[2])
+end
+
+local function setupIgnoredBlocks()
+        local ignoredBlocks = config.getParameter("energyCollisionBlocks", nil)
+        if ignoredBlocks then
+            energy.ignoredBlocks = {}
+            for i, block in pairs(ignoredBlocks) do
+                local hash = blockHash(object.toAbsolutePosition(block))
+                energy.ignoredBlocks[hash] = true
+            end
         end
-        energy.sendTimer = energy.sendTimer + energy.sendFreq
-      end
+end
+
+local function showTransferEffect(id)
+    if not energy.transferShown[id] then
+        local config = energy.connections[id]
+        world.spawnProjectile("sfenergytransfer", config.src, entity.id(), config.aim, false, {speed=config.speed})
+        energy.transferShown[id] = true
     end
-
-    --periodic connection checks
-    energy.connectCheckTimer = energy.connectCheckTimer - dt
-    if energy.connectCheckTimer <= 0 then
-      energy.checkConnections()
-      energy.connectCheckTimer = energy.connectCheckFreq
-    end
-  else
-    -- create table of locations this object occupies, which will be ignored in LoS checks
-    local collisionBlocks = config.getParameter("energyCollisionBlocks", nil)
-    if collisionBlocks then
-      energy.collisionBlocks = {}
-      local pos = entity.position()
-      for i, block in ipairs(collisionBlocks) do
-        local blockHash = energy.blockHash({block[1] + pos[1], block[2] + pos[2]})
-        energy.collisionBlocks[blockHash] = true
-      end
-    end
-
-    if energy.allowConnection then
-      energy.findConnections()
-      energy.checkConnections()
-    end
-    self.energyInitialized = true
-  end
 end
 
--- performs any unloading necessary when the object is removed (MUST BE CALLED IN OBJECT die() FUNCTION)
-function energy.die()
-  for entityId, v in pairs(energy.connections) do
-    energy.disconnect(entityId)
-  end
+local function ignoreCollision(pos, srcIgnoredBlocks, tarIgnoredBlocks)
+    if not pos then return true end
+
+    local posHash = blockHash(pos)
+
+    return (srcIgnoredBlocks and srcIgnoredBlocks[blockHash]) or (tarIgnoredBlocks and tarIgnoredBlocks[blockHash])
 end
 
--------------------------------------------------
+local function checkLignOfSight(src, tar, id)
+    local ptarIgnoredBlocks = sfutil.safe_await(world.sendEntityMessage(id, "energy.getIgnoredBlocks"))
+    local srcIgnoredBlocks = energy.getIgnoredBlocks()
+    local tarIgnoredBlocks = ptarIgnoredBlocks:succeeded() and ptarIgnoredBlocks:result()
+    local collisions = world.collisionBlocksAlongLine(src, tar)
 
--- Returns how much energy the object currently holds
-function energy.getEnergy()
-  return storage.curEnergy
-end
+    for _, collision in ipairs(collisions) do
+        if not ignoreCollision(collision, srcIgnoredBlocks, tarIgnoredBlocks) then
+            local material = world.material(collision, "foreground")
+            if material then
+                local conf = root.materialConfig(material)
 
--- sets the current energy pool (and provides a place to update animations, etc.)
-function energy.setEnergy(amount)
-  if amount ~= energy.getEnergy() then
-    storage.curEnergy = amount
-    if onEnergyChange then
-      onEnergyChange(amount)
-    end
-  end
-end
-
--- gets the available energy to send
-function energy.getAvailableEnergy()
-  if onEnergySendCheck then
-    return onEnergySendCheck()
-  else
-    return energy.getEnergy()
-  end
-end
-
--- returns the total amount of space in the object's energy storage
-function energy.getCapacity()
-  return energy.capacity
-end
-
--- returns the amount of free space in the object's energy storage
-function energy.getUnusedCapacity()
-  return energy.capacity - energy.getEnergy()
-end
-
--- adds the appropriate periodic energy generation based on energyGenerationRate and scriptDelta
--- @returns amount of energy generated
-function energy.generateEnergy(dt)
-  local amount = energy.generationRate * dt
-  return energy.addEnergy(amount)
-end
-
--- Adds the specified amount of energy to the storage pool, to a maximum of <energy.capacity> 
--- @returns the amount added
-function energy.addEnergy(amount)
-  local newEnergy = energy.getEnergy() + amount
-  if newEnergy <= energy.getCapacity() then
-    energy.setEnergy(newEnergy)
-    return amount
-  else
-    local addedEnergy = energy.getUnusedCapacity()
-    energy.setEnergy(energy.getCapacity())
-    return addedEnergy
-  end
-end
-
--- reduces the current energy pool by the specified amount, to a minimum of 0
--- @returns the amount of energy removed
-function energy.removeEnergy(amount)
-  local newEnergy = energy.getEnergy() - amount
-  if newEnergy <= 0 then
-    energy.setEnergy(0)
-    return amount + newEnergy
-  else
-    energy.setEnergy(newEnergy)
-    return amount
-  end
-end
-
--- attempt to remove the specified amount of energy
--- @param amount is the amount to consume, or nil to consume the periodic amount
---     as determined by energyConsumptionRate and scriptDelta
--- @param testConsume (optional) if true, will not actually consume energy
--- @returns false if there is insufficient energy stored (and does not remove energy)
-function energy.consumeEnergy(dt, amount, testConsume)
-  if amount == nil then
-    amount = energy.consumptionRate * dt
-  end
-  if amount <= energy.getEnergy() then
-    if not testConsume then energy.removeEnergy(amount) end
-    return true
-  else
-    return false
-  end
-end
-
--------------------------------------------------
-
---Used to determine if device can connect directly to other nodes
-function energy.canConnect()
-  return energy.allowConnection
-end
-
--- returns true if object is a valid energy receiver
-function energy.canReceiveEnergy()
-  return energy.getUnusedCapacity() > 0
-end
-
--- compute all the configuration stuff for the connection and projectile effect
--- TODO: divide rather than duplicate this work between connecting objects
-function energy.makeConnectionConfig(entityId)
-  local config = {}
-  local srcPos = energy.getProjectileSourcePosition()
-  local ptarPos = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.getProjectileSourcePosition"))
-  local tarPos = nil
-
-  if ptarPos:succeeded() then
-      tarPos = ptarPos:result()
-  end
-
-  config.aimVector = world.distance(tarPos, srcPos) --{tarPos[1] - srcPos[1], tarPos[2] - srcPos[2]}
-  config.srcPos = srcPos
-  config.tarPos = tarPos
-  
-  config.distance = world.magnitude(srcPos, tarPos)
-  config.speed = (config.distance / 1.2) -- denominator must == projectile's timeToLive
-  -- Just leaving the code for solid collision checking there, not not using it for now
-  config.blocked = energy.checkLoS(srcPos, tarPos, entityId)
-  --config.blocked = world.lineCollision(srcPos, tarPos) -- world.lineCollision is marginally faster
-  local prelay = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.isRelay"))
-  
-  if prelay:succeeded() then
-      config.isRelay = prelay:result()
-  else
-      config.isRelay = false
-  end
-
-  return config
-end
-
--- Check line of sight from one position to another
-function energy.checkLoS(srcPos, tarPos, entityId)
-  local ignoreBlocksSrc = energy.getCollisionBlocks()
-  local pignoreBlocksTar = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.getCollisionBlocks"))
-  local ignoreBlocksTar = nil
-
-  if pignoreBlocksTar:succeeded() then
-      ignoreBlocksTar = pignoreBlocksTar:result()
-  end
-
-  if ignoreBlocksSrc or ignoreBlocksTar or srcPos[1] < energy.linkRange or tarPos[1] < energy.linkRange then
-    local collisionBlocks = world.collisionBlocksAlongLine(srcPos, tarPos)
-    return energy.checkCollisionBlocks(collisionBlocks, ignoreBlocksSrc, ignoreBlocksTar)
-  else
-      local collisions = world.collisionBlocksAlongLine(srcPos, tarPos)
-
-      for _, collision in ipairs(collisions) do
-          local material = world.material(collision, "foreground")
-          if material then
-              local materialConfig = root.materialConfig(material)
-
-              if materialConfig == nil or materialConfig["config"] == nil 
-                  or materialConfig["config"]["renderParameters"] == nil 
-                  or not materialConfig["config"]["renderParameters"]["lightTransparent"] then
-                  return collision
-              end
-          end
-      end
-    return false
-  end
-end
-
--- Check collision with collision blocks filtered out
-function energy.checkCollisionBlocks(collisionBlocks, ignoreBlocksSrc, ignoreBlocksTar)
-  for i, colBlock in ipairs(collisionBlocks) do
-    local colBlockHash = energy.blockHash(colBlock)
-    if not ((ignoreBlocksSrc and ignoreBlocksSrc[colBlockHash]) or (ignoreBlocksTar and ignoreBlocksTar[colBlockHash])) then
-      --this block is not ignored by either side
-      return true
-    end
-  end
-
-  --default to false if all blocks are ignored
-  return false
-end
-
--- Get collision blocks of this entity
-function energy.getCollisionBlocks()
-  return energy.collisionBlocks
-end
-
--- Get a stringified representation of a block
-function energy.blockHash(blockPos)
-  return string.format("%d,%d", blockPos[1], blockPos[2])
-end
-
--- get the source position for the visual effect (TODO: replace with something better)
-function energy.getProjectileSourcePosition()
-  return energy.nodePosition
-end
-
---adds appropriate entries into energy.connections and energy.sortedConnections
-function energy.addToConnectionTable(entityId)
-  if energy.connections[entityId] == nil then
-    local cConfig = energy.makeConnectionConfig(entityId)
-    energy.connections[entityId] = cConfig
-
-    --insert into the proper place in sortedConnections (ordered by distance, with receivers before relays)
-    local insertIndex = false
-    for i, cId in ipairs(energy.sortedConnections) do
-      local cConfig2 = energy.connections[cId]
-      if cConfig.isRelay == cConfig2.isRelay then
-        if cConfig.distance < cConfig2.distance then
-          insertIndex = i
-          break
+                if conf == nil or conf["config"]["renderParameters"] == nil or not conf["config"]["renderParameters"]["lightTransparent"] then
+                    return true
+                end
+            end
         end
-      elseif cConfig2.isRelay and not cConfig.isRelay then
-        insertIndex = i
+    end
+    
+    return false
+end
+
+local function searchConnections(dt)
+    if energy.connectionSearchCooldown > 0 then
+        energy.connectionSearchCooldown = energy.connectionSearchCooldown - dt
+    else
+        energy.connections = energy.connections or {}
+
+        local ids = world.objectQuery(energy.nodePosition, energy.linkRange, {
+            withoutEntityId = entity.id(),
+            callScript = "energy.canConnect",
+            order = nearest
+        })
+
+        for _, entityId in pairs(ids) do
+            energy.connect(entityId)
+        end
+
+        energy.connectionSearchCooldown = energy.connectionSearchFreq
+    end
+end
+
+local function refreshConnectionConfig(id, data, src, tar)
+    data.src = src
+    data.tar = tar
+    data.aim = world.distance(tar, src)
+    data.dist = world.magnitude(data.aim)
+    data.speed = (data.dist / 1.2)
+
+    return data
+end
+
+local function pruneConnections()
+    local validConnections = {}
+
+    for id, data in pairs(energy.connections) do
+        if world.entityExists(id) then
+            local ptarPos = sfutil.safe_await(world.sendEntityMessage(id, "energy.getNode"))
+            local tarPos = (ptarPos:succeeded() and ptarPos:result()) or nil
+
+            if tarPos then
+                refreshConnectionConfig(id, data, energy.getNode(), tarPos)
+
+                if data.dist <= energy.linkRange then
+                    validConnections[id] = data
+                else
+                    energy.disconnect(id)
+                end
+            end
+        end
+    end
+
+    return validConnections
+end
+
+local function checkConnections(dt)
+    if energy.linkCheckCooldown > 0 then
+        energy.linkCheckCooldown = energy.linkCheckCooldown - dt
+    else
+        energy.connections = pruneConnections()
+
+        for id, data in pairs(energy.connections) do
+            data.blocked = checkLignOfSight(energy.getNode(), data.tar, id)
+        end
+
+        energy.linkCheckCooldown = energy.linkCheckFreq
+    end
+end
+
+local function addSortedConn(id)
+    energy.sortedConn = energy.sortedConn or {}
+    local conf = energy.connections[id]
+    local idx = #energy.sortedConn + 1
+
+    for i, id in ipairs(energy.sortedConn) do
+        local conf2 = energy.connections[id]
+
+        if conf.relay == conf2.relay then
+            if conf.dist < conf2.dist then
+                idx = i
+                break
+            end
+        elseif conf2.relay and not conf.relay then
+            idx = i
+            break
+        end
+    end
+    table.insert(energy.sortedConn, idx, id)
+end
+
+local function addConnection(id)
+    energy.connections = energy.connections or {}
+    local ret = false
+
+    if energy.connections[id] == nil then
+        local ptarPos = sfutil.safe_await(world.sendEntityMessage(id, "energy.getNode"))
+        local prelay = sfutil.safe_await(world.sendEntityMessage(id, "energy.isRelay"))
+        local tar = ptarPos:succeeded() and ptarPos:result() or nil
+
+        local config = refreshConnectionConfig(id, {}, energy.getNode(), tar)
+        config.relay = (prelay:succeeded() and prelay:result()) or false
+
+        ret = config.dist <= energy.linkRange
+
+        if ret then
+            energy.connections[id] = config
+            addSortedConn(id)
+        end
+    end
+
+    return ret
+end
+
+local function removeSortedConn(id)
+    for i, id in ipairs(energy.sortedConn) do
+        table.remove(energy.sortedConn, i)
         break
-      end
     end
-    if not insertIndex then
-      insertIndex = #energy.sortedConnections + 1
-    end
-    table.insert(energy.sortedConnections, tonumber(insertIndex), entityId)
-  end
 end
 
--- connects to the specified entity id
+local function removeConnection(id)
+    removeSortedConn(id)
+    energy.connections[id] = nil
+end
+
+local function compareNeeds(lhs, rhs)
+    return lhs.need < rhs.need
+end
+
+local function sortNeeds(needs)
+    local sortedNeeds = {}
+
+    for id, need in pairs(needs) do
+        sortedNeeds[#sortedNeeds + 1] = {id = id, need = need}
+    end
+    table.sort(sortedNeeds, compareNeeds)
+
+    return sortedNeeds
+end
+
+
+-- Debug functions
+local function debugShowConnections()
+    for id, conf in pairs(energy.connections) do
+        world.debugLine(conf.src, conf.tar, not conf.blocked and "green" or "red")
+    end
+end
+
+local function debugShowAvailable()
+    sb.setLogMap(string.format("%s no%d energy", object.name(), entity.id()), "get : %s, available : %s", energy.get(), energy.getAvailable())
+    sb.setLogMap(string.format("%s no%d capacity", object.name(), entity.id()), "unused : %s/%s", energy.getUnusedCapacity(), energy.getCapacity())
+end
+
+-- !Debug functions
+-- !Local functions
+
+-- Hooks Functions
+local hooks = {}
+
+function hooks.onEnergyChange(oldVal, newVal)
+    return onEnergyChange and onEnergyChange(oldVal, newVal)
+end
+
+function hooks.onEnergyNeedsCheck(needDesc)
+    return onEnergyNeedsCheck and onEnergyNeedsCheck(needDesc)
+end
+
+function hooks.onEnergySendCheck()
+    return onEnergySendCheck and onEnergySendCheck()
+end
+
+function hooks.onEnergySent(amount)
+    return onEnergySent and onEnergySent(amount)
+end
+
+function hooks.onEnergyReceived(amount)
+    return onEnergyReceived and onEnergyReceived(amount)
+end
+-- !Hooks Functions
+
+-- Standard functions
+function energy.init(args)
+    local pos = entity.position()
+
+    if not args then
+        args = {}
+    end
+
+    energy.fuelConversion = 100
+
+    energy.allowConnection = getFromArgOrParameter(args, "energyAllowConnection", true)
+    energy.capacity = getFromArgOrParameter(args, "energyCapacity", 0)
+    energy.generationRate = getFromArgOrParameter(args, "energyGenerationRate", 0)
+    energy.consumptionRate = getFromArgOrParameter(args, "energyConsumptionRate", 0)
+    energy.sendRate = getFromArgOrParameter(args, "energySendRate", 0)
+    energy.sendFreq = getFromArgOrParameter(args, "energySendFreq", 0.5)
+
+    energy.linkRange = getFromArgOrParameter(args, "energyLinkRange", 10)
+    energy.linkCheckFreq = getFromArgOrParameter(args, "energyLinkCheckFreq", 0.5)
+    energy.linkCheckCooldown = energy.linkCheckFreq
+    energy.connectionSearchFreq = getFromArgOrParameter(args, "connectionSearchFreq", energy.linkCheckFreq * 8)
+    energy.connectionSearchCooldown = 0
+
+    energy.connections = {}
+    energy.sortedConn = {}
+
+    local nodeOffset = getFromArgOrParameter(args, "energyNodeOffset", {0.5, 0.5})
+    energy.nodePosition = {pos[1] + nodeOffset[1], pos[2] + nodeOffset[2]}
+
+    energy.sendCooldown = energy.sendFreq
+
+    energy.transferFreq = 0.45
+    energy.transferCooldown = energy.transferFreq
+    energy.transferShown = {}
+
+    storage._sfenergy = {}
+    storage._sfenergy.curEnergy = storage._sfenergy.curEnergy or getFromArgOrParameter(args, "savedEnergy", 0)
+
+    setupIgnoredBlocks()
+
+    sfMessageHooks.energy.init()
+end
+
+function energy.update(dt)
+    if energy.allowConnection then
+        searchConnections(dt)
+        checkConnections(dt)
+        debugShowConnections()
+    end
+
+    if energy.transferCooldown < 0 then
+        energy.transferShown = {}
+        energy.transferCooldown = energy.transferFreq
+    else
+        energy.transferCooldown = energy.transferCooldown - dt
+    end
+
+    --debugShowAvailable()
+
+    if energy.sendRate > 0 then
+        energy.sendCooldown = energy.sendCooldown - dt
+
+        while energy.sendCooldown <= 0 do
+            local toSend = math.min(energy.getAvailable(), energy.sendRate * energy.sendFreq)
+
+            if toSend > 0 then
+                energy.send(toSend)
+            end
+            energy.sendCooldown = energy.sendCooldown + energy.sendFreq
+        end
+    end
+end
+
+function energy.die()
+    for id, _ in pairs(energy.connections) do
+        energy.disconnect(id)
+    end
+end
+-- !Standard functions
+
+-- Primitives
+function energy.get()
+    return storage._sfenergy.curEnergy
+end
+
+function energy.set(amount)
+    amount = amount or 0
+    amount = (amount >= 0 and amount) or 0
+
+    if amount ~= energy.get() then
+        local old = storage._sfenergy.curEnergy
+        storage._sfenergy.curEnergy = amount
+
+        hooks.onEnergyChange(old, energy.get())
+    end
+end
+
+function energy.add(amount)
+    amount = math.min(amount, energy.getUnusedCapacity())
+
+    energy.set(energy.get() + amount)
+
+    return amount
+end
+
+function energy.remove(amount)
+    amount = math.min(amount, energy.get())
+
+    energy.set(energy.get() - amount)
+
+    return amount
+end
+-- !Primitives
+
+-- Capacity Management
+function energy.getAvailable()
+    return hooks.onEnergySendCheck() or energy.get()
+end
+
+function energy.getNeeds(needDesc)
+    local nd = hooks.onEnergyNeedsCheck(needDesc)
+
+    if not nd then
+        local need = energy.getUnusedCapacity()
+        nd = needDesc
+
+        nd.total = nd.total + need
+        nd.needs[tostring(entity.id())] = need
+    end
+    
+    return nd
+end
+
+function energy.getCapacity()
+    return energy.capacity
+end
+
+function energy.getUnusedCapacity()
+    return energy.capacity - energy.get()
+end
+-- !Capacity managment
+
+-- Energy Managment
+function energy.queryNeeds(needDesc)
+    for i, id in ipairs(energy.sortedConn) do
+        local config = energy.connections[id]
+        if not needDesc.needs[tostring(id)] and not config.blocked then
+            local pneed = sfutil.safe_await(world.sendEntityMessage(id, "energy.getNeeds", needDesc))
+            local newNeedDesc = (pneed:succeeded() and pneed:result()) or nil
+            local prevTotal = needDesc.total
+
+            needDesc = newNeedDesc or needDesc
+
+            if prevTotal < needDesc.total then
+                showTransferEffect(id)
+            end
+        end
+    end
+    return needDesc
+end
+
+function energy.send(amount)
+    local needDesc = {total = 0, source = entity.id(), needs = {}}
+    needDesc = energy.queryNeeds(needDesc)
+
+    local needs = sortNeeds(needDesc.needs)
+    local toSend = amount
+    local remains = toSend
+
+    while #needs > 0 do
+        if needs[1].need > 0 then
+            local amount = remains / #needs
+            local paccepted = sfutil.safe_await(
+                world.sendEntityMessage(tonumber(needs[1].id), "energy.receive", amount)
+            )
+            local accepted = (paccepted:succeeded() and paccepted:result()) or 0
+
+            if accepted > 0 then
+                remains = remains - accepted
+            end
+        end
+
+        table.remove(needs, 1)
+    end
+
+    local sent = toSend - remains
+    energy.remove(sent)
+
+    hooks.onEnergySent(sent)
+end
+
+function energy.receive(amount)
+    return hooks.onEnergyReceived(amount) or energy.add(amount)
+end
+
+function energy.generate(dt)
+    local amount = energy.generationRate * (dt or 0)
+    return energy.add(amount)
+end
+
+function energy.consume(dt, amount, test)
+    amount = amount or (energy.consumptionRate * (dt or 0))
+
+    if amount <= energy.get() then
+        if not test then energy.remove(amount) end
+        return true
+    else
+        return false
+    end
+end
+-- !Energy Management
+
+-- Connection Handling
+-- Active end
 function energy.connect(entityId)
-  energy.addToConnectionTable(entityId)
-  world.sendEntityMessage(entityId, "energy.onConnect", entity.id())
-end
-
--- callback for energy.connect
-function energy.onConnect(entityId)
-    energy.addToConnectionTable(entityId)
-end
-
--- removes the appropriate entries from energy.connections and energy.sortedConnections
-function energy.removeFromConnectionTable(entityId)
-  energy.connections[entityId] = nil
-  for i, cId in ipairs(energy.sortedConnections) do
-    if cId == entityId then
-      table.remove(energy.sortedConnections, i)
-      break
+    if addConnection(entityId) then
+        world.sendEntityMessage(entityId, "energy.onConnect", entity.id())
     end
-  end
 end
 
--- disconnects from the specified entity id
 function energy.disconnect(entityId)
-  world.sendEntityMessage(entityId, "energy.onDisconnect", entity.id())
-  energy.removeFromConnectionTable(entityId)
+    world.sendEntityMessage(entityId, "energy.onDisconnect", entity.id())
+    removeConnection(entityId)
+end
+-- Active end
+
+-- Callback
+function energy.onConnect(entityId)
+    addConnection(entityId)
 end
 
--- callback for energy.disconnect
 function energy.onDisconnect(entityId)
-  energy.removeFromConnectionTable(entityId)
+    removeConnection(entityId)
+end
+-- !Callback
+-- !Connection Handling
+
+-- Capabilities Chack
+function energy.canReceive()
+    return energy.getUnusedCapacity() > 0
 end
 
--- Returns a list of connected entity id's
-function energy.getConnections()
-  return self.energyConnections
+function energy.canConnect()
+    return energy.allowConnection
+end
+-- !Capabilities Check
+
+-- Nodes & projectiles
+function energy.getNode()
+    return energy.nodePosition
 end
 
--- finds and connects to entities within <energy.linkRange> blocks
-function energy.findConnections()
-  energy.connections = {}
-  energy.sortedConnections = {}
-
-  --find nearby energy devices within LoS
-  local entityIds = world.objectQuery(entity.position(), energy.linkRange, { 
-      withoutEntityId = entity.id(),
-      callScript = "energy.canConnect",
-      order = "nearest"
-    })
-
-  --connect
-  for i, entityId in ipairs(entityIds) do
-    energy.connect(entityId)
-  end
+function energy.getIgnoredBlocks()
+    return energy.ignoredBlocks
 end
-
--- performs periodic LoS checks on connected entities
-function energy.checkConnections()
-  for entityId, pConfig in pairs(energy.connections) do
-    energy.connections[entityId].blocked = energy.checkLoS(pConfig.srcPos, pConfig.tarPos, entityId)
-  end
-end
-
--- returns the empty capacity (for consumers) or a Very Large Number TM for relays
-function energy.getEnergyNeeds(energyNeeds)
-  if onEnergyNeedsCheck then
-    return onEnergyNeedsCheck(energyNeeds)
-  else
-    energyNeeds["total"] = energyNeeds["total"] + energy.getUnusedCapacity()
-    energyNeeds[tostring(entity.id())] = energy.getUnusedCapacity()
-    return energyNeeds
-  end
-end
-
--- comparator function for table sorting
-function energy.compareNeeds(a, b)
-  if a == -1 then
-    return false -- used to move relays to the end of the list
-  else
-    return a[2] < b[2]
-  end
-end
-
--- traverse the tree and build a list of receivers requesting energy
-function energy.energyNeedsQuery(energyNeeds)
-  -- check energy needs for all connected entities
-  for i, entityId in ipairs(energy.sortedConnections) do
-    if not energyNeeds[tostring(entityId)] and not energy.connections[entityId].blocked then
-      local prevTotal = energyNeeds["total"]
-
-      local pnewEnergyNeeds = sfutil.safe_await(world.sendEntityMessage(entityId, "energy.getEnergyNeeds", energyNeeds))
-      local newEnergyNeeds = nil
-
-      if pnewEnergyNeeds:succeeded() then
-          newEnergyNeeds = pnewEnergyNeeds:result()
-      end
-
-      if newEnergyNeeds then
-        energyNeeds = newEnergyNeeds
-      end
-      
-      if energyNeeds["total"] > prevTotal then
-        energy.showTransferEffect(entityId)
-      end
-    end
-  end
-
-  return energyNeeds
-end
-
--- callback for receiving incoming energy pulses
-function energy.receiveEnergy(amount)
-  if onEnergyReceived then
-    return onEnergyReceived(amount)
-  else
-    return energy.addEnergy(amount)
-  end
-end
-
--- pushes energy to connected entities. amount is divided "fairly" between the valid receivers
-function energy.sendEnergy(amount)
-  -- get the network's energy needs
-  local energyNeeds = {total=0, sourceId=entity.id()}
-  energyNeeds[tostring(entity.id())] = 0
-  energyNeeds = energy.energyNeedsQuery(energyNeeds)
-  energyNeeds["total"] = nil
-  energyNeeds["sourceId"] = nil
-
-  -- build and sort a table from least to most energy requested
-  local sortedEnergyNeeds = {}
-  for entityId, thisNeed in pairs(energyNeeds) do
-    sortedEnergyNeeds[#sortedEnergyNeeds + 1] = {entityId, thisNeed}
-  end
-  table.sort(sortedEnergyNeeds, energy.compareNeeds)
-
-  -- process list and distribute remainder evenly at each step
-  local totalEnergyToSend = amount
-  local remainingEnergyToSend = totalEnergyToSend
-  while #sortedEnergyNeeds > 0 do
-    if sortedEnergyNeeds[1][2] > 0 then
-      local sendAmt = remainingEnergyToSend / #sortedEnergyNeeds
-      local pacceptedEnergy = sfutil.safe_await(world.sendEntityMessage(tonumber(sortedEnergyNeeds[1][1]), "energy.receiveEnergy", sendAmt))
-      local acceptedEnergy = -1
-
-      if pacceptedEnergy:succeeded() then
-          acceptedEnergy = pacceptedEnergy:result()
-      end
-
-
-      if acceptedEnergy > 0 then
-        remainingEnergyToSend = remainingEnergyToSend - acceptedEnergy
-      end
-    end
-    table.remove(sortedEnergyNeeds, 1)
-  end
-
-  --remove the total amount of energy sent
-  local totalSent = totalEnergyToSend - remainingEnergyToSend
-  energy.removeEnergy(totalSent)
-
-  --call hook for objects to update animations, etc
-  if onEnergySend then onEnergySend(totalSent) end
-end
-
--- display a visual indicator of the energy transfer
-function energy.showTransferEffect(entityId)
-  if not energy.transferShown[entityId] then
-    local config = energy.connections[entityId]
-    world.spawnProjectile("sfenergytransfer", config.srcPos, entity.id(), config.aimVector, false, { speed=config.speed })
-    energy.transferShown[entityId] = true
-  end
-end
+-- !Nodes & projectiles
