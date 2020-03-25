@@ -145,7 +145,7 @@ local function replaceOrRunQuarry(quarry)
     local pos = quarry.headPos
 
     if not inPosition(world.distance(pos, world.entityPosition(quarry.id))) then
-        if energy.getEnergy() < 1 or quarry.stuck > 5 then
+        if energy.get() < 1 or quarry.stuck > 5 then
             quarry.active = false
             quarry.returnPosition = quarry.homePos
         else

@@ -253,7 +253,7 @@ function runState.enter()
 end
 
 function runState.enterWith(quarry)
-    if not quarry.run or not quarry.id or quarry.returnPosition then return nil end --or energy.getEnergy() < 1 then return nil end
+    if not quarry.run or not quarry.id or quarry.returnPosition then return nil end
 
     quarry.home = false
     quarry.stuck = 0
@@ -265,7 +265,7 @@ end
 function runState.update(dt, quarry)
     local actualPos = world.entityPosition(quarry.id)
 
-    if quarry.active and not storageApi.isFull() and energy.consumeEnergy(dt) then -- and energy.consumeEnergy(dt)
+    if quarry.active and not storageApi.isFull() and energy.consume(dt) then
         if not actualPos then -- If we can't find a postion, reset the quarry to start from prepare state.
             quarry.id = false
             quarry.returnPosition = nil

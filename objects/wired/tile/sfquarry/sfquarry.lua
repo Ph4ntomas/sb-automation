@@ -250,7 +250,7 @@ function updateAnimationState()
         drawChain(storage.quarry)
     end
 
-    if energy.getEnergy() > 1 then
+    if energy.get() > 1 then
         if storage.quarry.run and storage.quarry.active then
             animator.setAnimationState("quarryState", "run")
         elseif storage.quarry.returnPosition then
