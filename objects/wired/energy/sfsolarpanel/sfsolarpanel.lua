@@ -1,13 +1,11 @@
-function init(virtual)
-    if not virtual then
-        energy.init({energySendFreq = 2})
+function init()
+    energy.init({energySendFreq = 2})
 
-        if storage.state == nil then
-           storage.state = true
-        end
-
-        updateAnimationState()
+    if storage.state == nil then
+        storage.state = true
     end
+
+    updateAnimationState()
 end
 
 function update(dt)
@@ -17,7 +15,7 @@ function update(dt)
    if lightLevel >= config.getParameter("lightLevelThreshold") and checkSolar() then
       local generatedEnergy = lightLevel * config.getParameter("energyGenerationRate") * dt
 
-      energy.addEnergy(generatedEnergy)
+      energy.add(generatedEnergy)
       updateAnimationState()
    end
 end
@@ -56,14 +54,14 @@ end
 --- Energy
 function onEnergySendCheck()
    if storage.state then
-      return energy.getEnergy()
+      return energy.get()
    else
       return 0
    end
 end
 
 --never accept energy from elsewhere
-function onEnergyNeedsCheck(energyNeeds)
-   energyNeeds[tostring(entity.id())] = 0
-   return energyNeeds
+function onEnergyNeedsCheck(needDesc)
+   needDesc.needs[tostring(entity.id())] = 0
+   return needDesc
 end
