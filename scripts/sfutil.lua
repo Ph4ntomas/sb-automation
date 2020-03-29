@@ -97,3 +97,8 @@ function sfutil.compare(ref, oth, ign)
 
     return true
 end
+
+function sfutil.round(val, decimal)
+    local factor = 10^(decimal or 0)
+    return math.floor((val * factor) + 0.5) / factor
+end
