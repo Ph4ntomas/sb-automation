@@ -1,0 +1,118 @@
+[
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/6/matchAllPoints/0/1",
+        "value": "IsPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/5/matchAllPoints/0/1",
+        "value": "IsPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/4/matchAllPoints/3/1",
+        "value": "IsPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/4/matchAllPoints/2/1",
+        "value": "IsPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/4/matchAllPoints/1/1",
+        "value": "IsPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/4/matchAllPoints/0/1",
+        "value": "IsPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/3/subMatches/1/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/3/subMatches/0/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/3/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/2/subMatches/1/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/2/subMatches/0/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/2/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/1/matchAllPoints/1/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/1/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/0/matchAllPoints/1/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "replace",
+        "path": "/matches/0/1/0/subMatches/0/matchAllPoints/0/1",
+        "value": "NotPipe"
+    },
+    {
+        "op": "add",
+        "path": "/rules/IsPipe",
+        "value": {
+            "join": "any",
+            "entries": [
+                {
+                    "type": "EqualsSelf",
+                    "matchHue": true
+                },
+                {
+                    "type": "EqualsId",
+                    "id": 5739
+                }
+            ]
+        }
+    },
+    {
+        "op": "add",
+        "path": "/rules/NotPipe",
+        "value": {
+            "join": "all",
+            "entries": [
+                {
+                    "type": "EqualsSelf",
+                    "matchHue": true,
+                    "inverse": true
+                },
+                {
+                    "type": "EqualsId",
+                    "id": 5739,
+                    "inverse": true
+                }
+            ]
+        }
+    }
+]
