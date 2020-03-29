@@ -21,7 +21,7 @@
     }
   ],
 
-  "scripts" : [ "/scripts/datawire.lua", "comparator.lua" ],
+  "scripts" : [ "/scripts/sfdatawire.lua", "comparator.lua" ],
   "scriptDelta" : 20,
 
   "animation" : "comparator.animation",

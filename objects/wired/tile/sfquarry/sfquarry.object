@@ -25,7 +25,7 @@
     "states/prepare.lua",
     "states/run.lua",
     "states/return.lua",
-    "/scripts/datawire.lua",
+    "/scripts/sfdatawire.lua",
     "/scripts/sfenergy.lua",
     "/scripts/pipes/sfitempipes.lua",
     "/scripts/sfpipesapi.lua",

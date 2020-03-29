@@ -34,7 +34,7 @@
   ],
 
   "scripts" : [ 
-    "/scripts/datawire.lua", 
+    "/scripts/sfdatawire.lua", 
     "/scripts/sfenergy.lua", 
     "sfbatterycharger.lua" ],
   "scriptDelta" : 10,

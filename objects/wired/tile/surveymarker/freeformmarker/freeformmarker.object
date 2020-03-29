@@ -21,7 +21,7 @@
     }
   ],
 
-  "scripts" : [ "/scripts/datawire.lua", "freeformmarker.lua" ],
+  "scripts" : [ "/scripts/sfdatawire.lua", "freeformmarker.lua" ],
   "scriptDelta" : 5,
 
   "animation" : "freeformmarker.animation",

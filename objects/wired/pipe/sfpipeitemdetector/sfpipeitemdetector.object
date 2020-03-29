@@ -68,7 +68,7 @@
   ],
 
   "scripts" : [
-    "/scripts/datawire.lua",
+    "/scripts/sfdatawire.lua",
     "sfpipeitemdetector.lua",
     "/scripts/pipes/sfliquidpipes.lua",
     "/scripts/pipes/sfitempipes.lua",

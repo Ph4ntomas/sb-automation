@@ -21,7 +21,7 @@
     }
   ],
 
-  "scripts" : [ "/scripts/datawire.lua", "rectmarker.lua" ],
+  "scripts" : [ "/scripts/sfdatawire.lua", "rectmarker.lua" ],
   "scriptDelta" : 5,
 
   "animation" : "rectmarker.animation",

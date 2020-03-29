@@ -22,7 +22,7 @@
     }
   ],
 
-  "scripts" : [ "/scripts/datawire.lua", "/scripts/tilemanipulation.lua", "layerswap.lua" ],
+  "scripts" : [ "/scripts/sfdatawire.lua", "/scripts/tilemanipulation.lua", "layerswap.lua" ],
   "scriptDelta" : 2,
 
   "animation" : "layerswap.animation",

@@ -56,9 +56,9 @@ function datawire.createConnectionTable()
     i = i + 1
   end
 
-  --world.logInfo(string.format("%s (id %d) created connection tables for %d output and %d input nodes", config.getParameter("objectName"), entity.id(), object.outputNodeCount(), object.inputNodeCount()))
-  --world.logInfo("output: %s", datawire.outputConnections)
-  --world.logInfo("input: %s", datawire.inputConnections)
+  --sb.logInfo(string.format("%s (id %d) created connection tables for %d output and %d input nodes", config.getParameter("objectName"), entity.id(), object.outputNodeCount(), object.inputNodeCount()))
+  --sb.logInfo("output: %s", datawire.outputConnections)
+  --sb.logInfo("input: %s", datawire.inputConnections)
 end
 
 --- determine whether there is a valid recipient on the specified output node
@@ -123,8 +123,8 @@ function datawire.receiveData(args)
 
   if nodeId == nil then
     if datawire.initialized then
-      world.logInfo("DataWire: %s received data of type %s from UNRECOGNIZED %s %d, not in table:", config.getParameter("objectName"), dataType, world.callScriptedEntity(sourceEntityId, "config.getParameter", "objectName"), sourceEntityId)
-      world.logInfo("%s", datawire.inputConnections)
+      sb.logWarning("DataWire: %s received data of type %s from UNRECOGNIZED %s %d, not in table:", object.name(), dataType, world.callScriptedEntity(sourceEntityId, "object.name()"), sourceEntityId)
+      sb.logWarning("%s", datawire.inputConnections)
     end
 
     return false
@@ -133,11 +133,11 @@ function datawire.receiveData(args)
       onValidDataReceived(data, dataType, nodeId, sourceEntityId)
     end
 
-    --sb.logInfo(string.format("DataWire: %s received data of type %s from %d", config.getParameter("objectName"), dataType, sourceEntityId))
+    --sb.logInfo(string.format("DataWire: %s received data of type %s from %d", object.name(), dataType, sourceEntityId))
 
     return true
   else
-    --sb.logInfo("DataWire: %s received INVALID data of type %s from entity %d: %s", config.getParameter("objectName"), dataType, sourceEntityId, data)
+    --sb.logWarning("DataWire: %s received INVALID data of type %s from entity %d: %s", object.name(), dataType, sourceEntityId, data)
     
     return false
   end
