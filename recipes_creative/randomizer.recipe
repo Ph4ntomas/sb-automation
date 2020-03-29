@@ -1,8 +1,0 @@
-{
-  "input" : [ ],
-  "output" : {
-    "item" : "randomizer",
-    "count" : 1
-  },
-  "groups" : [ "mod", "sfmod" ]
-}

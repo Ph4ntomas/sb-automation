@@ -1,8 +1,0 @@
-{
-  "input" : [ ],
-  "output" : {
-    "item" : "gravityelevator",
-    "count" : 1
-  },
-  "groups" : [ "mod", "sfmod" ]
-}

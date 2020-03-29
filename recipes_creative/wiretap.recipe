@@ -1,8 +1,0 @@
-{
-  "input" : [ ],
-  "output" : {
-    "item" : "wiretap",
-    "count" : 1
-  },
-  "groups" : [ "mod", "sfmod" ]
-}

@@ -1,8 +1,0 @@
-{
-  "input" : [ ],
-  "output" : {
-    "item" : "sfsolarpanel",
-    "count" : 1
-  },
-  "groups" : [ "mod", "sfmod" ]
-}

@@ -1,8 +1,0 @@
-{
-  "input" : [ ],
-  "output" : {
-    "item" : "windsensor",
-    "count" : 1
-  },
-  "groups" : [ "mod", "sfmod" ]
-}

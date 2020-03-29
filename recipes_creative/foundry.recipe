@@ -1,8 +1,0 @@
-{
-  "input" : [ ],
-  "output" : {
-    "item" : "sffoundry",
-    "count" : 1
-  },
-  "groups" : [ "mod", "sfmod" ]
-}
