@@ -30,10 +30,10 @@ end
 
 function debugRegion() 
     local poly = {
-        object.toAbsolutePosition({-1, 0}), 
+        object.toAbsolutePosition({-0.7, 0}), 
         object.toAbsolutePosition({2, 0}),
-        object.toAbsolutePosition({2, 4}),
-        object.toAbsolutePosition({-1, 4})
+        object.toAbsolutePosition({2, 2}),
+        object.toAbsolutePosition({-0.7, 2})
     }
 
     world.debugPoly(poly, "red")
@@ -44,18 +44,23 @@ function update(dt)
 
     if self.jumpt > 0 then
         self.jumpt = self.jumpt - 1
+    else
+            physics.setForceEnabled("jumpForce", false)
     end
 
-    local active = energy.get() >= self.energyPerJump  --and self.jumpt < 1
-    physics.setForceEnabled("jumpForce", active)
+    debugRegion()
 
-    if active then
-        local p = object.toAbsolutePosition({ -1, 1 })
-        local eids = world.entityQuery(p, { p[1] + 2, p[2] + 4 }, { includedTypes = {"mobile"}, order = "nearest" })
+    local active = energy.get() >= self.energyPerJump  --and self.jumpt < 1
+
+    if active and self.jumpt <= 0 then
+        local p = object.toAbsolutePosition({ 0, 0 })
+        local eids = world.entityQuery({p[1] - 0.7, p[2]}, { p[1] + 2, p[2] + 1 }, { includedTypes = {"mobile"}, order = "nearest" })
 
         eids = filterEids(eids)
 
         if not (next(eids) == nil) and energy.consume(dt, self.energyPerJump) then
+            physics.setForceEnabled("jumpForce", active)
+            animator.playSound("jump")
             self.jumpt = 7
         end
     end

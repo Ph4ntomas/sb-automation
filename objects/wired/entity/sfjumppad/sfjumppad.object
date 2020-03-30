@@ -39,14 +39,11 @@
   "physicsForces" : {
     "jumpForce" : {
       "type" : "DirectionalForceRegion",
-      "rectRegion" : [-1, 0, 2, 4],
-      "yTargetVelocity" : 60,
-      "controlForce" : 1600
+      "rectRegion" : [-0.7, 0, 2, 4],
+      "yTargetVelocity" : 70,
+      "controlForce" : 16000
     }
   },
-
-  "boostPower" : 4000,
-  "jumpSound" : "/sfx/tech/tech_doublejump.wav",
 
   "energyPerJump" : 5,
   "energyCapacity" : 50
