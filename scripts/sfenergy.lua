@@ -179,9 +179,11 @@ local function addConnection(id)
 end
 
 local function removeSortedConn(id)
-    for i, id in ipairs(energy.sortedConn) do
-        table.remove(energy.sortedConn, i)
-        break
+    for i, eid in ipairs(energy.sortedConn) do
+        if eid == id then
+            table.remove(energy.sortedConn, i)
+            break
+        end
     end
 end
 
@@ -391,6 +393,7 @@ end
 function energy.queryNeeds(needDesc)
     for i, id in ipairs(energy.sortedConn) do
         local config = energy.connections[id]
+
         if not needDesc.needs[tostring(id)] and not config.blocked then
             local pneed = sfutil.safe_await(world.sendEntityMessage(id, "energy.getNeeds", needDesc))
             local newNeedDesc = (pneed:succeeded() and pneed:result()) or nil
