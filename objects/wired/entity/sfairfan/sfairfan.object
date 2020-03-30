@@ -1,0 +1,56 @@
+{
+  "objectName" : "sfairfan",
+  "rarity" : "Common",
+  "objectType" : "physics",
+  "colonyTags" : ["wired"],
+  "category" : "wire",
+  "price" : 350,
+  "printable" : false,
+  "description" : "This fan is powerful enough to move beings around.",
+  "shortdescription" : "Air Fan",
+  "race" : "generic",
+
+  "inventoryIcon" : "sfairfanicon.png",
+  "orientations" : [
+    {
+      "dualImage" : "sfairfan.png:idle",
+      "imagePosition" : [-8, -16],
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ],
+      "metaBoundBox" : [-20, -8, 20, 8]
+    }
+  ],
+  
+  "inputNodes" : [ [0, -2] ],
+
+  "scripts" : [ "sfairfan.lua", "/scripts/sfenergy.lua" ],
+  "scriptDelta" : 5,
+
+  "animation" : "sfairfan.animation",
+  "animationParts" : {
+    "base" : "sfairfan.png"
+  },
+  "animationPosition" : [-8, -16],
+
+  "physicsForces" : {
+      "blowRight" : {
+        "type": "DirectionalForceRegion",
+        "rectRegion" : [-1, 0, 20, 4],
+        "xTargetVelocity": 16.0,
+        "yTargetVelocity": -0.2,
+        "controlForce" : 210,
+        "enabled" : false
+      },
+      "blowLeft" : {
+        "type": "DirectionalForceRegion",
+        "rectRegion" : [-20, 0, 2, 4],
+        "xTargetVelocity": -16.0,
+        "yTargetVelocity": -0.2,
+        "controlForce" : 210,
+        "enabled" : false
+      }
+  },
+
+  "energyConsumptionRate" : 5,
+  "energyCapacity" : 5
+}

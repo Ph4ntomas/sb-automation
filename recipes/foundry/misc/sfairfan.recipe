@@ -4,6 +4,6 @@
     { "item" : "sfenergycrystal", "count" : 1 },
     { "item" : "tungstenbar", "count" : 2}
   ],
-  "output" : { "item" : "airfan", "count" : 1 },
+  "output" : { "item" : "sfairfan", "count" : 1 },
   "groups" : [ "sffoundry", "all", "misc" ]
 }

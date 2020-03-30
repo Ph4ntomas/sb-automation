@@ -1,6 +1,6 @@
 [
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "activator" } },
-{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "airfan" } },
+{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfairfan" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "analogclock" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "bannerstarfoundrylarge" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfbasicgenerator" } },

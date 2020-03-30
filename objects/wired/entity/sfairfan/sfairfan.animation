@@ -10,12 +10,18 @@
           "work" : {
             "frames" : 3,
             "mode" : "loop",
-            "cycle" : 0.1
+            "cycle" : 0.1,
+            "properties" : {
+                "persistentSound" : "/sfx/tech/tech_hoverloop.ogg"
+            }
           },
           "slow" : {
             "frames" : 3,
             "mode" : "loop",
-            "cycle" : 0.4
+            "cycle" : 0.4,
+            "properties" : {
+                "persistentSound" : "/sfx/tech/tech_hoverloop.ogg"
+            }
           }
         }
       }
@@ -97,5 +103,9 @@
         }
       ]
     }
+  },
+
+  "sounds" : {
+    "blowSound" : ["/sfx/tech/tech_hoverloop.ogg"]
   }
 }
