@@ -1,0 +1,56 @@
+{
+  "objectName" : "sfconveyorbelt",
+  "rarity" : "Common",
+  "objectType" : "physics",
+  "colonyTags" : ["wired"],
+  "category" : "wire",
+  "price" : 350,
+  "printable" : false,
+  "description" : "Moves beings smoothly from one point to the next.",
+  "shortdescription" : "Conveyor Belt",
+  "race" : "generic",
+
+  "inventoryIcon" : "sfconveyorbelticon.png",
+  "orientations" : [
+    {
+      "dualImage" : "sfconveyorbelt.png:idle",
+      "imagePosition" : [-16, 0],
+      "collision" : "platform",
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ]
+    }
+  ],
+
+  "inputNodes" : [ [0, 0] ],
+
+  "scripts" : [ "sfconveyorbelt.lua", "/scripts/sfenergy.lua" ],
+  "scriptDelta" : 5,
+
+  "animation" : "sfconveyorbelt.animation",
+  "animationParts" : {
+    "base" : "sfconveyorbelt.png"
+  },
+  "animationPosition" : [-16, 0],
+
+  "physicsForces" : {
+      "right" : {
+        "type": "DirectionalForceRegion",
+        "rectRegion" : [-2, 1, 2, 2],
+        "xTargetVelocity": 32.0,
+        "yTargetVelocity": -1.2,
+        "controlForce" : 175,
+        "enabled" : false
+      },
+      "left" : {
+        "type": "DirectionalForceRegion",
+        "rectRegion" : [-2, 1, 2, 2],
+        "xTargetVelocity": -32.0,
+        "yTargetVelocity": -1.2,
+        "controlForce" : 175,
+        "enabled" : false
+      }
+  },
+
+  "energyConsumptionRate" : 2,
+  "energyCapacity" : 2
+}

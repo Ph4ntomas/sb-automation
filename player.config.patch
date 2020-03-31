@@ -17,7 +17,7 @@
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfcleanpipe6" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfcleanpipe7" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "comparator" } },
-{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "conveyorbelt" } },
+{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfconveyorbelt" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "counter" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "detector" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "dronestation" } },
