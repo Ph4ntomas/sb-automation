@@ -35,7 +35,7 @@
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sfjumppad" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "laserdiode" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "layerswap" } },
-{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "levitationpad" } },
+{ "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "sflevitationpad" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "lightsensor" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "linkdisplay" } },
 { "op" : "add", "path" : "/defaultBlueprints/tier1/-", "value" : { "item" : "linkdisplaysmall" } },

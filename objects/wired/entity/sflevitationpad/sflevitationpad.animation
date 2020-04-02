@@ -10,7 +10,10 @@
           "jump" : {
             "frames" : 3,
             "mode" : "loop",
-            "cycle" : 0.5
+            "cycle" : 0.5,
+            "properties" : {
+              "persistentSound" : "/sfx/tech/tech_hoverloop.ogg"
+            }
           }
         }
       }

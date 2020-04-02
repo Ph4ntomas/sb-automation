@@ -1,0 +1,62 @@
+{
+  "objectName" : "sflevitationpad",
+  "objectType" : "physics",
+  "colonyTags" : ["wired"],
+  "printable" : false,
+  "rarity" : "Common",
+  "description" : "A pad that levitates beings a fixed amount.",
+  "shortdescription" : "Levitation Pad",
+  "race" : "generic",
+
+  "category" : "wire",
+  "price" : 350,
+
+  "inventoryIcon" : "sflevitationpadicon.png",
+  "orientations" : [
+    {
+      "dualImage" : "sflevitationpad.png:idle",
+      "imagePosition" : [ -8, 0],
+      "collision" : "platform",
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ]
+    }
+  ],
+
+  "inputNodes" : [ [0, 0] ],
+
+  "scripts" : [ "sflevitationpad.lua", "/scripts/sfenergy.lua" ],
+  "scriptDelta" : 1,
+
+  "animation" : "sflevitationpad.animation",
+  "animationParts" : {
+    "base" : "sflevitationpad.png"
+  },
+  "animationPosition" : [ -8, 0],
+
+  "physicsForces" : {
+      "high" : {
+        "type" : "DirectionalForceRegion",
+        "rectRegion" : [-0.7, 1, 2, 15],
+        "yTargetVelocity" : 1.5,
+        "controlForce" : 50000,
+        "enabled" : false
+      },
+      "mid" : {
+        "type" : "DirectionalForceRegion",
+        "rectRegion" : [-0.7, 1, 2, 15],
+        "yTargetVelocity" : 0,
+        "controlForce" : 49800,
+        "enabled" : false
+      },
+      "low" : {
+        "type" : "DirectionalForceRegion",
+        "rectRegion" : [-0.7, 1, 2, 15],
+        "yTargetVelocity" : -1.5,
+        "controlForce" : 50000,
+        "enabled" : false
+      }
+  },
+
+  "energyConsumptionRate" : 5,
+  "energyCapacity" : 5
+}
